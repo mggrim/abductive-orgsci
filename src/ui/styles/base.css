@@ -1,0 +1,1250 @@
+/**
+ * The base layer (FND-03, FND-05, FND-06, FND-07, FND-09, FND-11).
+ *
+ * Everything here is a role, not a screen. If a rule in this file names a
+ * surface, it is in the wrong file. The eleven-file split downstream depends on
+ * that: a surface builder who needs a container, a button, a field or a focus
+ * ring reads one of these and adds only the property that distinguishes theirs.
+ *
+ * The survey's measurement of what this replaced: five scoped textarea
+ * treatments and no element rule, so the /coherence reason inputs and the
+ * /settings credential field computed to `2px inset rgb(118,118,118)` at
+ * `13.3333px Arial`; four :focus-visible rules and no global one; twelve button
+ * treatments each restating font, padding, radius and cursor; sixteen container
+ * variants at three radii and sixteen padding pairs.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+/* Type is set here and nowhere above it. It sat on :root, which meant the
+ * cascade could not tell the document's size from the root element's own, and
+ * rem-valued tokens read from the same place they were being applied (FND-05).
+ * The line-height is on body for the same reason: one document rhythm. */
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+
+/* ── Type roles ──────────────────────────────────────────────────────────────
+ * Three h1 sizes across four routes, with the Biases title 33% larger than the
+ * Ontology title because it was written later. One h1 role for every study tab,
+ * one h2 role everywhere. The bias page keeps display type because it is the
+ * one printed surface, and it says so at its own rule. */
+h1 {
+  font-size: var(--text-head);
+  line-height: var(--leading-head);
+  margin: var(--space-sm) 0 var(--space-lg);
+  /* The tracking belongs to the role, not to four of the eight surfaces that
+   * happen to use it. `.studyview h1` and `.matrixpage h1` each set -0.01em,
+   * which covered Ontology, Biases, Coherence, Material and Exports; /studies
+   * and /design got `normal`, so two page titles in the same 22px step were set
+   * 0.22px per character looser than the other six. Small, and it is the same
+   * class of drift as the three h1 sizes this block's own header records. The
+   * element carries it now, at a specificity nothing has to fight, and the
+   * intro's own display title still overrides it from `.intro-title`. */
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  margin: var(--space-xl) 0 var(--space-sm);
+}
+h3 {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin: var(--space-lg) 0 var(--space-sm);
+}
+h4 {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin: var(--space-md) 0 var(--space-xs);
+}
+
+/* ── Block rhythm ────────────────────────────────────────────────────────────
+ * The single largest source of the noise the space wave measured, and it was
+ * not in this directory at all: nothing here declared a margin on p, ul, ol or
+ * dd, so all four kept the UA's `1em 0`. That margin is font-size relative, so
+ * the same paragraph contributed 14px at the body step and 13px carrying
+ * .small, and the two sat one under the other everywhere: the tray note under
+ * the tray body, the finding list above its advisory line, the twin panel, the
+ * settings cards. 344 declarations were moved onto an eight-step scale and the
+ * rendered gap between stacked siblings still came out at 13, 14, 15, 17 and
+ * 30px, because the majority of the vertical rhythm on a text-heavy screen is
+ * paid for by rules nobody wrote.
+ *
+ * Bottom only. A top margin on a paragraph collapses against the heading above
+ * it in some contexts and adds to it in others, which is where the 30px between
+ * the /settings h1 and its lede came from: inside the multi-column reading
+ * surface the two did not collapse. With no top margin the interval under a
+ * heading is the heading's own bottom margin, once, in both cases.
+ *
+ * The list indent moves with them. 40px is the UA's, it is not a step of
+ * anything, and every list in the app that had an opinion was already
+ * overriding it with a value of its own. */
+p,
+ul,
+ol,
+dl,
+dd {
+  margin: 0 0 var(--space-md);
+}
+:where(ul, ol) {
+  padding-left: var(--space-xl);
+}
+/* The last block in a container should not push the container's own padding
+ * open. This is the one place a `:last-child` is worth the specificity: without
+ * it every card in the app is 12px taller at the bottom than at the top. */
+:where(p, ul, ol, dl, dd):last-child {
+  margin-bottom: 0;
+}
+
+/* Six headings carried className="small" and rendered smaller than the body
+ * text they headed (FND-05). `.small` is a size role for text, and a heading is
+ * not text of a smaller size, it is a heading. Taking the size back here rather
+ * than editing six files across five surfaces means no surface can reintroduce
+ * it, and the weight still separates the heading from what follows. */
+h1.small,
+h2.small,
+h3.small,
+h4.small {
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+
+/* ── Measure ─────────────────────────────────────────────────────────────────
+ * Prose respects one of the three measures at every width. Five surfaces had no
+ * cap, which is how a textarea came to run 130 characters per line at 1440 and
+ * why widening the shell above 1200px is safe. */
+/* Prose caps itself, everywhere, without a surface having to remember. Eight
+ * blocks on /design/context alone ran between 132 and 158 characters per line
+ * at 1680 with nothing holding them, including three advisory notes that carry
+ * no class at all and so could not be reached by a scoped rule. The widest
+ * measure is the default because it is the loosest thing that is still
+ * readable; a surface that wants 60 or 68 says so on its own selector, and one
+ * that genuinely needs the full column (a table, a row of cards) sets
+ * max-width: none and has to mean it. */
+/* Zero specificity, and that is the correction rather than a tidy-up.
+ *
+ * At 0-0-1 this rule was capping containers as well as sentences, because in
+ * this app a list item is far more often a card than it is a line of prose, and
+ * a card that stops at the measure leaves the rest of its track empty. Measured
+ * at innerWidth 1467 before the change: on /ontology the two grid tracks are
+ * 596px each and every painted child stopped at 448, so page-chip and tray-item
+ * ran 126 to 574 and every turn card 746 to 1194, four right edges in one view
+ * (574, 722, 1194, 1342) with a 148px dead strip beside each card. On
+ * /design/context the same cap put the three two-track rail cells at 448 inside
+ * 605, so Context, the hub and Outcome sat on a symmetry axis at x=655 while
+ * Site and Process establish one at x=734, and the ring was 79px left of its
+ * own axis.
+ *
+ * Written in :where() the cap still reaches every unclassed paragraph, which is
+ * what it was for: eight blocks on /design/context alone ran between 132 and
+ * 158 characters at 1680 with nothing holding them, three of them advisory
+ * notes carrying no class at all. What changes is that the container roles
+ * below, which are the only things in the directory that know they are boxes,
+ * take their track back by declaring `max-width: none` once. */
+:where(p, li, dd) {
+  max-width: var(--measure-wide);
+}
+
+.measure-tight {
+  max-width: var(--measure-tight);
+}
+.measure {
+  max-width: var(--measure);
+}
+.measure-wide {
+  max-width: var(--measure-wide);
+}
+
+/* `style={{ whiteSpace: "pre-wrap" }}` was written inline five times while two
+ * CSS rules already declared it (FND-11). Inline style is for runtime-computed
+ * values only: popover position, animation delay, encoding swatch fill. */
+.prose-verbatim {
+  white-space: pre-wrap;
+}
+
+/* ── Links ───────────────────────────────────────────────────────────────────
+ * Study titles on /studies were rgb(0, 0, 238) underlined anchors: the UA
+ * default, on the tool's home screen, because every link in the app was styled
+ * by whichever ancestor happened to name it and the studies list named none
+ * (FND-03). The underline stays, because a link in running prose should look
+ * like one; only the 1996 blue goes. Bars and tabs override the decoration on
+ * their own selectors, which they already did. */
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+
+/* ── Form controls ───────────────────────────────────────────────────────────
+ * One rule, replacing five treatments each scoped to a parent, which is why
+ * anything outside those five parents fell through to the UA: the decline
+ * reason input, which is the tool's own core epistemic move, and the credential
+ * field on /settings (FND-03).
+ *
+ * Checkbox and radio keep their native rendering. A styled checkbox needs a
+ * checked state, an indeterminate state and a focus ring of its own, and there
+ * are two of them in the app. The file input used to be on that list and is
+ * not, because it is not a native control the researcher recognises the way a
+ * tick box is: measured on /material it rendered at 13.3333px Arial with no
+ * border and no radius, eight pixels from a select at 14px system-ui with a
+ * 1px line and a 6px radius, and the bevelled grey "Choose files" button beside
+ * it belonged to no other screen in the app. It has a rule of its own below.
+ *
+ * Wrapped in :where() for the same reason `.surface` is: at zero specificity a
+ * surface file overrides any one of these with a plain selector and no order
+ * dependence, which is what the study bar's select and the intro's dark field
+ * both do. It also keeps `textarea` below from colliding with the group, so
+ * every selector in this directory is still declared exactly once per file.
+ *
+ * The max-width is the fix for the 130-character line. Fields still take the
+ * full width of their column; they stop at a readable measure when the column
+ * is wider than one. */
+:where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    textarea,
+    select
+  ) {
+  font: inherit;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-sm) var(--space-sm);
+  /* The cap covers every text control, not only the textarea.
+   *
+   * It was `max-width: 100%` here and `--measure-wide` on textarea alone, which
+   * meant a card holding an input above a textarea had two right edges by
+   * construction. The proposals tray is three such fields, and measured on the
+   * fixture they ran 125..573, 125..573 and 125..695: one left edge, two right
+   * edges, a 122px overhang, twice on the page. A control should be about as
+   * long as the thing it holds, which is the argument label.field already made
+   * for itself further down and which is no less true of a field that happens
+   * not to be inside a label. `min()` keeps the anti-overflow half of the old
+   * value, and :where() means a surface that genuinely needs a wide control
+   * still says so with a plain selector. */
+  max-width: min(100%, var(--measure-wide));
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  /* The last visible line was sliced through the middle on both proposal cards:
+   * clientHeight 100 against scrollHeight 142 and 121, so the researcher was
+   * reading the tops of letters in the two fields the tool asks them to rewrite
+   * before accepting. `rows` sets a box and the content then scrolls inside it,
+   * and no amount of picking a better `rows` fixes it, because the content is
+   * whatever the model wrote. The field takes the height of what is in it and
+   * the floor keeps an empty one from collapsing to a slot. */
+  field-sizing: content;
+  min-height: calc(var(--leading-body) * 3 + var(--space-lg));
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-faint);
+}
+
+/* Fields were the half of the inert state that got designed, and they got it
+ * one step too faint: --ink-faint on --surface-sunken is 4.41:1, under the
+ * 4.5:1 every other string in the app is held to, and this is the credential
+ * field among others. The triad is now shared with the button rule at the foot
+ * of the file, so a disabled field and a disabled button are one state and not
+ * two treatments that happen to co-occur. */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background: var(--inert-fill);
+  border-color: var(--inert-line);
+  color: var(--inert);
+  cursor: default;
+}
+
+/* The file input, which was the last UA-default control in the app.
+ *
+ * It is two controls in one box and both of them were the browser's: the shell
+ * carried the "No file chosen" text at 13.3333px Arial, which was the fifth
+ * rendered font size on a screen whose stylesheet spends four, and
+ * ::file-selector-button drew the bevelled grey chip that says "Choose files".
+ * On /material that sat eight pixels from a select this file styles, so the one
+ * row where a researcher brings their own transcripts in held one control the
+ * app had drawn and one it had not.
+ *
+ * The button half reads the default button role from the foot of this file
+ * rather than inventing a sixth treatment, so the thing you press to add
+ * material looks like every other thing you press. The shell around it is the
+ * quiet half: a border and a radius that match the select beside it, and the
+ * chosen-file text in --ink-muted, because it is a status and not a label. */
+input[type="file"] {
+  font: inherit;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-xs) var(--space-sm);
+  max-width: min(100%, var(--measure-wide));
+}
+input[type="file"]::file-selector-button {
+  font: inherit;
+  font-size: var(--text-body);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-xs) var(--space-md);
+  margin-inline-end: var(--space-sm);
+  cursor: pointer;
+}
+input[type="file"]::file-selector-button:hover {
+  border-color: var(--line-strong);
+}
+
+label.field {
+  display: block;
+  margin-bottom: var(--space-lg);
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+/* The cap is the correction. `width: 100%` inside a card that now takes the
+ * whole frame rendered the "Name your study" field 1186px wide for a
+ * 25-character title, while the identical field on the intro, which sits in a
+ * narrow hero column, was 372px. One field, two screens, three times the width,
+ * and the wide one was the wrong one: a control should be about as long as the
+ * thing it holds. --measure-wide is the same cap the prose takes, so the field
+ * and the sentence above it share an edge. */
+label.field input[type="text"],
+label.field textarea,
+label.field select {
+  display: block;
+  width: 100%;
+  max-width: var(--measure-wide);
+  margin-top: var(--space-xs);
+  font-weight: 400;
+}
+
+fieldset {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  margin: 0 0 var(--space-lg);
+}
+fieldset label {
+  font-weight: 400;
+  margin-right: var(--space-lg);
+  font-size: var(--text-body);
+}
+
+/* ── Verbatim text ───────────────────────────────────────────────────────────
+ * The type system tokenised size and never tokenised family, so `code` had no
+ * rule anywhere in this directory and fell to the UA default. The two bare
+ * <code> elements on /settings, `bun run dev` and the masked credential, were
+ * therefore the only text in the app rendering in the browser's own monospace,
+ * on the one screen a new researcher must visit before the tool does anything,
+ * while three other files hard coded the same four-name stack by hand. One rule
+ * and one token; the three hand-written stacks now read it.
+ *
+ * :where() for the same reason the control rule uses it: .cellpop-prompt code
+ * and the keyboard sheet's kbd both add to this and neither should have to win
+ * a specificity argument to do it. */
+:where(code, kbd, samp, pre) {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+}
+
+/* ── Focus ───────────────────────────────────────────────────────────────────
+ * One global ring. There were four scoped rules and no global one, so the send
+ * button, every decline, every rail station, every page chip and every export
+ * button fell back to the UA outline (FND-03, WCAG 2.4.7).
+ *
+ * :where() keeps the whole thing at 0-1-0, which is what makes it overridable:
+ * a grid cell that would clip an outset ring sets --focus-offset-inset on its
+ * own rule and nothing else has to change. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--focus-width) solid var(--focus-colour);
+  outline-offset: var(--focus-offset);
+}
+
+/* Light on dark. The intro Start button sits on a navy gradient and had no
+ * focus style at all; the offline banner's link sits on #7c2d12. */
+.intro-hero :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.offline-banner :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--focus-colour-inverse);
+}
+
+/* The skip target states its own ring on :focus rather than :focus-visible.
+ * `tabindex="-1"` puts <main> in the focusable set, and :focus-visible is a
+ * heuristic that a programmatic focus does not reliably satisfy, so the one
+ * element whose whole purpose is to be landed on by keyboard could have landed
+ * silently. Inset, because an outset ring on a full-width region is clipped by
+ * the viewport.
+ *
+ * M53, ISC-544: :focus-visible after all, and the reason is the owner's "black
+ * border" on the instruction slides. `tabindex="-1"` also makes <main> take focus
+ * from a pointer press on any blank part of a page, and :focus then drew a 2px
+ * near-black ring round the whole slide or tab. Chrome matches :focus-visible on
+ * a programmatic focus that follows a keyboard interaction, which is exactly the
+ * skip link's case, so the keyboard keeps its ring and a click draws nothing. */
+main:focus-visible {
+  outline: var(--focus-width) solid var(--focus-colour);
+  outline-offset: var(--focus-offset-inset);
+}
+
+/* The skip link. There was none on any of the ten routes, so the first tab
+ * from the address bar walked the app bar, the study bar and the eight-station
+ * rail before reaching anything a researcher came for. Out of the way until
+ * focused, and then the first thing on the page. */
+.skip-link {
+  position: absolute;
+  left: var(--space-sm);
+  top: var(--space-sm);
+  z-index: 100;
+  transform: translateY(-200%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ── Buttons: four roles ─────────────────────────────────────────────────────
+ * Twelve independent treatments, paddings spanning seven values from
+ * 0.3rem 0.8rem to 0.62rem 1.5rem, each restating font, padding, radius and
+ * cursor from scratch (FND-11). The element rule is the default role, so a
+ * button with no class is already right and the eleven restatements went.
+ *
+ * primary  the expected path, filled
+ * default  a real action of equal standing, outlined
+ * quiet    equal weight, distinct treatment: what a decline is drawn as, so it
+ *          is comparable to accepting without being identical to it (FND-06)
+ * bare     no chrome; the control is the text
+ *
+ * danger is a modifier on any of them, not a fifth role, and it is the only
+ * thing left using --warn on a control. */
+button,
+.btn {
+  font: inherit;
+  font-size: var(--text-body);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  /* M32, R7. An anchor wearing a button role is still an anchor, and the UA
+   * underlines it. Two of the app's three primary actions were anchors, so the
+   * one filled control on Your model and the one on the Design foot both
+   * rendered as underlined text with an accent ground behind the words. The
+   * role owns the whole appearance or it is not a role. */
+  text-decoration: none;
+}
+button:hover,
+.btn:hover {
+  border-color: var(--line-strong);
+  text-decoration: none;
+}
+.btn-primary,
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink-inverse);
+}
+.btn-primary:hover,
+button.primary:hover {
+  border-color: var(--accent);
+}
+
+.btn-quiet,
+button.quiet {
+  background: var(--accent-fill);
+  border-color: transparent;
+  color: var(--accent);
+}
+.btn-quiet:hover,
+button.quiet:hover {
+  border-color: var(--accent-line);
+}
+
+/* The bare role, and the one place :where() was the wrong instrument.
+ *
+ * `.btn-bare, :where(.linkish)` put the whole chrome reset at zero specificity
+ * for `.linkish`, and the element rule twelve lines above is `button`, which is
+ * 0,0,1. So every `button.linkish` in the app lost the reset and rendered as the
+ * default outlined chip: a bordered white box with 8px/16px padding at
+ * --text-body, mid-sentence. Measured on /design/tension, that is what lifted
+ * the "A question is waiting at context" line out of the 21px rhythm. The alias
+ * carries its own class weight now, which beats the element rule and still
+ * loses to any surface file's compound selector, which is what :where() was
+ * there for. */
+.btn-bare,
+.linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.btn-danger,
+button.danger {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.btnrow {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+/* Merged from two declarations 70 lines apart before the split (FND-10): the
+ * later block's `font: inherit` had been resetting the earlier one's 0.85rem,
+ * so the merged rule keeps `font: inherit` and drops the size. The chrome comes
+ * from the bare role above; what is left here is the link affordance, which
+ * .btn-bare has no business carrying.
+ *
+ * Reserved for a control that navigates and nothing else. The one control in
+ * the app that wore this and did not navigate was /studies Delete, which read
+ * as a link, sat one grid column from the row's actual link, and was the only
+ * underlined control label on any route. It is a btn-danger now. The
+ * `.linkish.danger` rule that dressed it went with it rather than being left
+ * standing: a role combination nothing writes is a role combination the next
+ * builder will find and assume is intended.
+ *
+ * Written on the element compounds rather than on `.linkish` alone, because the
+ * bare role above now holds the plain class and one selector gets one site per
+ * file. `margin-left: var(--space-md)` went with the same fix: all four call
+ * sites are inline in a sentence, each already separated by a space, so with
+ * the chrome reset finally applying the margin read as a double space rather
+ * than as an interval between a label and a link. */
+a.linkish,
+button.linkish {
+  text-decoration: underline;
+}
+
+/* Do not try to fix the box here. It is fixed by using the right element.
+ *
+ * A <button> is an atomic inline-level box: it cannot fragment across lines,
+ * and its box is the full line-height where the text around it is the glyph
+ * height. Measured on /design/tension at 1440, "Go and deal with it" was a
+ * single 112.8x21 client rectangle in a run of 15px-tall text — one
+ * unbreakable 113px word mid-sentence. The obvious fix is `display: inline` on
+ * `button.linkish`, and it was tried and measured: Chrome coerces a button back
+ * to inline-block, so the declaration matched, applied, and computed
+ * inline-block anyway. It would have looked correct in a code review and done
+ * nothing in the browser.
+ *
+ * The two inline controls that navigate are anchors now, with real hrefs, and
+ * an anchor fragments like the words it sits between because it is one. The two
+ * that remain buttons (PagePanel's edge links) select a page rather than
+ * navigating, which is a button's job, and each is the whole content of its own
+ * list item rather than a word inside a sentence. */
+
+/* ── Inert: the fifth control state ──────────────────────────────────────────
+ * `button:disabled { opacity: 0.5; cursor: default }` was the entire treatment
+ * for every button in the app, and it sat two hundred lines above a designed
+ * pair for `input:disabled`, so the layer knew the state existed and skipped
+ * the control kind that most often carries it. Alpha is not a design: it dims
+ * fill, border and label together, so the filled primary on /studies rendered
+ * its white label at 3.00:1 against the paper it composited over and the other
+ * six inert controls landed at 3.34:1. Seven controls, six of the ten routes,
+ * all of them at rest rather than mid-write.
+ *
+ * It has to sit here, after the four roles, rather than where the old rule
+ * was. `button:disabled` and `button.primary` are both 0-1-1, so from above
+ * the roles the fill won and the state lost; from below, order settles it and
+ * an inert primary stops pretending to be a primary. Inert is one appearance
+ * whatever role the control wears, because the researcher is being told the
+ * control is not live, and which kind of live it would have been is not the
+ * information they need.
+ *
+ * aria-disabled is here alongside :disabled because a control that is inert
+ * for a stated reason should stay reachable by keyboard to be read, and
+ * `disabled` removes it from the tab order. Nothing writes it yet; the rule
+ * exists so the surface builders have somewhere to land.
+ *
+ * The appearance is only half the defect. The other half is that not one of
+ * the seven said what would wake it, and a greyed unexplained primary is the
+ * canonical picture of a gate in a tool whose first rule is that nothing
+ * gates. See .inert-note below and src/ui/components/inert.tsx. */
+button:disabled,
+.btn:disabled,
+.linkish:disabled,
+button[aria-disabled="true"],
+.btn[aria-disabled="true"] {
+  background: var(--inert-fill);
+  border-color: var(--inert-line);
+  color: var(--inert);
+  cursor: default;
+  text-decoration: none;
+}
+button:disabled:hover,
+.btn:disabled:hover,
+.linkish:disabled:hover,
+button[aria-disabled="true"]:hover,
+.btn[aria-disabled="true"]:hover {
+  border-color: var(--inert-line);
+}
+
+/* Light on dark, for the same two regions the focus ring already overrides.
+ * The hero paints its own button in --hero-button, which is 0-1-1 in intro.css
+ * and would have taken the inert rule's fill straight back off again, so the
+ * override is here at 0-2-1 rather than there: one state, declared once, in the
+ * file that owns the state. */
+.intro-hero button:disabled,
+.intro-hero button[aria-disabled="true"],
+.intro-hero .btn:disabled,
+.offline-banner button:disabled,
+.offline-banner button[aria-disabled="true"],
+.offline-banner .btn:disabled {
+  background: transparent;
+  border: 1px solid var(--hero-edge);
+  color: var(--hero-ink-muted);
+}
+.intro-hero .inert-note,
+.offline-banner .inert-note {
+  color: var(--hero-ink-muted);
+}
+
+/* The sentence naming what would make the control live, rendered beside it and
+ * wired to it with aria-describedby, so it is on the page rather than in a
+ * tooltip that does not print and does not exist on a touch screen. Advisory,
+ * so it takes the muted ink and never --warn: a control that is not yet live
+ * is an observation about the form's state, not a failure of the researcher. */
+.inert-note {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+/* ── Containers: one role ────────────────────────────────────────────────────
+ * Sixteen card-like containers with sixteen distinct padding pairs at three
+ * radii, and nothing distinguished 8px from 10px on the same screen (FND-11).
+ *
+ * `.surface` is the role. The alias list is wrapped in :where() so it carries
+ * zero specificity: a surface file's own rule on `.card` or `.station` beats it
+ * without an order dependence and without two files owning one selector, which
+ * is the thing the merge step existed to prevent. The list is closed. New
+ * markup writes `class="surface"` and adds its distinguishing property. */
+.surface,
+:where(
+    .card,
+    .panel,
+    .station,
+    .turn,
+    .move,
+    .tray-item,
+    .brief,
+    .twin-panel,
+    .page-detail,
+    .exposure,
+    .cellpop,
+    .graph-empty,
+    .commitment,
+    .standing,
+    .open-unplaced,
+    /* D8 (M27). Was `.loop-steps li`, renamed with the section it dresses: the
+       four cards about how the tool runs became nine about what goes wrong in a
+       study, and the class that said "step in a loop" was describing something
+       that is no longer a loop. Same role, same box, one selector. */
+    .obstacle-card
+  ) {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  padding: var(--pad);
+  /* A box is not a sentence. Eleven of these render as list items, so the
+   * prose cap above was stopping them at 448px inside tracks of 596, and the
+   * measure they were obeying belongs to the text they hold rather than to
+   * their own edge. See the measure block for what that looked like on
+   * /ontology and on the rail. */
+  max-width: none;
+}
+
+/* Unless the box is itself the sentence.
+ *
+ * Two of the roles above are written as `<p>`, so `max-width: none` took the
+ * cap off the only run of text they hold and there was no inner element left to
+ * put it back on. Measured on /design/tension at 1440, `p.open-elsewhere.small` (a role that M84 took out)
+ * ran 566px of 13px text, 94 characters to the line against a bar of 80, and it
+ * was the one prose measure violation left in the app. Element-qualified so it
+ * beats the zero-specificity alias list above and the `.surface` class both,
+ * and so it reaches nothing that is actually a box. */
+p.surface,
+p:where(.commitment, .standing, .brief, .open-unplaced) {
+  max-width: var(--measure-wide);
+}
+
+.card {
+  padding: var(--pad-roomy);
+  margin-bottom: var(--space-lg);
+}
+/* A persona challenging a matrix cell is an objection on the record, not a
+ * failure and not something the researcher has to clear, so it takes the same
+ * advisory edge every other observation in the app takes. It wore --warn, which
+ * is the hue the Delete control and the offline banner share. */
+.card.challenge {
+  border-left: 4px solid var(--notice);
+}
+.card.challenge.adjudicated {
+  border-left-color: var(--ok);
+  opacity: 0.85;
+}
+
+/* ── Empty states ────────────────────────────────────────────────────────────
+ * Abductive is empty at t=0 by definition: eight stations, no ontology, no
+ * findings, no material, and every one of those blanks is the first impression
+ * (FND-09). `.graph-empty` was the only designed empty state in the app, so its
+ * dashed treatment is what the role inherited. The EmptyState component in
+ * src/ui/components is the only way to render one, which is what stops a
+ * surface shipping a bare sentence in no container.
+ *
+ * M32 R10 rebuilt it around the panel grammar. It was a left-aligned dashed box
+ * capped at --measure, which is a document's idea of an empty region: dropped
+ * into a 1fr panel it sat in the top-left corner with the rest of the pane
+ * blank beside it, and the panel then read as broken rather than as empty. It
+ * is centred in whatever region holds it now, and it carries four things in one
+ * order — the graphic, a --text-title line, a --text-small explanation at
+ * --measure-tight, and one control. This is also where the route ledes landed
+ * (R6), so the explanation line is now carrying sentences that used to open a
+ * whole page.
+ *
+ * ── The edge came back, one round later (M32b item 3) ───────────────────────
+ *
+ * R10 took the dashed border off on the argument that the panel around it
+ * already had one and two edges say one thing. That reasoning holds only where
+ * the empty state IS the panel's whole content, and two of them are not:
+ * "Nothing waiting." sits under a heading on Your model and "Nothing downloaded
+ * yet." sits under a paragraph and a definition list on Exports. With no border
+ * and `--surface` on a `--surface` pane, both rendered as bare centred sentences
+ * floating in the middle of a pane, which the confirmation pass read as the most
+ * website-shaped thing left on those two routes. It was a container that had
+ * become invisible rather than a surface that had never been given one.
+ *
+ * So it has an edge again, and not the one that was removed. Dashed said
+ * "placeholder", which is why `.graph-empty` wore it; solid on --surface-sunken
+ * says "this region of the pane is empty", which is what is true. Sunken also
+ * makes the box read on a white pane without the border doing all the work, and
+ * it is the same ground the rail and the panel sub-headers stand on.
+ *
+ * Where the empty state IS the whole pane, the container drops its own edge
+ * instead: `.corpus-docs:has(> .empty-state)` in material.css is that, and the
+ * Checks list renders the state in place of `.coh-rows` rather than inside it.
+ * One box either way, which is what R10 was reaching for. */
+.empty-state {
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  padding: var(--pad-roomy);
+  display: grid;
+  gap: var(--space-xs);
+  /* Centred in its panel, both ways. `justify-items` centres each line inside
+   * the block and `margin-inline: auto` centres the block inside the region;
+   * `min-height: 0` keeps it from stretching a grid track it does not fill. */
+  justify-items: center;
+  align-content: center;
+  justify-self: center;
+  text-align: center;
+  margin-inline: auto;
+  min-height: 0;
+  max-width: var(--measure);
+}
+/* The graphic. 40% rather than a lighter ink, because the mark is drawn from
+ * the page hues and a hue faded by opacity stays the same hue: an --ink-faint
+ * version of it would have been a seventh grey the scale does not have. */
+.empty-state-mark {
+  display: inline-flex;
+  opacity: 0.4;
+  margin-bottom: var(--space-xs);
+}
+/* 48px, per R10. The key swatch is a 10px box everywhere else because
+ * everywhere else it sits in a legend row beside a sentence; here it is the
+ * region's only graphic. Sized from the outside rather than by a prop, since
+ * `PageTypeKeySwatch` hands out no dimension of its own. */
+.empty-state-mark > .graphkey-swatch {
+  width: 48px;
+  height: 48px;
+}
+.empty-state-status {
+  margin: 0;
+  /* R10. --text-body at 600 read as a bolded sentence rather than as the line
+   * that names the state; the title step is the register the panel sub-headers
+   * around it are in. */
+  font-size: var(--text-title);
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+.empty-state-teach {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure-tight);
+}
+.empty-state-action {
+  margin-top: var(--space-xs);
+}
+
+/* ── Decision group ──────────────────────────────────────────────────────────
+ * One vocabulary with three roles, everywhere. /design/context alone offered
+ * "No changes", "Not yet", "Doesn't apply to this study", "I don't know" and
+ * "Not now", with no stated difference between "Not yet" and "Not now", and every one of
+ * them drawn as the same 35px outline pill as the accept (FND-06). Two survived
+ * the first fix; the station's defer reads the shared label now, so "Not now"
+ * on the interview is the only one of that pair left.
+ *
+ * Accept is primary. Decline and defer are quiet: equal weight, distinct
+ * treatment, so the expected path is unmistakable and declining is still a
+ * first-class move rather than a dimmer version of one. The reason field enters
+ * the tab order only when it is live, which is what the `hidden` attribute on
+ * the wrapper does. */
+.decision-group {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+.decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+.decision-reason {
+  display: grid;
+  gap: var(--space-xs);
+  max-width: var(--measure-tight);
+}
+.decision-reason-label {
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+.decision-note {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+
+/* ── Finding row ─────────────────────────────────────────────────────────────
+ * A finding cites its rule, its location and the condition under which it would
+ * be wrong, and it is dismissible on the record. It is drawn in the notice
+ * palette, never the error palette, because the finding copy says in plain
+ * words that nothing has to be cleared before moving on (FND-04, FIN-01). */
+/* M32 R8: the box is the row primitive's now, and what is left here is the one
+ * part of the old border that ever carried meaning. It was a bordered card with
+ * a radius and its own padding, eight deep on Checks, which is the stack the
+ * audit counted. No `display`, no `background` and no surrounding border: the
+ * hairline, the hover surface and the selected surface come from `.row` in
+ * rows.css, and the padding from `.row-line`. The left edge stays, because it
+ * is the severity and it is stated in a chip beside it as well. */
+.finding-row {
+  border-left: 3px solid var(--notice);
+}
+.finding-row[data-severity="blocking"] {
+  border-left-color: var(--warn);
+}
+.finding-row[data-dismissed="true"] {
+  opacity: 0.7;
+}
+.finding-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+}
+.finding-claim {
+  margin: 0;
+  font-weight: 600;
+  max-width: var(--measure);
+}
+/* The identifier the researcher quotes when they want to argue with the check
+ * rather than with the finding, so it never breaks. Measured on /design/tension
+ * at 1440 in a 257px card: "phenomenon-troubling-no-theory" wrapped at its own
+ * hyphen to "phenomenon-troubling-no-" / "theory", and coherence.css already
+ * said in writing that half an id is no use for that. A hyphen is a break
+ * opportunity by default, which is why the rule that stopped the wrap on the
+ * Coherence tab (flex: none) did nothing here: the item was not being squeezed,
+ * the text was being allowed to break inside itself. This is a property of the
+ * identifier, so it belongs on the primitive rather than on either surface. */
+.finding-rule {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.finding-where {
+  font-size: var(--text-small);
+}
+/* ── Where a finding fired, when where is a page ─────────────────────────────
+ * Round ten. The link was the page's title as bare underlined text, and the
+ * same page one tab away carried a mark and the word "model-proposed". The
+ * anchor is now the page: mark, title, origin, on one baseline. See
+ * the finding row (`ui/components/FindingRow.tsx`, on the branch `with-checks`
+ * since M89) for why the origin is in words as well as in
+ * the mark. */
+.finding-where-page {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+/* The mark is the only part that does not sit on the text baseline, because it
+ * is a disc rather than a glyph. Nudged rather than switched to
+ * align-items: center, which would have lifted the origin word off the baseline
+ * the rule id and the chip beside it share. */
+.finding-where-page > .origin-swatch {
+  flex: none;
+  align-self: center;
+}
+.finding-where-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The word, in the same register as the rule id beside it: this is metadata
+ * about the object, not part of its name. Never shrinks, for the same reason
+ * the rule id does not; the title is the item that gives way. */
+.finding-where-origin {
+  flex: none;
+  color: var(--ink-faint);
+}
+.finding-where-origin::before {
+  content: "· ";
+}
+.finding-falsifier {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+/* ── Status chip ─────────────────────────────────────────────────────────────
+ * One chip, four tones, carried by text as well as by colour. Nothing in this
+ * app may encode a state in hue alone: the bias grid is printed and checked on
+ * paper. */
+.status-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: var(--space-hair) var(--space-sm);
+  background: var(--surface);
+  color: var(--ink-muted);
+}
+.status-chip[data-tone="accent"] {
+  border-color: var(--accent-line);
+  background: var(--accent-fill);
+  color: var(--accent);
+}
+.status-chip[data-tone="ok"] {
+  border-color: var(--ok-line);
+  background: var(--ok-fill);
+  color: var(--ok);
+}
+.status-chip[data-tone="notice"] {
+  border-color: var(--notice-line);
+  background: var(--notice-fill);
+  color: var(--notice);
+}
+.status-chip[data-tone="warn"] {
+  border-color: var(--warn-line);
+  background: var(--warn-fill);
+  color: var(--warn);
+}
+
+/* ── Field ───────────────────────────────────────────────────────────────────
+ * A label, its control, and an optional hint that renders under the control
+ * rather than over it. The hint was rendering larger than the label it
+ * qualified on the station card, which is where the size rule came from. */
+.field-row {
+  display: block;
+  margin-bottom: var(--space-md);
+}
+.field-row > .field-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--space-hair);
+}
+/* ── The label as a control face (M32c, fix 4) ───────────────────────────────
+ *
+ * Opt-in, one caller: the file picker on Material. `<input type="file">`
+ * renders "Choose Files" and "No file chosen" in the browser's own words and no
+ * CSS reaches either, so the native control is clipped out of view and this
+ * label does its job. It could always do it, because `<label htmlFor>` opens
+ * the picker on click; what it lacked was the appearance of the thing it
+ * already was.
+ *
+ * It reads the default button role's own values rather than inventing a
+ * treatment, for the reason the `::file-selector-button` rule above it gives:
+ * the thing you press to add material should look like every other thing you
+ * press. `inline-flex` rather than the block the plain label takes, so the face
+ * is the width of its words and not of its column. */
+.field-row > .field-face {
+  display: inline-flex;
+  align-items: center;
+  align-self: start;
+  font-weight: 600;
+  font-size: var(--text-body);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  margin-bottom: var(--space-hair);
+}
+.field-row > .field-face:hover {
+  border-color: var(--line-strong);
+}
+/* The ring the clipped input can no longer show. On the row, because the control
+ * is a sibling the face cannot be selected from. `:has(:focus-visible)` rather
+ * than `:focus-within` since M53 (ISC-544): the ring is for the keyboard, and
+ * `:focus-within` drew it on every click into the field. */
+.field-row:has(:focus-visible) > .field-face {
+  outline: var(--focus-width) solid var(--focus-colour);
+  outline-offset: var(--focus-offset);
+}
+/* Not live, and saying so. The inert triad, the same one every other control in
+ * the app reads, because the researcher is being told the control is not live
+ * and which kind of live it would have been is not the information they need.
+ * The control behind this stays `aria-disabled` rather than `disabled`, so it
+ * keeps its place in the tab order and its handler owns the refusal. */
+.field-row > .field-face[data-inert="true"] {
+  background: var(--inert-fill);
+  border-color: var(--inert-line);
+  color: var(--inert);
+  cursor: default;
+}
+.field-row > .field-face[data-inert="true"]:hover {
+  border-color: var(--inert-line);
+}
+
+.field-row > .field-hint {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure-tight);
+}
+
+/* ── Disclosure ──────────────────────────────────────────────────────────────
+ * Every <details> in the app was styling its own summary.
+ * The framing fold
+ * shared it from M40 to M52 and left with the dock (M53). */
+.disclosure > summary {
+  font-size: var(--text-small);
+  color: var(--accent);
+}
+.disclosure > .disclosure-body {
+  margin-top: var(--space-sm);
+}
+
+/* ── Disclosure: the mark that says it opens ─────────────────────────────────
+ * The defect, measured in Chrome on /material: five <details>, every summary
+ * computing `display: flex` because every one of them lays a row out, and
+ * `list-style-type: disclosure-closed` on all five with nothing painting it. A
+ * summary that takes a display value of its own drops its ::marker, and no rule
+ * in this directory put anything back. So a document row was a filename and
+ * five chips with a pointer cursor, and the three passages of the study sat
+ * behind two folds neither of which was marked. The single <details> on
+ * /exports keeps `display: list-item` and paints its triangle, so one pair of
+ * screens held two answers to what a fold looks like.
+ *
+ * On this surface it is more than a craft miss. The summary is the element
+ * `attachChunkObservers` binds `toggle` to, so "which passages you open is
+ * recorded" was being measured through a control the researcher could not see.
+ *
+ * The marker is drawn here, once, for every <details> in the app rather than
+ * for the two that were wrong, and the native one is switched off wherever it
+ * would otherwise double. Four things a fold now has on every surface: a mark,
+ * a rotation that states open against closed, a hover, and the focus ring the
+ * global rule already gave it. `flex: none` and `align-self: center` are what
+ * make it survive a flex summary; `vertical-align` is what makes it sit on the
+ * text of a list-item one. */
+details > summary {
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--radius-control);
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details > summary::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  align-self: center;
+  vertical-align: middle;
+  width: var(--marker-size);
+  height: var(--marker-size);
+  margin-inline-end: var(--space-xs);
+  background-color: currentColor;
+  mask: var(--marker-chevron) center / contain no-repeat;
+  -webkit-mask: var(--marker-chevron) center / contain no-repeat;
+  transition: transform 0.12s ease;
+}
+details[open] > summary::before {
+  transform: rotate(90deg);
+}
+/* Hover on the row and on the mark together. The row tint is what a mouse
+ * finds; the accent on the mark is what shows on the summaries that already
+ * sit on a sunken surface, where a sunken tint would show nothing. */
+details > summary:hover {
+  background: var(--surface-sunken);
+}
+details > summary:hover::before {
+  background-color: var(--accent);
+}
+/* The rotation is the only motion here and it is decoration: the mark points
+ * where it points whether it travelled or not. */
+@media (prefers-reduced-motion: reduce) {
+  details > summary::before {
+    transition: none;
+  }
+}
+
+/* ── Small utilities ─────────────────────────────────────────────────────────
+ * `.muted` set colour and size while `.small` set size, so the same secondary
+ * text role rendered at two sizes depending on which class an element happened
+ * to carry (FND-05). One job each now. */
+.muted {
+  color: var(--ink-muted);
+}
+.small {
+  font-size: var(--text-small);
+}
+.error {
+  color: var(--warn);
+}
+.warn {
+  color: var(--warn);
+}
+
+/* A list of cards, not a list of sentences.
+ *
+ * `p, li, dd { max-width: var(--measure-wide) }` was capping these at 448px,
+ * which is right for a bullet and wrong for the study cards on /studies: each
+ * one was a 448px box holding a title and a date inside a 1216px frame, with
+ * the rest of the row empty and the next study below it rather than beside it.
+ * The measure comment says a row of cards sets max-width: none and has to mean
+ * it, so this is that, plus the tracks the freed width goes into. --column-read
+ * is the same track minimum the reading surfaces use, so a card list and a
+ * reading surface break to one column at the same point. */
+ul.plain {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--column-read)), 1fr));
+  gap: var(--space-sm);
+  align-items: start;
+}
+ul.plain li {
+  max-width: none;
+  min-width: 0;
+}
+
+.pill {
+  display: inline-block;
+  font-size: var(--text-small);
+  padding: var(--space-hair) var(--space-sm);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  margin-right: var(--space-sm);
+}
+
+/* `.badge` went with its last two callers, and it is the same story as
+ * `.swatch` below. StatusChip's own header says what it was built to end:
+ * "three surfaces rendered a number in a badge beside a word in a pill, at two
+ * sizes". One of the three was converted when the component landed and two were
+ * not, so the Ontology tab's queue heading and the ledger panel's flag rows
+ * still printed a bare number in a filled --notice pill with inverse ink, which
+ * made the count of drafts waiting the loudest mark on its page. Both are
+ * StatusChips now, so the class has nothing left to draw. The filled
+ * --notice-under-inverse pair survives at `.cg-fired` on the bias grid, where a
+ * count on a square is the whole point of the mark. */
+
+/* `.swatch`, a 0.7rem rounded square, went with the last thing that drew one.
+ * The ontology index was its only caller: a solid chip in the page hue carrying
+ * no origin, under a key that reads a solid mark as the researcher's own prior.
+ * The chip is a PageMark now, so the square has no meaning left to carry and a
+ * rule with no caller is the next builder's invitation to invent one. */
+
+/* The mark is a disc and not a square, because it is the same disc the figure
+ * draws: src/ui/components/PageMark.tsx is the only module in the app allowed
+ * to draw either, so a legend cannot end up describing a mark nobody drew.
+ * Three legends were doing exactly that. The class is shared by the page form
+ * and the origin-only legend form; the legend form inherits `currentColor`, so
+ * it needs no colour here and works on the intro's dark ground unchanged. */
+.origin-swatch {
+  vertical-align: -0.15em;
+  margin-right: var(--space-xs);
+  flex: none;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+/* `white-space: nowrap` here made a long screen-reader label 454px of
+ * scrollable overflow inside the workbench, which put a horizontal scrollbar
+ * on the whole document at 390px. The label does not need to be one line. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+}
+
+/* Motion, and the two guards that turn it off (M39, ISC-504).
+ *
+ * Three transitions exist in this app and each one follows an element the
+ * researcher pressed to where it landed. The names are declared in
+ * `ui/transitions.ts` and worn by the elements that travel; what is here is the
+ * timing and the refusal.
+ *
+ * Two guards, and both are needed. `withTransition` checks the preference in
+ * TypeScript before it touches the API, so under reduced motion the
+ * pseudo-elements below are never created at all. This block is the second
+ * guard, for a transition the browser starts for any reason ours did not: a
+ * cross-document navigation, a future call site, a devtools override. A promise
+ * made in one language and kept in one place is a promise one refactor breaks.
+ *
+ * No `!important`, and none is needed: the default animations on these
+ * pseudo-elements come from the user-agent stylesheet, and an author rule beats
+ * a UA rule at equal specificity. FND-10's ban on the shout holds. */
+::view-transition-group(*) {
+  animation-duration: var(--motion-move);
+  animation-timing-function: var(--motion-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}

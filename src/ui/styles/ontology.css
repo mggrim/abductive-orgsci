@@ -1,0 +1,1805 @@
+/**
+ * The ontology tab (ONT surface).
+ *
+ * The graph, the page list, the page detail and the proposals tray. Owned by
+ * the Ontology builder. Dialogue.tsx is rendered here but styled in design.css,
+ * which is the one cross-surface dependency in the split: render it, do not
+ * restyle it.
+ */
+
+/* The view's own class was never declared. `.ontologyview-body` was, and its
+ * parent `<main className="studyview ontologyview">` fell entirely to
+ * `.studyview`, so the one hook this surface has for saying anything about
+ * itself was inert. What it needs to say is that the two tracks below reach the
+ * frame: this is not a reading surface and it must not take `.studyview.reading`
+ * or its column flow. */
+.ontologyview {
+  min-width: 0;
+}
+/* ── One scroller on this route, and it is the shell's (D35, D38, M43c) ───────
+ *
+ * The panel grammar gives every pane its own scroll, capped at
+ * `calc(100dvh - 11rem)`, so a long pane scrolls inside its own box rather than
+ * growing the page. That is right for Material, where the list and the document
+ * are two tracks a reader moves between, and it was wrong here, measured at
+ * 1480x797: `.panel-body.ontologyview-body` was the real scroller with a 619px
+ * window over 6,281px of content, sitting inside `.shell-content`, which had a
+ * 756px window over 5,757px. Two scrollers, one inside the other, and the outer
+ * one is the one a wheel or a trackpad reaches first. Driving it slid the inner
+ * 619px window off the top of the screen, so the claims table reported
+ * `getBoundingClientRect().y = 150` while `elementFromPoint(700, 300)` returned
+ * `DIV.shell-content` and the screen was blank white. The list was on the page
+ * and unreachable by the only gesture anyone tries.
+ *
+ * This route is nine sections read in order, top to bottom, which is a page and
+ * not a workbench of tracks. So the frame gives up its cap and both panes give up
+ * their scroll, and the shell's own scroller carries the whole of it. The panes
+ * keep everything else the grammar gives them: the surface, the line, the radius
+ * and the help chip.
+ *
+ * Two classes rather than a media query, so these outrank the one-class rules in
+ * panels.css whichever order the sheets load in. Below 1000px the grammar is
+ * already inert and these change nothing.
+ *
+ * What still scrolls inside itself is `.index-scroll`, the box around the claims
+ * table, and that is deliberate: it is bounded by `max-content`, it carries the
+ * sticky column names, and it is a table rather than a section of the page. */
+.ontologyview .panel-frame {
+  max-height: none;
+}
+.ontologyview .panel-body {
+  overflow: visible;
+}
+/* ── The side pane sticks, and scrolls inside its own ceiling (M46) ───────────
+ *
+ * The pane is the companion to the claim in view: the passages the open claim
+ * cites, the reviewer's line, the explanations. The claims table beside it is the
+ * tallest thing on the route, so a pane that scrolled away with the page put the
+ * material off screen at exactly the moment the reader started moving down the
+ * table it belongs to. So it sticks under the study bar and takes its own ceiling,
+ * which is what the Design companion does for the same reason (`.companion` in
+ * design.css, "the record can be thousands of events long and a companion that
+ * lengthens the page moves the step the researcher is reading").
+ *
+ * This does not give the route a second scroller. `overflow: visible` above stays
+ * exactly as M43c wrote it, so neither pane's body scrolls and the shell still
+ * owns the page. What scrolls here is a bounded box inside that one scroller, on
+ * the same footing as `.index-scroll`: it has a ceiling, it holds one kind of
+ * thing, and a wheel over it reaches it because it is the innermost box under the
+ * pointer rather than a window the page has slid off the top of.
+ *
+ * `align-self: start` is the declaration that makes the rest of it work. The frame
+ * stretches its items by default, so the pane was as tall as the table and a
+ * sticky box the height of its own containing block never moves.
+ *
+ * Above 1100 only. Below it the pane is not a column beside the main one at all,
+ * and a sticky box in a single-column flow sticks to nothing while capping its own
+ * height for no reason.
+ */
+@media (min-width: 1101px) {
+  .ontologyview .panel-side {
+    position: sticky;
+    /* Clear of the study bar, measured rather than assumed.
+     *
+     * The bar is one sticky box holding three rows, and it was 133px in real
+     * Chrome on the shipped example at both 1480 and 1100: 56px of header, 36px of
+     * the open-question line, 40px of tab strip. The first try at this was 7rem on
+     * the arithmetic `calc(100dvh - 11rem)` is written from, which counts the
+     * header and the strip and not the question line, and 112px put the pane's
+     * heading 4px under an opaque bar.
+     *
+     * --study-chrome is 144px, which clears the tallest the bar gets with air to
+     * spare. When a study has no question waiting the bar is 96px and the pane sits
+     * lower than it strictly has to, which costs a gap rather than a heading. The
+     * number is in tokens.css because a passage a link lands on keeps the same
+     * clearance as scroll margin, and a number written twice is a number that
+     * drifts. */
+    top: var(--study-chrome);
+    align-self: start;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+/* One column below 1100, so the pane goes under the main column and reads as the
+ * last blocks of the page.
+ *
+ * The panel grammar collapses to one track at 1000px, which is where a 320px pane
+ * and a `1fr` pane stop fitting beside each other. This route asks for it 100px
+ * earlier, because what is in the pane now is a passage of a transcript rather
+ * than a count and a link: at 1100 the grammar's 320px column holds about 44
+ * characters to the line, and every prose breakpoint in this app is 1100 for that
+ * reason. Only the template is restated; everything else the grammar gives the
+ * pane is unchanged. */
+@media (max-width: 1100px) {
+  .ontologyview .panel-frame[data-panels="main-side"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* D6 (M27). One stack, not two columns.
+ *
+ * The two-column grid existed so a page could be read against the answer that
+ * produced it with both in view. What it cost was the order of the page: the
+ * queue of drafts, the only block on this surface waiting on a decision, was
+ * the third child of the left track and 1007px of that track's 1412, while the
+ * right one ran a transcript nobody had asked for. The transcript is folded at
+ * the foot of the page now and the queue is first, so there is no second track
+ * for anything to stand in. What survives of the old proportion is
+ * `.ontology-figurerow` below, which keeps the key beside the drawing at the
+ * width the drawing actually needs. */
+/* M32, R5. The stack is `.panel-body` now, so the display, the direction and
+ * the top margin all left this rule: the pane owns its own inside, and a
+ * surface restating it is the "two rules with an opinion" defect FND-12 closed
+ * one level up. What is particular to this surface is the interval, which is a
+ * step wider than a pane's default because these are nine sections rather than
+ * a list. Compound, so it beats the pane's own gap whichever order the two
+ * files load in. */
+.panel-body.ontologyview-body {
+  gap: var(--space-xl);
+}
+.ontology-conversation,
+.ontologyview-body > section {
+  min-width: 0;
+}
+/* No station here, so the dialogue is the whole record and the separator it
+ * draws above itself on the Design view would be a rule under a heading.
+ *
+ * Kept after M38 moved this fold from a read-only Dialogue to
+ * `ConversationByPlace`: the framing band on Design still renders a Dialogue
+ * inside a `.ontology-conversation` ancestor on narrow layouts, and both rules
+ * are about a transcript that is record rather than live. */
+.ontology-conversation .dialogue[data-live="false"] .conversation {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+.ontology-conversation .conversation-head {
+  display: none;
+}
+
+/* The conversation grouped by place (M38, ISC-496).
+ *
+ * One fold per place, stacked, with the turns inside drawn by the same `Turn`
+ * the Design view draws. Nothing here adds a colour or a border: the folds are
+ * the structure and the transcript inside a fold is already bounded by it. */
+.by-place {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+/* The way back to the place a turn was said at. Trailing the card rather than
+ * heading it, because it is what you do after reading the turn and not a label
+ * on it. */
+.turn-back {
+  display: inline-block;
+  margin-top: var(--space-xs);
+}
+
+/* The pages block: the drawing and its key, then the names. A flex column
+ * rather than a bare block, because the index inside it is the one element on
+ * this surface that is allowed to give up height, and `flex: 1` is how any
+ * slack this block is handed reaches it. */
+.ontology-pane {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+/* The heading and the figure are as tall as they are; the panel takes the
+ * rest. Without this the panel would size to its content and the stretch above
+ * would leave the slack at the bottom of the track, which is the defect it was
+ * introduced to remove.
+ *
+ * The margin goes because the track is a flex column now and its gap is the
+ * interval. Left standing, the heading's own --space-xl top and --space-sm
+ * bottom would stack on top of that gap and the drawing would sit 24px further
+ * from its heading than the index sits from the drawing. */
+.ontology-pane > h2 {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.ontology-pane > .page-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+/* D6 (M27). The queue is first and full width, which a flex column gives it
+ * for nothing; the `grid-column: 1 / -1` it used to need went with the grid. */
+.tray-pane {
+  min-width: 0;
+}
+
+/* The drawing and its key on one row. D6 (M27).
+ *
+ * The 1.35 : 1 split is the one the view's two tracks used to run at, kept
+ * because it was measured: at 1440 an even split gave the drawing 596 and the
+ * key 596, and the key is a column of prose capped at a measure whatever the
+ * track does. 1.35 puts the drawing at 685 and leaves the key 507, which is
+ * --column-read to within a rounding error.
+ *
+ * `start` rather than `stretch`: the two have nothing of comparable height and
+ * a short key should end where its content ends rather than paint a box to the
+ * bottom of a tall drawing. */
+.ontology-figurerow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-xl);
+  align-items: start;
+}
+/* And nothing at all when the list is showing (D37, M43c).
+ *
+ * The component has always said so. `OntologyView.tsx` writes
+ * `hidden={modelView !== "map"}` on this element and the comment beside the
+ * switch says "with the list showing the figure row is not rendered at all". It
+ * was rendered. The browser's own `[hidden] { display: none }` is one attribute
+ * selector and `.ontology-figurerow` above is one class, so they tie on
+ * specificity and this file, loaded after the user-agent sheet, wins. So the map
+ * stayed on screen with `model-switch-list` reporting `aria-pressed="true"`, the
+ * svg at y=110 and 1,294px tall, and the table it had switched to 1,546px below
+ * it. Pressing "As a list" left the map on screen and the list off it.
+ *
+ * Two selectors rather than `!important`, which this directory does not use: the
+ * class and the attribute together outrank the class alone whatever the order.
+ * The same trap is waiting for any other element this app hides with the
+ * attribute and styles with a `display`, which is why
+ * `tests/styles-integrity.test.ts` now checks every such pair rather than this
+ * one. */
+.ontology-figurerow[hidden] {
+  display: none;
+}
+/* One column below 1100. Held at 1100 rather than lower because the relation
+ * key needs 26rem before its families start shredding, and 1024 would have put
+ * this track under it at the width this surface is judged at. */
+@media (max-width: 1100px) {
+  .ontology-figurerow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The methods word, above the heading that replaced it. D6 (M27). It wears
+ * .small and .muted, which are the two roles base.css already owns, so this
+ * rule only has to say that it sits on the title rather than a line above it. */
+.ontology-kicker {
+  margin: 0;
+}
+
+/* The drawing, alone on its row.
+ *
+ * The legend used to share this row and take whatever the drawing did not
+ * need. On a two-page study that was right: the drawing was a third of the
+ * track and the key filled the paper beside it. On a sixty-page one it
+ * inverted. Measured at 1440 on 62 pages: the drawing was 680x465 and the key
+ * beside it was 685x1185, so the key set the height of the figure row and the
+ * drawing sat at the top of a 685x720 hole.
+ *
+ * D6 (M27): the reference track it was moved into is gone with the two-column
+ * layout, so the key is beside the drawing again, in .ontology-figurerow above,
+ * which is where a key belongs. What stops the 62-page case coming back is that
+ * the figure row is one block in a stack now rather than one of two tracks: a
+ * tall key leaves no hollow column beside it, only a tall row.
+ *
+ * A block rather than a flex row, because there is one child, and because the
+ * drawing now measures this element to decide how wide a canvas to lay out. A
+ * shrink-to-fit flex parent would have made that measurement circular. */
+.ontology-figure {
+  display: block;
+  flex: 0 0 auto;
+}
+/* The key, at the top of the reference track.
+ *
+ * `container-type` used to sit here and it has moved down to .relkey-family,
+ * which is the box that actually decides how wide a relation row is now that
+ * the families pack into columns. A query against this element could only ever
+ * have told you how wide the whole key is, and the whole key is 507px in the
+ * reference track and 992px under it; the row inside it is 320. */
+.ontology-legend {
+  min-width: 0;
+  flex: 0 0 auto;
+}
+.ontology-legend > h2 {
+  margin: 0 0 var(--space-sm);
+}
+
+/* The drawing and the one sentence it sometimes has to say about itself.
+ *
+ * Full width of the track, because OntologyGraph observes this box and lays the
+ * canvas out to fit it. It was shrink-to-fit around a canvas fixed at 720
+ * units, which at 1024 left the graph a 680px island in a 992px column with
+ * 312px of paper beside it, and at 62 pages gave a 270,000-unit canvas to sixty
+ * marks that needed twice that. The svg still never scales past 1:1. */
+.ontology-drawing {
+  min-width: 0;
+  max-width: 100%;
+}
+.figure-note {
+  margin: var(--space-xs) 0 0;
+  max-width: var(--measure);
+}
+
+/* `display: block` because an SVG is inline by default, so the drawing sat on a
+ * text baseline and carried the line box's descender under it: a 6px gap
+ * between the graph and the page panel that no rule in the app asked for and
+ * that no scale step could have produced.
+ *
+ * `max-width` rather than `width`, and it is the whole of the type defect on
+ * this surface. At `width: 100%` the viewBox was stretched to the column: a
+ * 363.7-unit drawing rendered into 596px, magnified 1.639 times, so the discs
+ * came back at 92px of radius and the caption declared at --text-small landed
+ * on the glass at 21.3px. The DOM said 13, which is why the five-sizes census
+ * passed over it. The figure states its own width in the same pixels the rest
+ * of the interface is measured in and only ever shrinks from there. */
+.ontology-graph {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  /* And never taller than the window leaves it (D35, M43c).
+   *
+   * Measured at 1480x797 on the shipped example: the svg was 715px tall, the
+   * sticky study bar takes the top 133px, and 664px was left. Scrolled to clear
+   * the bar, 47px of the bottom frame was cut; scrolled to show the bottom, the
+   * puzzle and expectation frames sat at y=47 to 188 behind the bar, and
+   * `elementFromPoint(500, 60)` returned the bar rather than the graph. The two
+   * frames the argument band is talking about were the two it hid, and no scroll
+   * position showed the drawing whole.
+   *
+   * The same number the panel grammar uses for the chrome above a study route,
+   * which is what is above this drawing: 56px of study header, 41px of tab strip
+   * and the body's own padding, rounded to 11rem. With both max constraints set
+   * and `height: auto` the browser scales the replaced box inside them and keeps
+   * the aspect ratio, so a map that needs more room is drawn smaller rather than
+   * cropped. The marks come with it, which is the trade: a map you can see whole
+   * at 621px beats one drawn at its chosen size with a third of it behind the
+   * bar. Nothing changes for a map that already fits. */
+  max-height: calc(100dvh - 11rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+}
+/* A focus ring around the whole node group, disc, badge and caption, so a
+ * keyboard reader can see which page they are standing on. The global ring in
+ * base.css already reaches `[tabindex]`; this only takes the offset back in,
+ * because an outset ring on the outermost node is clipped by the viewBox. */
+.node:focus-visible {
+  outline-offset: var(--focus-offset-inset);
+}
+/* The only designed empty state in the app before FND-09, and the one the
+ * `.empty-state` role in base.css was drawn from. It takes the whole figure row
+ * rather than sitting beside a legend that has nothing to explain. */
+.graph-empty {
+  border-style: dashed;
+  padding: var(--pad-roomy);
+}
+
+/* The panel that holds the absence note, the page list and the page detail. It
+ * had a class and no rule, so the three blocks inside it were held apart by
+ * three unrelated margins and the panel itself contributed a fourth distance to
+ * the column above it. One grid, one interval. */
+/* A flex column rather than a grid, and the reason is the index. The panel has
+ * to pass the height its track was stretched to down to the one child that can
+ * use it, and a grid of implicit auto rows distributes free space across all
+ * three, which put slack above the note and under the detail card instead of
+ * into the table. */
+.page-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+  min-height: 0;
+}
+/* Where two things do not connect, the missing edge is the finding, and the
+ * sentence that says so was rendering as one more grey line above the list
+ * rather than as an observation about it. Same notice treatment the findings
+ * take everywhere else, because that is what it is. */
+.absence-note {
+  margin: 0;
+  /* The panel is a flex column now and the default shrink factor is 1, so
+   * without this the observation and the detail card below would give up their
+   * own height to the table rather than the table giving up its scroll. */
+  flex: 0 0 auto;
+  border-left: 3px solid var(--notice-line);
+  padding-left: var(--space-md);
+  max-width: var(--measure);
+}
+
+/* ── The index ───────────────────────────────────────────────────────────────
+ * It was a stack of bordered chips, each 54px tall, each carrying a swatch, a
+ * title and one grey run of "type · origin · unattached" that had to be read as
+ * a sentence before two rows could be compared. Two pages spent 108px saying
+ * what a table says in 48, and forty would have spent 2,160 beside a transcript
+ * of 592. See PagePanel.tsx for why the columns are the four they are.
+ *
+ * The box scrolls rather than growing without bound, and its head sticks, which
+ * is the arrangement that lets the same surface hold two pages and eighty. */
+/* And this is where the slack goes.
+ *
+ * `max-height: 60vh` was a cap, and a cap is the wrong shape for this box. It
+ * held the table to 452px on a 757px window whatever else was on the screen, so
+ * at 62 pages the index showed sixteen rows of sixty-two inside a document
+ * 4,096px tall while the column beside it ran empty for 1,885 of them. 60vh is
+ * now the basis rather than the ceiling: it is what the box asks for, so it
+ * still does not drive the height of the surface, and `flex-grow` lets it take
+ * whatever the stretched track has left over once the drawing and the detail
+ * card have had theirs.
+ *
+ * No floor under it. One was written and taken out again: the only way the box
+ * shrinks below its basis is if this track is shorter than its own content,
+ * and it cannot be, because the row is the taller of the two tracks and this
+ * track's own height is one of the two. A min-height would only ever have
+ * fired on the two-page fixture, where it would have drawn an 18rem scroller
+ * around two rows. */
+.index-scroll {
+  flex: 1 1 60vh;
+  /* And never past its own last row. Caught on the two-page fixture the moment
+   * the stretch went in: the track was 1,168px because the key and the
+   * transcript beside it are, the box grew to fill it, and a study with two
+   * pages in it drew a bordered white scroller 600px tall with two rows at the
+   * top. Growing into slack is the point; growing past the table is a different
+   * empty region with a border around it. This also holds the basis honest —
+   * the hypothetical size is the flex basis clamped by this, so a two-row index
+   * contributes two rows to the height of the surface and not 60vh. */
+  max-height: max-content;
+  overflow: auto;
+  padding: 0;
+  /* And the box has to be the containing block for what it clips.
+   *
+   * The defect this fixes, round 4. `overflow` clips a descendant only when the
+   * scroller is that descendant's containing block, and `.visually-hidden` in
+   * base.css is `position: absolute`. With this box `position: static` the
+   * screen-reader labels the index emits per row, the caption and one "Open
+   * question" span per flagged page, resolved their containing block against
+   * the initial one and left the scrollport entirely. They kept their static
+   * y, so they were painted nowhere and measured everywhere: the document grew
+   * to reach the last one.
+   *
+   * Measured at 1440 on the 44-page probe before this line: `body.scrollHeight`
+   * 1864 with `main` ending at y=1816, and `documentElement.scrollHeight` 2590,
+   * so 774px of scroll under an empty viewport. The lowest escaped label sat at
+   * y=2589. On the 200-page probe it was 8945 against a 1818px body, 7,129px of
+   * nothing, and a compositor capture at the bottom was a blank 2880x1612.
+   *
+   * `position: relative` with no offsets moves nothing and paints nothing
+   * differently; it only makes this box the containing block, which is what
+   * `overflow: auto` was already promising. The sticky head is unaffected,
+   * because sticky resolves against the scrollport and this box was already
+   * that. */
+  position: relative;
+}
+/* And below the two-column breakpoint there is no second track to balance
+ * against, so the basis is simply the height. 60vh of it was a 452px window on
+ * a 62-row table inside a 4,873px document: seventeen rows visible, and a
+ * researcher scrolling a box inside a page. Four fifths of the window is what
+ * the table is worth on a surface whose subject is which pages there are.
+ *
+ * Stated here rather than in the media block at the top of the file, which is
+ * where it went first and where it did nothing: `flex` is a shorthand and it
+ * sets flex-basis, so the base rule above, 400 lines later at the same
+ * specificity, won on source order. That is the identical defect this round was
+ * sent back for, reproduced in the same file within the hour. An override goes
+ * after the thing it overrides. */
+@media (max-width: 1100px) {
+  .index-scroll {
+    flex-basis: 80vh;
+  }
+}
+.ontology-index {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+}
+/* Column names, and they stay on screen at row forty. Sticky is safe here
+ * because this box is its own scroll container and nothing else shares it,
+ * which is the condition the station column failed. */
+.ontology-index thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+  font-size: var(--text-small);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.ontology-index tbody th {
+  border-top: 1px solid var(--line-faint);
+  vertical-align: middle;
+  text-align: left;
+  font-weight: 400;
+}
+.ontology-index tbody td {
+  border-top: 1px solid var(--line-faint);
+  vertical-align: middle;
+  text-align: left;
+  font-weight: 400;
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+/* The title column is the greedy one: everything else is as wide as its own
+ * content and the name of the page takes what is left. */
+.index-page {
+  width: 100%;
+  padding: 0;
+}
+/* M32 R8. The hover surface, the selected surface and the hairline moved to
+ * `.row` in rows.css, which this row now also carries. They were
+ * `--surface-sunken` and `--accent-fill` here, the rail's ground and the accent
+ * wash, while the finding rows one tab away used neither: one gesture, three
+ * colours, across three lists. What stays is what is about this table and not
+ * about rows in general — the pointer, and the weight the selected title takes,
+ * which is a second channel on a row whose selection is otherwise a fill.
+ *
+ * The row keeps its 24px height and its table box, and does not take the
+ * primitive's 44px minimum or its flex layout. See PagePanel.tsx for why. */
+.index-row {
+  cursor: pointer;
+}
+.index-row[data-selected="true"] .page-title {
+  font-weight: 600;
+}
+/* The control the row is operated by. It carries no box of its own now: forty
+ * bordered chips is forty boxes drawn around rows that a single rule already
+ * separates. */
+.page-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-small);
+  color: inherit;
+}
+/* Two lines and then it stops. The full title stays in the DOM, so a screen
+ * reader still hears all of it and only the box is bounded. */
+.page-chip .page-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-strong);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* The row's mark is the node's disc, so it needs the node's room: a box that
+ * does not shrink when a long title pushes on it, and the same interval before
+ * the title the graph key gives its own swatch. The chip drew a 0.7rem
+ * `.swatch` square here before round eight, in the page hue and nothing else,
+ * which is the whole of what that round found. See PagePanel. */
+.page-chip .origin-swatch {
+  flex: 0 0 auto;
+  margin-right: 0;
+}
+/* The inline gauge. A length the eye compares down the column without reading
+ * a number, which is the one thing per row the incumbent had and this had
+ * nowhere. */
+.index-joins {
+  white-space: nowrap;
+}
+.joins-bar {
+  display: inline-block;
+  width: 2.5rem;
+  height: 4px;
+  vertical-align: middle;
+  background: var(--line-faint);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.joins-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+}
+.joins-count {
+  margin-left: var(--space-xs);
+  color: var(--ink-faint);
+}
+/* The kind is an attribute of the page and reads at full strength; who wrote it
+ * is already carried by the fill of the mark two columns left, so the word is
+ * the confirmation rather than the signal. */
+.index-kind {
+  color: var(--ink);
+}
+.index-who {
+  color: var(--ink-faint);
+}
+/* The caveat under the claim it qualifies. Its own line rather than a run-on,
+ * because the column is scanned vertically and a cell reading "yours not
+ * vouched for" on one line reads as one phrase at a glance. No font-size of its
+ * own: the table has one size and a sixth size on this screen is the defect the
+ * type audit closed. --notice, because this is an observation about the record
+ * and never an action the researcher owes. */
+.index-unvouched {
+  display: block;
+  color: var(--notice);
+}
+.index-asked {
+  text-align: center;
+}
+/* The same glyph the node badge and the station rail use for the same state,
+ * at the size a table cell gives it. An observation, so it reads --notice and
+ * never the hue this app destroys things in. */
+.index-asked-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--notice);
+  border-radius: var(--radius-pill);
+  color: var(--notice);
+  font-weight: 700;
+}
+
+/* The margin went with .page-panel: the panel is a grid now and the interval
+ * between the list and the detail is the grid's, declared once, rather than
+ * this rule's margin stacking on top of the list's. */
+.page-detail {
+  margin-top: 0;
+  flex: 0 0 auto;
+}
+/* The measure is on the heading as well as the body now. At 1024 the page
+ * panel takes the whole 992px track, and the title is prose the model wrote,
+ * not a label: measured on a 64-character title at that width the h3 box ran
+ * 129 characters to the line while the body beside it held to --measure. A
+ * heading long enough to wrap wraps at the same measure as the paragraph under
+ * it or the card reads as two different documents. */
+.page-detail h3 {
+  margin-top: 0;
+  max-width: var(--measure);
+}
+/* The page's own text, and its revision list. Both carry a class, neither had a
+ * rule, and both render only once a page is selected, which is why the survey's
+ * count of unstyled classNames missed them and a click found them. The body is
+ * the run of prose in this card rather than metadata about it, so it reads at
+ * the default measure and in the strong ink; the history is a footnote and
+ * takes the interval a footnote takes.
+ *
+ * It used to say this run was "the researcher's own writing". It is not, and
+ * the em-dash round proved it: every ontology page body in this product is a
+ * model draft or a researcher's edit inside a model's frame, which is why
+ * OntologyView normalises it to the tool's voice before it is drawn. */
+.page-body {
+  color: var(--ink-strong);
+  max-width: var(--measure);
+}
+/* The origin the ledger contradicts.
+ *
+ * Notice ink, not warn: this is an observation about how much the tool knows,
+ * and the destructive palette is reserved for the one severity the checks call
+ * blocking (FND-04). It sits under the metadata line it qualifies, joined to it
+ * by a rule down the leading edge so it reads as a footnote on that line rather
+ * than as a second paragraph of the card. Held to the measure like every other
+ * run of prose here. */
+.page-origin-doubt {
+  color: var(--notice);
+  max-width: var(--measure);
+  margin-top: var(--space-xs);
+  padding-left: var(--space-sm);
+  /* The same weight the two other left-rule callouts in base.css use for a
+     notice. There is no width token for a rule; adding one for a single call
+     site would be a token invented to satisfy a grep. */
+  border-left: 3px solid var(--notice);
+}
+.page-history {
+  margin-top: var(--space-sm);
+}
+/* Observations, not failures (FND-04). */
+.page-findings {
+  color: var(--notice);
+  padding-left: var(--space-lg);
+}
+.page-links {
+  list-style: none;
+  padding: 0;
+}
+
+/* ── The proposals tray ──────────────────────────────────────────────────────
+ * The tray became editable at M16, and an unstyled input next to an unstyled
+ * textarea rendered as a 20-character box beside a three-column one. If the
+ * fields are where the researcher is meant to do the authoring, they have to
+ * look like somewhere you would write.
+ *
+ * Both backgrounds read `var(--bg)` until FND-08. That custom property has
+ * never been declared, so the declaration was invalid at computed-value time
+ * and the background fell back to transparent on the two fields the tool tells
+ * the researcher to edit before accepting. It happened to look right because
+ * .tray-item behind them is white, which is exactly why nothing caught it. The
+ * fields now inherit the element rule in base.css and the third of the new
+ * assertions in tests/styles-integrity.test.ts fails on any var() this app does
+ * not declare.
+ */
+.tray {
+  margin-top: var(--space-lg);
+}
+/* The heading and its count on one baseline. The count used to be a `.badge`,
+ * which carried its own margin-left; it is a StatusChip now, the same object
+ * every other count in the app is, and a chip is positioned by the row it sits
+ * in rather than by a margin of its own. Same treatment as `.coverage-headrow`
+ * on the bias page and `.coh-listhead` on Coherence. */
+.tray > h3 {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+/* As many tracks as the frame holds, at the same --column-read minimum the
+ * reading surfaces use. A card is a title, a body, a reason and four decisions,
+ * so --column-read is exactly its natural width: --measure-wide for the fields
+ * plus --pad-roomy on both sides. One card per row across a 1216px frame left
+ * half the row empty; two tracks of 592 hold two cards at their own width. */
+.tray-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--column-read), 1fr));
+  gap: var(--space-md);
+  align-items: start;
+}
+/* --pad-tight was the padding of a card holding one line. This one holds three
+ * fields and four buttons, and --pad-roomy is what makes --column-read arrive
+ * at exactly the width of the fields inside it. */
+.tray-item {
+  padding: var(--pad-roomy);
+  /* The card is exactly as wide as what is in it. A 1fr track at this frame is
+   * 602 and the fields inside stop at 448 plus 48 of padding, so letting the
+   * card take the track would have put 106px of paper inside its own border,
+   * which is the same 44%-full failure tokens.css names, in miniature. The
+   * slack goes between the cards, where it reads as a gutter. */
+  max-width: var(--column-read);
+}
+/* The third field, and the one that broke the card's right edge. The title and
+ * the body both stop at --measure-wide, one because textarea does and one
+ * because this file said so, and the reason input had no cap at all: measured
+ * on the fixture, 125..573, 125..573 and 125..695. One left edge and two right
+ * edges on three fields the researcher fills in one movement, twice on the
+ * page. The cap now comes from the control rule in base.css, which caps every
+ * text control rather than every textarea, so this rule is down to the margin
+ * and the width it always should have been. */
+.tray-item .reason {
+  width: 100%;
+  margin: var(--space-xs) 0;
+}
+.tray-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+/* Three buttons that all make the proposal go away and do three different
+ * things to the record, and the sentence explaining the difference had a class
+ * and no rule. It rendered flush under the button row with only a paragraph
+ * margin, so the one line that tells the researcher declining is kept rather
+ * than discarded was the least considered thing in the card. */
+.tray-actions-why {
+  margin: var(--space-xs) 0 0;
+  max-width: var(--measure);
+}
+.tray-source {
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+/* The two padding overrides that stood here (0.35rem 0.5rem on the title,
+ * 0.4rem 0.5rem on the body) are gone: two more of the sixteen ad hoc padding
+ * pairs FND-11 counted, on the two fields the researcher is told to edit. The
+ * element rule in base.css sizes both now, which is the whole reason it exists.
+ *
+ * The sliced last line went with it, and it went in base.css rather than here.
+ * The previous pass measured the defect exactly and then declined it: rows=4,
+ * line-height 21px, box 100.4px, scrollHeight 142, so the fourth line was cut
+ * through the middle and the researcher was reading the top halves of letters
+ * in the field the tool tells them to rewrite. It named the two available cures
+ * and called them somebody else's call. They were not: `field-sizing: content`
+ * is one declaration on the element rule, it belongs with the rest of the
+ * control treatment, and every textarea in the app had the same defect waiting
+ * for the same reason. */
+.tray-item .tray-title {
+  display: block;
+  width: 100%;
+  /* The cap moved to the control rule in base.css, where it now covers inputs
+   * and not only textareas, which is what finally gave this card one right
+   * edge instead of two. Nothing is restated here. */
+  font-weight: 600;
+}
+.tray-item .tray-body {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-xs);
+}
+/* The drafts set aside, above the turned-down list (D36, M43c).
+ *
+ * A section with the same top interval as `.tray-rejected` below it, and no
+ * colour of its own: these are live cards carrying the same three controls as
+ * the queue, so muting them would say the decision had already been made. What
+ * separates the two lists is the heading and the line under it. */
+/* The edit mark, beside the origin it qualifies (D28, M43c).
+ *
+ * Faint, the register `.index-unvouched` already uses in the same cell: the
+ * origin is the column's answer and this is the qualifier on it, so a mark at
+ * reading weight would compete with the word it is attached to. No font size of
+ * its own, for the reason that rule states: the table has one size and a sixth
+ * size on this screen is the defect the type audit closed. Inline rather than on
+ * its own line, because three words after the origin read as the qualifier they
+ * are, and a left gap rather than a separator glyph, because the cell is 24px
+ * tall and a bullet between two short phrases is a third thing to read. */
+.index-edited {
+  margin-left: var(--space-xs);
+  color: var(--ink-faint);
+}
+.tray-set-aside {
+  margin-top: var(--space-md);
+}
+.tray-set-aside > p {
+  margin: var(--space-xs) 0 0;
+}
+.tray-rejected {
+  margin-top: var(--space-md);
+  color: var(--ink-muted);
+}
+/* The turned-down drafts, as rows (M32b item 4).
+ *
+ * The box, the hairlines and the track sizing are `.row-list` in rows.css,
+ * which this carries alongside its own class. What is here is what a `<ul>`
+ * needs and a list of rows in general does not: the markers off, because a row
+ * is not a bullet, and the list's own margin.
+ *
+ * It keeps the small step the `<ul>` carried as `class="small"`. This is a
+ * record of what you decided against rather than something you are reading now,
+ * and it sits under a heading already in that register. */
+.tray-rejected-rows {
+  list-style: none;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  font-size: var(--text-small);
+}
+/* The title keeps its strike, and loses the full-strength ink with it: struck
+ * text at reading weight is louder than the reason beside it, which is the half
+ * a researcher comes back to this list for. */
+.tray-rejected-rows s {
+  color: var(--ink-muted);
+}
+/* The reason, on the row's own second line. It was spliced onto the title after
+ * a colon, so a long reason wrapped under a struck title and the two read as
+ * one struck sentence. */
+.tray-rejected-why {
+  color: var(--ink-faint);
+}
+.duplicate-prompt {
+  color: var(--notice);
+}
+
+/* ── The relation key ────────────────────────────────────────────────────────
+ * Eight roles used to be grey lines separated by half a pixel of stroke weight,
+ * with the role available only as a raw slug in a hover title. Colour carries
+ * the family, dash separates members inside it, the arrowhead carries
+ * direction, and this says what each one means.
+ */
+/* As many families abreast as the column will hold.
+ *
+ * One family per row is right in the 507px reference track and wrong when the
+ * key is the full body: measured at 1024, the key was a 992px block whose rows
+ * were 448px wide, so 529px of every row was blank and the three families ran
+ * 1,217px down the page one under another. 20rem is the narrowest a family may
+ * be drawn at; below that its own container query stacks the row, which is what
+ * makes three abreast at 1024 legible rather than three shredded columns. */
+.relkey {
+  margin: var(--space-md) 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--space-md);
+}
+/* The notice that this drawing is not varying dash, across the whole key.
+ *
+ * `.relkey` is an auto-fit grid, so without the span this paragraph becomes one
+ * more 20rem column and sits beside a family rather than above all three, which
+ * reads as a fourth family. It qualifies every row under it and has to be read
+ * before them. */
+.relkey-dash-off {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 3px solid var(--notice);
+  background: var(--surface);
+  line-height: var(--leading-body);
+}
+/* And this is the box the relation row is measured against.
+ *
+ * The container was .ontology-legend, which is 507px in the reference track and
+ * 992px under it and in neither case the width of a row. A family column is
+ * 507 when there is one of them and 320 when three fit, and 320 is exactly the
+ * case the three-track row cannot serve. Asking the family rather than the
+ * legend is what puts the query below inside a real range instead of below the
+ * narrowest window Chrome will open. */
+.relkey-family {
+  border-left: 3px solid var(--line);
+  padding-left: var(--space-md);
+  container-type: inline-size;
+}
+.relkey-family[data-family="supports"] {
+  border-left-color: var(--ok);
+}
+.relkey-family[data-family="opposes"] {
+  border-left-color: var(--warn);
+}
+.relkey-family[data-family="settles"] {
+  border-left-color: var(--accent);
+}
+.relkey-head {
+  margin: 0;
+  font-size: var(--text-small);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.relkey-gloss {
+  margin: var(--space-hair) 0 var(--space-xs);
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  line-height: var(--leading-body);
+}
+.relkey ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+.relkey li {
+  display: grid;
+  grid-template-columns: 34px 7.2rem 1fr;
+  gap: var(--space-sm);
+  align-items: baseline;
+}
+.relkey-swatch {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.relkey-name {
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+/* The third track is 1fr, which is the right answer up to the point where the
+ * track is the whole body. At 1024 the key is a full-width block and 1fr is
+ * 827px: 110 characters to the line, which is the measure bar failed from the
+ * other side. The meaning is running prose and takes the running-prose cap. */
+.relkey-meaning {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+/* The disclosure is a sibling of the families rather than a child of one, so it
+ * is outside their containers and has to be its own. Without this its rows
+ * would be measured against nothing and would keep a 7.2rem name column in a
+ * 320px track. */
+.relkey-rest {
+  margin-top: var(--space-xs);
+  container-type: inline-size;
+}
+.relkey-rest summary {
+  cursor: pointer;
+  font-size: var(--text-small);
+  color: var(--accent);
+}
+.relkey-rest ul {
+  margin-top: var(--space-sm);
+}
+.relkey-rest li {
+  grid-template-columns: 7.2rem 1fr;
+}
+/* ── When the key's own column is too narrow for three tracks ────────────────
+ *
+ * This block was declared at the top of the file, 424 lines above the base
+ * `.relkey li` it overrides, at the same specificity. Later rule wins, so it
+ * never applied once in the life of the file: measured live at 1024 with the
+ * key in a 361px column, `grid-template-columns` computed
+ * `34px 115.195px 180.539px` and the meaning was 115px wide, about 17
+ * characters to the line and eight lines tall. The comment above it stated the
+ * intent exactly and the rule was dead. It is stated here, after everything it
+ * overrides, including `.relkey-rest li`, which is a two-track row of its own
+ * and needed its own narrow form rather than inheriting a 34px swatch column it
+ * has no swatch for.
+ *
+ * It also replaces the `@media (max-width: 700px)` pair that used to sit here.
+ * That rule protected the same property — a meaning with more than about 26
+ * characters to the line — and it asked the window a question only the key's
+ * own column can answer. Both rules could not fire at once anyway: the key is
+ * 1fr of the body above 1100 and the whole body below it, so a window width
+ * says nothing about how wide the key is. Nothing is weakened; the same
+ * property is now held against the box that decides it, and it is the only rule
+ * holding it, which is how the live check below could tell it fires. */
+@container (max-width: 26rem) {
+  .relkey li {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .relkey-meaning {
+    grid-column: 2;
+  }
+  .relkey-rest li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .relkey-rest .relkey-meaning {
+    grid-column: 1;
+  }
+}
+
+/* ── The graph's three groups ────────────────────────────────────────────────
+ * OntologyGraph has always written `edges`, `nodes` and `node` and no rule in
+ * the directory named any of them, which left the two things the graph needs
+ * from CSS unsaid: that a node is a hit target and an edge is not, and that
+ * neither should be selectable when the researcher drags across the drawing to
+ * read it. Both were being handled per element, `cursor` as an inline style on
+ * every node group, which is exactly the inline-style-for-a-static-value case
+ * base.css calls out.
+ *
+ * Fill, stroke and opacity stay on the elements. They are the encoding and they
+ * are computed from the page's type and origin, which is the one job an
+ * attribute is right for.
+ */
+.node {
+  cursor: pointer;
+}
+/* The label belongs to the circle. Dragging across the drawing to read it was
+ * selecting the page titles as text, which is what a diagram should never
+ * do. */
+.node text {
+  user-select: none;
+}
+/* Selecting a page drops every edge and node it does not touch to 0.18. As a
+ * jump that reads as the drawing being redrawn; over 120ms it reads as the rest
+ * of the graph stepping back, which is the thing that actually happened. */
+.edges line,
+.nodes .node {
+  transition: opacity 0.12s ease;
+}
+
+/* The node label under each circle. It was `fontSize={11}` as an SVG attribute
+ * in OntologyGraph.tsx, which is the one place a font size could hide from both
+ * the stylesheet and the test that forbids a bare one: the ontology tab was
+ * rendering a sixth distinct size off this single line. */
+.graph-node-label {
+  font-size: var(--text-small);
+  /* A label that crosses an edge or the rim of a neighbouring node used to be
+   * read through it. `paint-order: stroke` draws a paper-coloured halo behind
+   * the glyphs and then the glyphs on top, which is the SVG equivalent of the
+   * white gap a printed chart leaves around a data label. The survey read the
+   * label as running through the circle on 2 of 2 nodes; the clearance is now
+   * geometric, stated against the layout's own radius, and this is the belt to
+   * that pair of braces. */
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+/* The open-question mark on a node, the same glyph the station rail uses for
+ * the same state. It was a dashed ring in --warn, which is the hue this app
+ * deletes things in. The badge is not a hit target: clicking it should select
+ * the page under it, the same as clicking anywhere else on the node. */
+.node-question {
+  pointer-events: none;
+}
+/* `.node-adrift` and `.graphkey-swatch` moved to components.css in round nine.
+ * Both classes are now rendered by src/ui/components/PageMark.tsx rather than
+ * by this surface, and a primitive whose rule lives in a surface stylesheet is
+ * a primitive that breaks the moment a second surface uses it. */
+.graph-node-question {
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+
+/* ── The node key ────────────────────────────────────────────────────────────
+ * Four encodings were being drawn onto the circles with a legend for none of
+ * them, on the one view where a hover title is not an answer: a printed graph
+ * has no hover, and a fresh study has no edges, so RelationKey did not render
+ * and the drawing stood entirely unexplained.
+ */
+/* No top margin: it is the first thing in the legend column beside the figure
+ * now rather than the block under it, and a margin there pushed it a step below
+ * the top of the drawing it explains. */
+.graphkey {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-xs) var(--space-md);
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+/* Two term-and-definition pairs abreast once the key is the full body.
+ *
+ * Every definition here is capped at --measure, so in a 992px block the key was
+ * a 446px column of sentences with 545px of paper beside it running the whole
+ * 780px height of the node key: 425,000px², the second-largest empty region on
+ * the surface after the one this round was sent back for. Four tracks and auto
+ * placement fills a row with two pairs before it starts a second.
+ *
+ * A window query rather than a container one, and it is the same 1100 as the
+ * layout: the key is 1fr of the body above it and the whole body below it, so
+ * on this surface the breakpoint is exactly what decides which of the two
+ * widths the key has. Declared after the base rule it overrides, which is the
+ * thing this round was sent back for. */
+@media (max-width: 1100px) {
+  .graphkey {
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+}
+.graphkey dt {
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+.graphkey dd {
+  margin: 0;
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+.graphkey-types {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+}
+.graphkey-types li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  max-width: none;
+  color: var(--ink);
+}
+/* The origin entries stack rather than sitting on one row: each of the three
+ * carries a sentence, not a word, because the key used to describe origin as
+ * "pale fill" and that phrase named a treatment neither the intro hero nor the
+ * SVG export drew. */
+.graphkey-origins {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+.graphkey-origins li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  color: var(--ink);
+}
+.graphkey-note {
+  display: block;
+  color: var(--ink-faint);
+}
+/* The same mark as on the node, at the size a key swatch is. */
+.graphkey-question {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--notice);
+  border-radius: var(--radius-pill);
+  color: var(--notice);
+  font-weight: 700;
+}
+
+/* The declines beside a draft's primary, on one line (R4 item 9).
+ * Same shape as the step column's "Doesn't apply to this study · Decide later": the
+ * expected path is filled, the two ways of not taking it are text, and neither
+ * is harder to reach than it was as a pill. */
+.tray-declines {
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * The argument, and the four readings under it (M30)
+ *
+ * Six sections in one flex column, which `.ontologyview-body` already gives
+ * them. What follows is only what each block has to say about itself, because
+ * the interval between them is the column's gap and belongs to the page.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* The first block on the page, and the only one drawn as a panel.
+ *
+ * Weight rather than colour. It carries no hue at all, because the palette is
+ * reserved for page type and this is chrome, so what sets it apart is a surface,
+ * a border and the type step the ledes use. Everything below it is prose on the
+ * paper, which is what keeps this one block first in the reading order without
+ * anything shouting. */
+.argument-band {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  padding: var(--pad-roomy);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.argument-band > h2 {
+  margin: 0;
+}
+.argument-band > p {
+  margin: 0;
+  max-width: var(--measure-full);
+}
+/* The claim itself, at the lede step: it is the sentence the page exists for. */
+.argument-claim {
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  color: var(--ink-strong);
+}
+/* Who the expectation came from, inside the claim rather than beside it. */
+.argument-source {
+  color: var(--ink-muted);
+}
+/* Which of the model's puzzles these lines read (D31, M43c).
+ *
+ * Faint, and directly under the claim it qualifies rather than spaced off it:
+ * this is a note about the sentence above, so `.argument-band > p`'s interval
+ * would read as a new paragraph of the argument. It already wears .small and
+ * .muted, so the only thing left to say is how close it sits. */
+.argument-which-puzzle {
+  margin-top: calc(var(--space-xs) * -1);
+  color: var(--ink-faint);
+}
+.argument-owes {
+  color: var(--ink-muted);
+}
+.argument-residue {
+  color: var(--ink);
+}
+/* The question and the control on one line, with the question first: the
+ * button says what to do and the question says what to do it about. */
+.argument-move {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+.argument-question {
+  color: var(--ink-strong);
+}
+/* The questions waiting, one line under the band (M46).
+ *
+ * Hard against the band rather than a section away from it, because the line is
+ * about the same thing the band is: where the argument stands and what the tool
+ * would ask next about it. The page's own interval is --space-xl, which would read
+ * as a block of its own for one sentence. */
+.model-questions {
+  margin: calc(var(--space-lg) * -1) 0 0;
+  max-width: var(--measure-full);
+}
+
+/* What the account cannot explain. A heading with its count, then the list,
+ * then the line and the flag under it. */
+.residue-panel > h2,
+.rivals-panel > h2,
+.claim-material > h2,
+.reviewer-line > h2 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin: 0 0 var(--space-sm);
+}
+.residue-count {
+  color: var(--ink-faint);
+  font-size: var(--text-body);
+  font-weight: 400;
+}
+.residue-list,
+.rivals-list,
+.claim-material-evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+  max-width: var(--measure-full);
+}
+.residue-title,
+.rivals-title {
+  color: var(--ink-strong);
+}
+/* The line and its one word, side by side. The word is the reading; the line is
+ * the evidence for it, and neither is legible without the other. */
+.residue-trendrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+.residue-trend {
+  width: 220px;
+  height: 40px;
+}
+.residue-panel > .warn,
+.rivals-panel > p {
+  max-width: var(--measure-full);
+  margin: var(--space-sm) 0 0;
+}
+
+/* What competes with each explanation, indented under it so the eye reads the
+ * account first and the competition as belonging to it. */
+.rivals-against {
+  list-style: none;
+  margin: var(--space-xs) 0 0;
+  padding: 0 0 0 var(--space-lg);
+  display: grid;
+  gap: var(--space-xs);
+}
+.rivals-none {
+  display: block;
+  margin-top: var(--space-xs);
+}
+/* A rival already in the model, offered to this explanation (D34, M43c).
+ *
+ * Its own line under the sentence it contradicts, rather than trailing "Add a
+ * rival" on the same run: the two are different acts, one asking the tool to
+ * write an account and one saying which account you already hold competes here,
+ * and a reader scanning a row of links cannot tell them apart inline. */
+.rivals-loose {
+  display: block;
+  margin-top: var(--space-hair);
+}
+
+/* ── The material behind the claim in view (M46) ─────────────────────────────
+ *
+ * The passages a claim cites, each under the file it came out of and above the
+ * way over to the same passage on Material. The passage itself brings its own
+ * rules from material.css, which is where the `.chunk` family lives: this section
+ * dresses the frame around it and nothing inside it.
+ *
+ * No border and no surface. The pane is already a box with a line around it, and a
+ * card per passage inside a 320px pane is three nested rectangles for one quote.
+ */
+/* One track that is allowed to be narrower than what is in it, at both levels.
+ *
+ * A grid item's automatic minimum is its max-content size, so the passage fold
+ * sized itself to the longest line of the transcript and painted out past the
+ * pane: measured at 1480 in real Chrome, the text box was 628px wide inside 286px
+ * of pane. `minmax(0, 1fr)` is the pair that fixes it, on the list and on the row,
+ * for the same reason `.panel-frame`'s own row takes it one file over. */
+.claim-material-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+}
+.claim-passage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-hair);
+  min-width: 0;
+  /* The fold ends where its text ends.
+   *
+   * The text inside keeps the reference measure the Material tab gives a transcript
+   * (see the rule below), so an uncapped row would draw a bordered box three times
+   * wider than the words in it: measured at 1100, a 976px fold around 416px of
+   * transcript. --measure-full is the widest measure the app has and it is a step
+   * wider than the text's own, so the border clears the words rather than hugging
+   * them. `min(…, 100%)` because at 1480 the pane is 286px, narrower than either
+   * cap, and a max-width that exceeds its container is a number that means
+   * nothing. */
+  max-width: min(var(--measure-full), 100%);
+}
+/* The file and the kind it was filed as, above the fold rather than inside it. On
+ * Material these are on the document row this fold is nested inside; here the
+ * passage stands on its own, so the line has to come with it. It wraps rather than
+ * truncating, because a file name cut at 320px is a file the reader cannot find. */
+.claim-passage-source {
+  margin: 0;
+  max-width: none;
+  overflow-wrap: anywhere;
+}
+.claim-passage-open {
+  margin: 0;
+  max-width: none;
+}
+/* The reading measure, bounded by the pane.
+ *
+ * `details.chunk .chunktext` caps a passage at --measure-wide, and that cap is the
+ * Material tab's own decision: --measure-wide is the reference-text measure, and a
+ * transcript is reference text. It has to survive here, because at 1100 this pane
+ * runs the width of the page and an uncapped transcript measured 145 characters to
+ * the line against a bar of 80.
+ *
+ * What it cannot do is exceed the pane. At 1480 the pane holds 286px and the cap is
+ * 416px, and it measured so in real Chrome: every passage ran 115px out past the
+ * pane's right edge, reachable only by scrolling the pane sideways. `min(…, 100%)`
+ * is the shape panels.css already uses for exactly this, in its own words, "because
+ * a pane can be narrower than the cap, and a max-width that exceeds its container is
+ * a number that means nothing".
+ *
+ * And nothing in the pane scrolls sideways: `overflow-y: auto` computes `overflow-x`
+ * to `auto` as well, so a single long word would give the pane a horizontal
+ * scrollbar rather than wrapping. */
+.claim-passage details.chunk .chunktext {
+  max-width: min(var(--measure-wide), 100%);
+  overflow-wrap: anywhere;
+}
+.reviewer-line p {
+  margin: 0;
+  max-width: var(--measure-full);
+}
+
+/* Who put each claim there, under the table it counts (M30). The marks sit on
+ * the baseline of the words beside them, and the whole line wraps as prose
+ * rather than as a row of cells, because it is a sentence. */
+.origin-line {
+  margin: var(--space-sm) 0 0;
+  max-width: var(--measure-full);
+}
+.origin-line-part {
+  white-space: nowrap;
+}
+/* A claim nothing links to, in the column that says so. The notice ink, not the
+ * destructive one: an unlinked claim is an observation about the shape of the
+ * model and never a fault to be cleared. */
+.index-anchored {
+  color: var(--ink-faint);
+}
+.index-adrift {
+  color: var(--notice);
+}
+/* What the claim cites (D30, M43c).
+ *
+ * A number in a column of numbers, so it takes the same right-hand set the
+ * Links count does rather than ragging against the words beside it. "none" wears
+ * --notice for the same reason `.index-adrift` above does: a claim with no
+ * passage of the researcher's material behind it is an observation about the
+ * record, never a thing they owe. */
+.index-passages {
+  text-align: right;
+  /* And never wider than the number in it. The title column is the greedy one
+   * and every other column is its own content; a seventh column that took slack
+   * would take it from the claim titles, which is what made them two words wide
+   * when this shipped as "Passages". */
+  width: 1%;
+}
+.index-nocites {
+  color: var(--notice);
+}
+
+/* The expectation chooser (M29, R4).
+ *
+ * Two questions in one panel, and the layout has one job: keep each option's
+ * burden attached to the option it belongs to. A researcher reading four
+ * relations decides on the price, so a requirement that reads as a caption for
+ * the next option would be the panel misinforming the most consequential choice
+ * in the design. Hence the indent under the label rather than a second column. */
+.expectation-chooser {
+  border: 1px solid var(--line-faint);
+  border-radius: var(--radius-container);
+  padding: var(--space-md);
+  margin: 0 0 var(--space-lg);
+  max-width: var(--measure-full);
+}
+.expectation-chooser > h3,
+.expectation-chooser > p {
+  margin: 0 0 var(--space-sm);
+}
+.chooser-options {
+  list-style: none;
+  margin: var(--space-sm) 0;
+  padding: 0;
+}
+.chooser-options > li {
+  margin: 0 0 var(--space-sm);
+}
+.chooser-owes {
+  margin: var(--space-xs) 0 0 var(--space-lg);
+}
+.chooser-relations {
+  border-top: 1px solid var(--line-faint);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+}
+.chooser-decline {
+  margin: var(--space-sm) 0 0;
+}
+
+/* How your model moved (M30, R10). Folded under the census line it used to
+ * duplicate, so it inherits the panel box and only needs its own top gap. */
+.model-movement {
+  margin-top: var(--space-sm);
+}
+
+/* The door to the chooser, on the row of a puzzle that breaks nothing (M29b).
+ * Inline in the Anchored cell rather than a column of its own, because it
+ * appears on at most one row and an empty column on every other is a worse
+ * trade than a wrapped cell on one. */
+.index-name-expectation {
+  display: block;
+  margin-top: var(--space-xs);
+  text-align: left;
+}
+
+/* An expectation resting on a paper the fit gate flagged (M30).
+ * A mark on the row rather than a row of its own: the band one screen up
+ * carries the sentence, and this table is 24px rows a reader scans.
+ * `--notice`, not `--warn`: this qualifies a claim and blocks nothing, and the
+ * destructive red is reserved for things that destroy (FND-04). */
+.index-misfit {
+  margin-left: var(--space-xs);
+  color: var(--notice);
+  font-weight: 600;
+  cursor: help;
+}
+/* The sentence after the claim, in the band. Same ink, and it sits under the
+ * claim rather than in front of it, because the reader has to know what the
+ * claim is before they can weigh what it stands on. */
+.argument-misfit {
+  margin: var(--space-xs) 0 0;
+  color: var(--notice);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+
+/* Taking things back out of the model (walk items 1 and 4).
+ *
+ * All four sit inside a card or a list row that already carries the claim they
+ * act on, so none of them draws a box: the weight belongs to the claim, and a
+ * button beside every link would turn the links list into a toolbar. The one
+ * that destroys is the only one dressed as a control, and only after the ask. */
+.retire-ask,
+.link-withdraw,
+.argument-withdraw,
+.residue-attach {
+  color: var(--ink-faint);
+  font-size: var(--text-small);
+}
+.retire-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: var(--measure);
+  margin-top: var(--space-sm);
+}
+
+/* ── The map and the list as peers (M39, ISC-502) ──────────────────────────── */
+
+/* The two views of the claims, and the switch between them.
+ *
+ * The block carries the landing id, so `#/study/:id/ontology/map` scrolls here
+ * and `OntologyView` reads the same hash to open on the map rather than the
+ * list. It has no box of its own: the drawing already sits inside
+ * `.ontology-figurerow` and the list inside `.page-panel`, and a third border
+ * round both would be the page telling the reader that the switch is a place. */
+.model-views {
+  display: block;
+}
+
+/* Two options on one line, above whichever is showing.
+ *
+ * Buttons rather than a `<select>` or a pair of radios: there are two of them,
+ * the choice is reversible in one press, and `aria-pressed` says which is on in
+ * the same breath as saying it is a control. Achromatic, like the rest of the
+ * chrome: the pressed one takes the selected surface and the strong ink, and
+ * nothing here spends a hue, because the hues on this page all mean page type.
+ *
+ * Nothing is ever disabled. Pressing the option that is already on is a no-op
+ * the reader can make, which is ISC-82 at the size of one control. */
+.model-switch {
+  display: flex;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-md);
+}
+.model-switch-option {
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+.model-switch-option:hover {
+  background: var(--surface-hover);
+}
+.model-switch-option[aria-pressed="true"] {
+  background: var(--surface-selected);
+  border-color: var(--line-strong);
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+
+/* The heading that names a frame on the map.
+ *
+ * Declared here rather than as an SVG `font-size` attribute for the reason
+ * `.graph-node-label` is: an attribute is the one place a size can hide from
+ * both this stylesheet and the test that forbids a bare one. Muted ink and the
+ * small step, so a frame says where a group starts without competing with the
+ * claims inside it.
+ *
+ * No paper-coloured halo, unlike the node label, and that is the difference
+ * between the two: a node label lands wherever the settle put the disc, while a
+ * heading is inside a band the layout reserved for it and has nothing to cross. */
+.graph-frame-heading {
+  font-size: var(--text-small);
+}
+
+/* The frame, in the key, at the size a swatch is.
+ *
+ * The same rectangle and the same hairline the map draws, so the row defines the
+ * mark rather than describing it. It is the largest mark on the map and it was
+ * the one with nothing anywhere defining it, which is the critic's item. */
+.graphkey-frame {
+  display: inline-block;
+  width: 26px;
+  height: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+/* A claim joined to the one the reader is pointing at or focused on.
+ *
+ * Not a hit target: the ring is drawn over the partner's disc and a pointer that
+ * landed on the ring rather than on the claim under it would make the map's
+ * partners harder to select than its other claims. */
+.node-partner {
+  pointer-events: none;
+}
+
+/* The three edge layers and the frames, none of which is a hit target.
+ *
+ * `.edges-lit` is drawn above the marks, so without this the ring and the lit
+ * line would sit between the pointer and the disc that produced them: pointing
+ * at a claim would light its partner, the lit layer would take the pointer, the
+ * light would go out, and the map would flicker under a stationary cursor.
+ * `.frames` has the same problem one layer down — its rects carry a fill, and a
+ * filled rect over the canvas would swallow the press on the background that
+ * clears the selection. Both are marks about the claims rather than controls,
+ * and every press on this canvas belongs to a node or to the paper. */
+.edges-crossing,
+.edges-lit,
+.frames,
+.frame {
+  pointer-events: none;
+}
+
+/* The map takes the whole pane, and the key goes under it (M39, owner's call).
+ *
+ * M30 put the key beside the drawing and gave the reason: a key that lives one
+ * scroll from the figure is the arrangement `.ontology-figurerow` exists to
+ * prevent. That decision was made about a drawing folded inside `<Disclosure>`,
+ * which is a different object from a peer view, and this change is deliberate
+ * rather than a drift away from it.
+ *
+ * What forced it is a measurement. The figure track is `1.35fr` of a `782px`
+ * pane, so the drawing had `435px` and the map laid out on a 404-unit canvas —
+ * narrower than the narrowest width the mockup review ever looked at. The
+ * captions came off at that size and the review never saw it, because the
+ * mockups were rendered on 1080-unit canvases.
+ *
+ * So on the map, the drawing takes the pane and the key is a row beneath it.
+ * The key is still on the page that draws the marks, which is the property M30
+ * was protecting; what it gives up is being level with the figure, which is
+ * worth less than 347px of canvas. Nothing changes on the list: the rule is
+ * scoped to `[data-view="map"]`, and with the list showing the figure row is
+ * not rendered at all. */
+.model-views[data-view="map"] .ontology-figurerow {
+  grid-template-columns: 1fr;
+}
+/* Four tracks, on the same reasoning as the 1100 rule above: every definition
+ * is capped at --measure, so a full-body key in one pair of tracks is a column
+ * of sentences with half the pane empty beside it. */
+.model-views[data-view="map"] .graphkey {
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+/* The way back to the names, at the moment the drawing has withheld them.
+ *
+ * `NAMES_OFF_READS` ends "the names are in the table", which was true when the
+ * table was always on screen under the fold. With the two views as peers the
+ * table may be the view you are not looking at, so the sentence needs the press
+ * that makes it true. A button rather than a second copy of the switch: it is
+ * one control, in the note that raised the problem. */
+.figure-note-switch {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--ink-strong);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── Held in the setting, and attaching an observation (M44) ─────────────────── */
+
+/* Where an expectation on the chooser's list comes from.
+ *
+ * Beside the title in the label rather than under it, because the list is read by
+ * running down the titles and the source is the tiebreak between two of them. The
+ * faint ink is the register `.index-edited` and `.index-who` already use for a
+ * qualifier on a name the reader has just read. */
+.chooser-source {
+  color: var(--ink-faint);
+}
+
+/* The mark in the Kind cell, on its own line under the kind it qualifies.
+ *
+ * Its own line for the reason `.index-unvouched` takes one in the cell beside it,
+ * and for a second reason this round measured. Inline, the marked cell read
+ * "expectation, held in the setting" and set the Kind column's width: the table
+ * went from 1,640px to 1,718px inside a 1,644px box in Chrome on the shipped
+ * example, took a horizontal scrollbar and cropped its own Cites column, which is
+ * the D30 failure the M43c round had just fixed. As a block the phrase is narrower
+ * than "candidate resolution", so the column does not move and only the marked row
+ * is two lines tall. Faint, the register `.index-edited` uses for a qualifier on a
+ * value the reader has just read, and no font size of its own: the table has one
+ * size, which is the rule the type audit left on every cell in this file. */
+.index-held {
+  display: block;
+  color: var(--ink-faint);
+}
+
+/* Who holds the expectation, on the card, directly under the metadata line it
+ * qualifies. The same box the doubt note takes, because both are sentences about
+ * how the claim stands rather than marks on it. */
+.page-held {
+  margin: var(--space-xs) 0 0;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+
+/* The two asks, dressed as the quiet controls they are.
+ *
+ * Neither writes anything on its own press: each opens the question that does, so
+ * they take the register of `.retire-ask` above rather than the weight of a
+ * button. `.held-confirm` is `.retire-confirm`'s box, one field instead of a
+ * textarea. */
+/* Each on its own line, which `.retire-ask` beside them does not need and they do.
+ * Measured in Chrome on the shipped example: the card's tail ran
+ * "Change who holds this expectationRetire this claim" as one line with no gap,
+ * because all three asks are inline buttons and nothing separated them. */
+.held-ask,
+.attach-ask {
+  display: block;
+  margin-top: var(--space-sm);
+  color: var(--ink-faint);
+  font-size: var(--text-small);
+}
+.held-confirm,
+.attach-observation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: var(--measure);
+  margin-top: var(--space-sm);
+}
+.attach-price,
+.attach-about {
+  margin: 0;
+}
+/* One observation per row, and the row is the control. No bullets: every entry is
+ * a press, and a marker in front of a link reads as a second thing to look at. */
+.attach-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.attach-list > li {
+  margin: 0 0 var(--space-xs);
+}
+/* The way out of the picker, at its own width. The box is a flex column, so a
+ * child stretches to the column unless it says otherwise, and a full-width quiet
+ * button reads as the primary act of the block rather than the way to leave it. */
+.attach-observation > button {
+  align-self: flex-start;
+}
+/* An entry is a whole sentence about one observation, so it wraps, and a button
+ * wraps centred by default. Measured in Chrome on the shipped example: fifteen
+ * entries in the band's column, every one of them centred over two lines, which
+ * reads as a stack of headings rather than a list to run down. */
+.attach-list > li > button {
+  text-align: left;
+}

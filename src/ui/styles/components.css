@@ -1,0 +1,871 @@
+/**
+ * The shared primitives (FND-03, FND-06, FND-09, FIN-01).
+ *
+ * base.css holds the first pass at these six roles, written in the foundations
+ * wave so the split had somewhere to put them. This file holds what the
+ * primitives grew when they were built out: the loading states, the reason
+ * panels, the dismissal record, the error line, the count inside the chip.
+ *
+ * There is no overlap. Not one selector here is declared in base.css, which
+ * tests/primitives.test.ts asserts by comparing the two files, because a role
+ * split across two stylesheets with the same selector in both is the duplicate
+ * defect the merge step existed to end. The two files together are the whole
+ * primitive layer, and consolidating them into this one is a pure move whenever
+ * base.css has an owner again.
+ *
+ * This loads third, after tokens and base and before every surface, so a
+ * surface file still overrides anything here at equal specificity. Nothing here
+ * declares a hex, a bare font size or an !important: every value is a token.
+ */
+
+/* ── Empty state: the waiting case ───────────────────────────────────────────
+ * An empty region and a region that has not answered yet looked identical, and
+ * the difference matters most where the wait is longest. A coherence pass is a
+ * model call, so the researcher can sit in front of this for several seconds
+ * with nothing on screen saying anything is happening (FND-09). */
+/* M32 R10 took the dashed edge off `.empty-state`, so this can no longer say
+ * only `border-style`: with no width declared anywhere, `solid` alone resolves
+ * to the initial `medium` and drew a 3px accent frame. The whole border is
+ * stated here, which is also the honest shape — the waiting state is the one
+ * case where this region has an edge of its own. */
+.empty-state[data-busy="true"] {
+  border: 1px solid var(--accent-line);
+  background: var(--accent-fill);
+}
+
+/* An indeterminate sweep rather than a percentage. Nothing here knows how long
+ * a model call takes, and a progress bar that lies is worse than a moving one
+ * that admits it is only saying "still going". */
+.empty-state-progress {
+  display: block;
+  width: 100%;
+  max-width: var(--measure-tight);
+  height: 2px;
+  border-radius: var(--radius-pill);
+  /* The track was --line-faint, which is #f0f0ee on the busy card's #eef2f6
+   * ground: 1.02:1, and the first screenshot showed an empty gap where the bar
+   * should be whenever the sweep was off the left edge. The track has to be
+   * visible on its own, because for part of every cycle it is all there is. */
+  background: var(--accent-line);
+  overflow: hidden;
+  position: relative;
+}
+.empty-state-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 35%;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  animation: empty-state-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes empty-state-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+/* Motion is decoration here: the status line already says the region is
+ * waiting, so removing the animation removes nothing the researcher needs. */
+@media (prefers-reduced-motion: reduce) {
+  .empty-state-progress::after {
+    animation: none;
+  }
+}
+
+/* ── Decision group: the decline panel ───────────────────────────────────────
+ * The panel is mounted only while the decline path is live, so these rules only
+ * ever apply to something the researcher opened. The row above it stays put
+ * while it is open: a decision row that reflows under the pointer is how a
+ * decline becomes an accidental accept. */
+.decision-group[data-declining="true"] .decision-actions button[data-role="decline"] {
+  border-color: var(--accent-line);
+}
+
+.decision-reason-hint {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  max-width: var(--measure-tight);
+}
+
+.decision-reason-field {
+  width: 100%;
+}
+
+.decision-reason-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-top: var(--space-hair);
+}
+
+/* Says the append is in flight. The controls above are already inert, and an
+ * inert row with no explanation reads as a broken one. */
+.decision-pending {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+
+/* ── Finding row: severity, dismissal, the reason panel ──────────────────────
+ * A finding cites its rule, its location and the condition under which it would
+ * be wrong, and it is dismissible on the record (FIN-01). base.css draws the
+ * row and its left edge; what is here is everything the row does once the
+ * researcher touches it. */
+/* `.finding-row > .finding-actions` stood here and is gone with the markup at
+ * M32 R8. The Dismiss control is in the row primitive's reveal cluster now, so
+ * its rule is `.row-actions` in rows.css: one declaration for the four surfaces
+ * that reveal a control on a row, rather than one per surface. A rule kept here
+ * would have matched nothing and read as if it still did. */
+
+/* Dismissed is a state, never a removal: the finding stays countable and
+ * reopenable, and the row has to keep reading as a finding rather than as a
+ * struck-out one. base.css already drops the opacity; the claim stops shouting
+ * so the dismissal note is the first thing read. */
+.finding-row[data-dismissed="true"] .finding-claim {
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.finding-dismissal {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+/* An earlier decision about the same subject, under another rule (D49, M43d).
+ *
+ * The same ink and the same measure as the dismissal note above it, because it
+ * is the same kind of sentence: something already on the record, reported beside
+ * a finding rather than in place of it. The left rule is what separates a quoted
+ * decision from the check's own claim, and it is the one channel a printed page
+ * keeps. */
+.finding-prior {
+  margin: 0;
+  padding-left: var(--space-sm);
+  border-left: 2px solid var(--line-faint);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+/* The way to the conversation that would discharge the finding (M38, ISC-495).
+ *
+ * One line of text with a link in it. No button, no fill, no second colour: the
+ * row already carries its severity on its left edge, and a call to action drawn
+ * as a control on every row of a list of eight would turn an advisory list into
+ * a queue to work through. */
+.finding-take {
+  margin: 0;
+  font-size: var(--text-small);
+}
+
+/* M80, ISC-687: a control that acts on the flag where it stands. */
+.finding-act {
+  margin: 0;
+  font-size: var(--text-small);
+}
+
+.finding-reason {
+  display: grid;
+  gap: var(--space-xs);
+  max-width: var(--measure-tight);
+  margin-top: var(--space-xs);
+}
+
+.finding-reason-label {
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+
+.finding-reason-hint {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  max-width: var(--measure-tight);
+}
+
+.finding-reason-field {
+  width: 100%;
+}
+
+.finding-reason-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-top: var(--space-hair);
+}
+
+.finding-pending {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+
+/* ── Status chip: the count ──────────────────────────────────────────────────
+ * Three surfaces rendered a number in a badge beside a word in a pill, at two
+ * sizes, and the pair broke onto two lines at 1024. One object now, and the
+ * count sits inside the chip's own border. */
+.status-chip-count {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  padding-left: var(--space-xs);
+  border-left: 1px solid currentcolor;
+  opacity: 0.75;
+}
+
+/* ── Field: the error line ───────────────────────────────────────────────────
+ * An error is about what was typed. It is never the tool refusing to accept
+ * something, because nothing here gates, so it does not take the destructive
+ * palette's fill or a border: it is a sentence, in the error ink, under the
+ * control it belongs to. */
+.field-row > .field-error {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--text-small);
+  color: var(--warn);
+  max-width: var(--measure-tight);
+}
+
+.field-row[data-invalid="true"] > input,
+.field-row[data-invalid="true"] > textarea,
+.field-row[data-invalid="true"] > select {
+  border-color: var(--warn-line);
+}
+
+/* ── Disclosure: the count chip ──────────────────────────────────────────────
+ * The chip is inline, so the summary keeps its native disclosure marker: giving
+ * the summary element a display value of its own is what removes the triangle
+ * in WebKit, and three of the seven folds in the app had lost it that way. */
+.disclosure > summary > .status-chip {
+  margin-left: var(--space-sm);
+  vertical-align: baseline;
+}
+
+/* M79: a count one chip cannot carry ("6 concepts, 1 relation"), as words
+ * beside the summary, muted so the summary stays the fold's name. Inline, for
+ * the same reason as the chip above: the summary keeps its marker. */
+.disclosure > summary > .disclosure-note {
+  margin-left: var(--space-sm);
+  color: var(--ink-muted);
+}
+
+/* ── PageMark: the marks the boundary draws ──────────────────────────────────
+ * Both of these were in ontology.css, because the ontology surface was drawing
+ * them. Round nine moved the drawing into src/ui/components/PageMark.tsx so
+ * that no surface can render a page hue without the origin channel beside it,
+ * and the rules had to follow: a primitive that renders a class whose only rule
+ * lives in one surface's stylesheet is unstyled on the second surface that uses
+ * it, silently. tests/primitives.test.ts fails if a primitive's class has no
+ * rule in base.css or here. */
+
+/* The ring for a page nothing joins. It sits outside the disc rather than on
+ * its rim because origin owns the rim, and a dashed rim in the page's own hue
+ * on a disc filled with that hue is a hue drawn on itself: measured live, the
+ * model-proposed page showed its dash and the author-prior page did not. Not a
+ * hit target, for the same reason the question badge is not: clicking it should
+ * select the page under it. */
+.node-adrift {
+  pointer-events: none;
+}
+
+/* The key's hue chip, which is the one mark in the app that carries a page hue
+ * with no origin beside it, and the one place that is right: it names what the
+ * hue means rather than drawing a page. */
+.graphkey-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+}
+
+/* The rule's plain name, beside its slug (M28 r6).
+ * The record at the foot of this page has always shown both; the open list
+ * showed the slug alone, so one reader met "phenomenon-troubling-no-theory"
+ * and the same reader two screens down met "a phenomenon that troubles no
+ * account". Quiet, because the slug is the thing you quote and this is the
+ * thing you read. */
+.finding-rule-gloss {
+  color: var(--ink-muted);
+}
+
+/* ── The seven steps, laid out (M34, round three) ────────────────────────────
+ *
+ * The owner: "The seven steps on the front page should be organized in the same
+ * way as the framework layout in the design tab." So two surfaces draw this now,
+ * the Design tab's rail and the front page's steps section, and the rules moved
+ * out of design.css with them. A surface sheet holding the layout of something
+ * two surfaces draw is the same drift the shared component was written to stop,
+ * one level down.
+ *
+ * What did NOT move, and the split is the point: `.rail-dot`, its four state
+ * rules and `.rail-legend` are still design.css's, because they are about a
+ * study's state and the front page has no study to have one.
+ */
+/* The whole group, including the two notes between the rows, sits in the same
+ * column as the grid. The notes were left-aligned against the workbench while
+ * the ring was centred in 720px, so the eight pills and the two sentences
+ * explaining them read as two separate things on the primary screen. */
+.rail {
+  margin: var(--space-lg) 0 0;
+}
+/* ── The two loops (M58, ISC-567) ────────────────────────────────────────────
+ *
+ * Matthew, 2026-09-27: "Make the visual and categories look like two loops, an
+ * inner and outer. and then sample and early data are two external pieces."
+ *
+ * One figure in three tracks: the rings, the two pieces outside them, and the
+ * sentence. The rings are a three-by-three grid, Context above, Process right,
+ * Outcome below, Site left, so clockwise from the top reads the owner's order;
+ * the centre cell holds the inner ring, which therefore sits inside the outer
+ * one by construction. Each ring is a 1px ellipse in --line-strong drawn behind
+ * opaque cells, with chevrons on the arcs pointing clockwise. Achromatic: ink
+ * and line tokens only. */
+.rail-rings {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(0, 0.9fr) minmax(0, 1fr);
+  gap: var(--space-md) var(--space-xl);
+  align-items: center;
+}
+.rail-loop {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-md) var(--space-sm);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-areas:
+    ".    context ."
+    "site centre  process"
+    ".    outcome .";
+}
+/* The outer ring, through the middle of the four cells. */
+.rail-loop::before {
+  content: "";
+  position: absolute;
+  inset: 1.4rem 15.6%;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.rail-centre {
+  grid-area: centre;
+  min-width: 0;
+  max-width: none;
+  list-style: none;
+}
+/* The inner loop, drawn as a ring (lead, on the M58 build: the two cells
+ * stacked read as two cards, not a loop). The puzzle sits at the top of a
+ * smaller ellipse and the bind at its bottom, with open space between them and
+ * either side of them, so the ring shows all the way round and carries the
+ * same arrowheads as the outer one, clockwise: down on the right, up on the
+ * left. The cells are narrower than the ellipse, so its sides stay in view. */
+.rail-inner {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  justify-items: center;
+  row-gap: var(--space-2xl);
+}
+.rail-inner > .rail-cell {
+  width: 74%;
+}
+/* The inner ring, through the middle of its two cells and inside the outer. */
+.rail-inner::before {
+  content: "";
+  position: absolute;
+  inset: 1.4rem 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  pointer-events: none;
+}
+/* The arrowheads. A small ink triangle pointing east, turned to point along
+ * the arc it sits on, clockwise. A right-angled chevron read as a corner
+ * bracket on the diagonals, so these are filled. Positions are the ellipse's
+ * 45-degree points: 50% plus or minus 0.3536 of each radius. */
+.ring-arrow {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  max-width: none;
+  background: var(--ink-muted);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  list-style: none;
+  pointer-events: none;
+  z-index: 1;
+}
+.ring-arrow-ne {
+  left: 74%;
+  top: calc(50% - 0.3536 * (100% - 2.8rem));
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.ring-arrow-se {
+  left: 74%;
+  top: calc(50% + 0.3536 * (100% - 2.8rem));
+  transform: translate(-50%, -50%) rotate(135deg);
+}
+.ring-arrow-sw {
+  left: 26%;
+  top: calc(50% + 0.3536 * (100% - 2.8rem));
+  transform: translate(-50%, -50%) rotate(225deg);
+}
+.ring-arrow-nw {
+  left: 26%;
+  top: calc(50% - 0.3536 * (100% - 2.8rem));
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.ring-arrow-inner-right {
+  left: 100%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.ring-arrow-inner-left {
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+/* The cell itself had no rule at all, on either ring, which is how the ring
+ * came to sit off its own axis. StationRail writes `rail-cell rail-cell-${id}`
+ * on all eight list items and only the four loop ids were named here, so the
+ * shared half of the class was doing nothing and `p, li, dd` in base.css was
+ * capping every cell at --measure-wide. Measured at innerWidth 1467: Site ran
+ * 126 to 425 and Process 1042 to 1342, an axis at x=734 which is also the
+ * frame's centre, while Context, the hub and Outcome all stopped at 448 inside
+ * their 605px span and ran 431 to 879, an axis at x=655. The loop was 79px left
+ * of the axis its own arms establish, on the primary screen. A cell is a track
+ * in a grid, not a line of prose. */
+.rail-cell {
+  /* Above the ring lines (M58), which run behind the cells. */
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  max-width: none;
+  /* The cell fills its row and centres its button, rather than the row
+   * centring a short cell inside a tall one. The ring's rows are not the same
+   * height when a label wraps, so with `align-items: center` on the list the
+   * measured distance from the Context pill to the Site pill was 20px while the
+   * declared row gap was 8. Nothing chose 20. Stretching the cell and centring
+   * inside it keeps the ring looking like a ring and puts the interval back on
+   * the scale. */
+  display: grid;
+  align-items: center;
+}
+.rail-cell-context {
+  grid-area: context;
+}
+.rail-cell-site {
+  grid-area: site;
+}
+.rail-cell-process {
+  grid-area: process;
+}
+.rail-cell-outcome {
+  grid-area: outcome;
+}
+
+/* The two pieces outside the loops, stacked in their own track to the right
+ * and drawn apart from both rings. */
+.rail-outer {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+}
+@media (max-width: 900px) {
+  .rail-rings {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .rail-rings > .rail-note {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 720px) {
+  .rail-rings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rail-loop {
+    grid-template-columns: 1fr;
+    grid-template-areas: "context" "process" "outcome" "site" "centre";
+  }
+  .rail-loop::before,
+  .rail-inner::before,
+  .ring-arrow {
+    display: none;
+  }
+  .rail-inner {
+    padding: 0;
+  }
+}
+
+.rail-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom: 3px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-sm) var(--space-sm);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.rail-item:hover {
+  border-color: var(--line-strong);
+}
+/* The step you are on (M53, ISC-544): the selected surface and a stronger line,
+ * which is the mark every other row, card and tab uses for "the one you are on".
+ * It was the accent on all four edges and on the 3px foot, the thick dark frame
+ * the owner saw on the walkthrough and on Design; the raised shadow went with it,
+ * since a lifted card read as the same heavy mark. The walkthrough's seven-steps
+ * loop draws its cells with this rule too. */
+.rail-item[data-current="true"] {
+  background: var(--surface-selected);
+  border-color: var(--line-strong);
+}
+/* `.rail-index` and its current-station override went at FND-10: the numbers
+ * came off the rail at M21, as the comment above this block records, and the
+ * two rules styling them outlived the markup by five milestones. */
+.rail-label {
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+}
+.rail-item[data-current="true"] .rail-label {
+  font-weight: 600;
+}
+/* The figure and its caption are one grid now, .rail-rings above (M58); the
+ * .rail-figure pair that held a ring and its sentence went with the old rings. */
+.rail-note {
+  margin: 0;
+  max-width: var(--measure-wide);
+}
+/* M83, ISC-698: the figure's name over the rings on Design, across every
+ * track of the grid at every width, in the kicker register the step's own
+ * "Step 3 of 8" uses, so it reads as a caption rather than a heading. */
+.rail-caption {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--ink-faint);
+  line-height: var(--leading-tight);
+}
+
+/* The step's place in the seven, and the sentence under it. Both surfaces
+ * render the pair: the Design workspace over its field, and the front page's
+ * step panel under the rail. The words are built by `stepKicker`. */
+.station-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: var(--text-small);
+}
+/* No margin: .station-head is a grid and the interval is its gap. The two were
+ * adding up, which is how a header whose declared spacing was 2px rendered
+ * a 6px gap. */
+.station-blurb {
+  margin: 0;
+  color: var(--ink-muted);
+  max-width: var(--measure-tight);
+}
+/* The sentence that tells one step apart from something it is read as (M50,
+ * ISC-532). Under the prompt on both surfaces that draw a step, in the muted
+ * register the blurb above it uses, at the reading measure rather than the
+ * tight one because it is three sentences rather than a label. */
+.station-apart {
+  margin: var(--space-xs) 0 0;
+  max-width: var(--measure);
+}
+
+/* ── The anchored box, and the one trigger that opens it ─────────────────────
+ * M39, ISC-505. `components/Popover.tsx` is the extracted shell of what
+ * `CellPopover` already was, so this is `.cellpop`'s geometry made shareable:
+ * fixed rather than absolute, because the thing that owns the trigger may be a
+ * scrolling container and an absolute box inside one gets clipped.
+ *
+ * `popover="auto"` puts it in the top layer, which is what makes the clipping
+ * class of bug impossible rather than merely handled. The UA gives a popover its
+ * own `inset`, `margin` and `border` defaults, so those are stated here: without
+ * them a top-layer box ignores the measured `top` and `left` and centres itself.
+ */
+.popbox {
+  position: fixed;
+  z-index: 40;
+  inset: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  padding: var(--pad);
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.popbox[data-pinned="true"] {
+  border-color: var(--accent);
+  padding-right: var(--space-2xl);
+}
+.popbox-close {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  line-height: var(--leading-flush);
+  padding: var(--space-xs);
+}
+
+/* CSS anchor positioning is NOT used here, and that is a finding rather than an
+ * omission (M39, ISC-505).
+ *
+ * The plan asked for it as a progressive enhancement behind
+ * `@supports (anchor-name: --a)`, with the measured path as the fallback. Built
+ * that way, it was measured live in Chrome 152 on the shipped example and it
+ * does not enhance the measured path, it overrides it:
+ *
+ *   with the @supports block:    box top 2961px, viewport height 900px
+ *   with the block neutralised:  box top 404px, which is what the measure says
+ *
+ * The cause is that `anchor-name` is a document-wide identifier and this popover
+ * has many instances. The framing alone renders two triggers, so a single
+ * `anchor-name: --prov-anchor` names two elements at once; the association is
+ * ambiguous, `position-area` resolves against the wrong one, and because it is
+ * layout rather than a positional offset it wins over the inline `top`/`left`
+ * the measurement wrote. The result is a box placed thousands of pixels outside
+ * the viewport, which is precisely the clipping failure `Popover.tsx` exists to
+ * prevent. The enhancement was, in every engine that now ships it, a regression.
+ *
+ * Making it correct needs a unique `anchor-name` per instance, generated at
+ * runtime and written as an inline custom property on both the trigger and the
+ * box. That is real machinery for no visible gain over a measured path that is
+ * already hardened and already tested, so it is not built. If it is ever wanted,
+ * the per-instance name is the whole of the work, and this paragraph is the
+ * reason it cannot be skipped.
+ */
+
+/* The provenance box is a `.popbox` with a tighter measure: it holds a sentence,
+ * a short list of turns and one link, and a wide box for that reads as an empty
+ * panel. The width in pixels is the component's, because the box is measured and
+ * positioned in pixels; this is the type inside it. */
+.prov-box {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+
+/* The label and the question about it on one row (M39, ISC-505). The trigger is
+ * beside the label rather than under the box, because ISC-505 asks for no new
+ * line under every item and a row costs no height at all.
+ *
+ * Two names for one shape. `.claim-title-row` is the same row on the claim
+ * card's heading, where the label is an h3 rather than a `<label>`; the names
+ * differ because the elements do, and the rule is written once because a second
+ * copy of five declarations is how two rows that should match stop matching. */
+.field-label-row,
+.claim-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+/* A question mark, at the weight of a question mark. The mark itself is
+ * `--notice`, which is the ink the app already spends on "the tool has something
+ * to say here", and it is the same glyph the map draws for an open question. */
+.prov-trigger {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--notice);
+  font-size: var(--text-small);
+  line-height: var(--leading-flush);
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: help;
+  padding: 0;
+}
+.prov-trigger:hover,
+.prov-trigger[aria-expanded="true"] {
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
+}
+.prov-route {
+  margin: 0 0 var(--space-sm);
+  color: var(--ink);
+}
+.prov-none {
+  margin: 0 0 var(--space-sm);
+}
+.prov-heading {
+  margin: 0 0 var(--space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.prov-turns {
+  list-style: none;
+  margin: 0 0 var(--space-sm);
+  padding: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+.prov-turn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  min-width: 0;
+}
+.prov-who {
+  color: var(--ink);
+}
+.prov-where {
+  min-width: 0;
+}
+.prov-when {
+  margin: 0 0 var(--space-sm);
+}
+.prov-record {
+  padding: 0;
+}
+
+/* ── The sheet ───────────────────────────────────────────────────────────────
+ * M39, ISC-503. `components/Sheet.tsx` is the frame `ShortcutSheet` and
+ * `RecordPanel` were each writing for themselves; these are the rules they were
+ * each writing too, in one place. A native <dialog>, so the backdrop is the
+ * platform's and the page behind it is genuinely inert.
+ */
+.sheet {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  padding: 0;
+  /* The same width idiom `.kbd-sheet` uses, and not `--frame-max`: that token is
+     the app frame and `styles-integrity` names the one rule allowed to read it,
+     because a surface helping itself to the frame is how the frame starts
+     moving per route. */
+  width: min(62rem, calc(100vw - 3rem));
+  max-height: 85vh;
+  overflow: hidden;
+}
+/* color-mix rather than a raw rgba, so this file keeps the promise tokens.css
+ * is the only place a colour is written down. `.kbd-sheet`'s backdrop is the
+ * same mix; the two sheets should not dim the page by different amounts. */
+.sheet::backdrop {
+  background: color-mix(in srgb, var(--hero-ground-top) 55%, transparent);
+}
+.sheet-body {
+  padding: var(--pad-roomy);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.sheet-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  min-width: 0;
+}
+
+/* ── The divider between two panes ───────────────────────────────────────────
+ * M39, ISC-503. A track of its own in `.workbench-body`'s grid (`auto` between
+ * the two `minmax`), so its width is whatever this rule sets and neither pane
+ * pays for it out of its own measure.
+ *
+ * The target is wider than the line. A 1px line is what a reader should see and
+ * a 1px target is not something anyone can hit, so the element is `--space-md`
+ * wide with the line drawn down its middle by a pseudo-element.
+ */
+.pane-separator {
+  position: relative;
+  width: var(--space-md);
+  align-self: stretch;
+  cursor: col-resize;
+  border-radius: var(--radius-sm);
+  touch-action: none;
+}
+.pane-separator::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px solid var(--line);
+}
+.pane-separator:hover::before,
+.pane-separator:focus-visible::before {
+  border-left-color: var(--line-strong);
+}
+
+/* ── The grab on the framing dock's top edge ─────────────────────────────────
+ * M45. The owner, 2026-09-13: "Your framing should be further expandable by way
+ * of dragging the section divider up."
+ *
+ * The target is wider than the line, for the reason the pane divider's is, and
+ * the line it draws is the one the dock already has: the handle is 12px tall,
+ * centred on the dock's own `border-top`, so at rest there is nothing new on
+ * screen and on hover or focus that hairline grows darker. A bar that carried a
+ * visible grip would be a second edge a few pixels from the first.
+ *
+ * Positioned rather than laid out, because `<details>` takes the first `summary`
+ * as its bar and anything before it belongs to the content: a handle in the flow
+ * would either sit below the bar, which is not the edge, or steal the bar's own
+ * 40px row. `.framing` is already the containing block, declared in shell.css.
+ * Half of the 12px falls over the content cell above and half over the top of
+ * the bar, which is where a reader reaches for an edge.
+ */
+.dock-handle {
+  position: absolute;
+  top: calc(var(--space-md) / -2);
+  left: 0;
+  right: 0;
+  height: var(--space-md);
+  cursor: row-resize;
+  touch-action: none;
+  /* Above the bar's own row, so the top few pixels of the dock are the handle
+     and not the summary's toggle. */
+  z-index: 1;
+}
+.dock-handle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid transparent;
+}
+.dock-handle:hover::before,
+.dock-handle:focus-visible::before {
+  border-top-color: var(--line-strong);
+}
+/* While a drag is on, and on the body because the drag is captured by the handle
+ * while the pointer is anywhere: without this, dragging up over the step selects
+ * every line of it. The cursor is held too, so it does not flicker back to a
+ * caret the moment the pointer leaves a 12px strip. */
+body.dock-resizing {
+  user-select: none;
+  cursor: row-resize;
+}
+

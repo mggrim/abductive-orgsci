@@ -1,0 +1,268 @@
+/**
+ * The keyboard model's own surface (FND-02, FND-03).
+ *
+ * Three things and no more: the sheet on ?, the palette on Mod+K, and the chip
+ * that shows a sequence prefix is being held. Owned by the keyboard model, so
+ * no other builder has a selector in here and this file has none of theirs.
+ *
+ * Every value reads a token. A native <dialog> arrives with a UA border, a UA
+ * padding and `max-width: calc(100% - 6px - 2em)`, which is exactly the 1996
+ * default FND-03 was about, so the reset at the top is load-bearing rather
+ * than tidy.
+ */
+
+/* ── The chord chip ──────────────────────────────────────────────────────────
+ * A sequence with no feedback is a sequence the researcher cannot tell they
+ * started: g followed by a pause looks identical to nothing happening. It sits
+ * bottom left, out of the reading column, and leaves after the timeout with
+ * the prefix. */
+.kbd-chord {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: var(--pad-tight);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+
+/* ── Key caps ────────────────────────────────────────────────────────────────
+ * One treatment for a key everywhere it is printed, so a binding shown beside
+ * a control and the same binding on the sheet cannot look like two things. */
+kbd {
+  display: inline-block;
+  min-width: 1.55em;
+  padding: var(--space-hair) var(--space-xs);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+  text-align: center;
+  color: var(--ink);
+}
+
+.kbd-caps {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  white-space: nowrap;
+}
+
+.kbd-step {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+/* "then", not "+". The two steps of g d are pressed in turn, and a plus sign
+ * between them would say they are pressed together. */
+.kbd-then {
+  margin-right: var(--space-hair);
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+
+/* ── The sheet ───────────────────────────────────────────────────────────── */
+.kbd-sheet {
+  width: min(62rem, calc(100vw - 3rem));
+  max-height: min(44rem, calc(100vh - 4rem));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+  overflow: auto;
+}
+
+/* color-mix rather than a raw rgba, so this file keeps its promise that
+ * tokens.css is the only stylesheet holding a colour. ::backdrop inherits from
+ * its originating element in current browsers; where it does not, the mix is
+ * invalid, the declaration drops, and the UA backdrop shows instead. */
+.kbd-sheet::backdrop,
+.kbd-palette::backdrop {
+  background: color-mix(in srgb, var(--hero-ground-top) 55%, transparent);
+}
+
+.kbd-sheet-body {
+  padding: var(--pad-roomy);
+}
+
+.kbd-sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xs);
+}
+
+.kbd-sheet-head h2 {
+  margin: 0;
+}
+
+/* The governing rule, printed where the shortcuts are, because a keyboard
+ * model that grants speed to navigation and not to accepting has to say so
+ * somewhere the researcher will read it. */
+.kbd-rule {
+  max-width: var(--measure);
+  margin: 0 0 var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--line-faint);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+
+.kbd-sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl) var(--space-3xl);
+}
+
+@media (min-width: 900px) {
+  .kbd-sections {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kbd-section h3 {
+  margin: 0 0 var(--space-hair);
+  font-size: var(--text-body);
+  color: var(--ink-strong);
+}
+
+.kbd-section p {
+  margin: 0 0 var(--space-sm);
+  max-width: var(--measure-tight);
+}
+
+.kbd-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hair);
+}
+
+/* The caps column is fixed so the chords line up down the sheet and the eye
+ * can find one. Content-width columns were the measured defect on the bias
+ * grid (FIN-02) and they read the same way here. */
+.kbd-row {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  align-items: baseline;
+  gap: var(--space-md);
+  padding: var(--space-xs) 0;
+  border-top: 1px solid var(--line-faint);
+}
+
+.kbd-what {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hair);
+}
+
+.kbd-label {
+  font-size: var(--text-small);
+}
+
+.kbd-note {
+  max-width: var(--measure-tight);
+}
+
+.kbd-foot {
+  margin: var(--space-lg) 0 0;
+}
+
+/* ── The palette ─────────────────────────────────────────────────────────── */
+.kbd-palette {
+  width: min(34rem, calc(100vw - 3rem));
+  margin-top: 12vh;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+}
+
+.kbd-palette-body {
+  padding: var(--pad);
+}
+
+.kbd-palette-field {
+  width: 100%;
+  font-size: var(--text-title);
+}
+
+.kbd-palette-hint {
+  margin: var(--space-sm) 0 var(--space-xs);
+  max-width: var(--measure);
+}
+
+.kbd-palette-none {
+  margin: var(--space-sm) 0 var(--space-xs);
+}
+
+.kbd-palette-list {
+  list-style: none;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  max-height: 22rem;
+  overflow: auto;
+}
+
+.kbd-palette-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding: var(--space-sm) var(--space-sm);
+  border-radius: var(--radius-control);
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+
+/* The active row is marked by fill rather than by an outline, because focus
+ * stays in the field: an outline here would read as a second focus ring. */
+.kbd-palette-row[data-at="true"] {
+  background: var(--accent-fill);
+  color: var(--accent);
+}
+
+/* A result from the study (M53, ISC-545): its title, the line round the match
+ * under it, and the kind at the end of the row where a place prints its keys. */
+.kbd-palette-found {
+  display: grid;
+  gap: var(--space-hair);
+  min-width: 0;
+}
+.kbd-palette-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kbd-palette-snippet {
+  overflow-wrap: anywhere;
+}
+.kbd-palette-kind {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ── Roving groups ───────────────────────────────────────────────────────────
+ * A group is one tab stop, so the researcher has to be able to see which
+ * member holds it before they press an arrow. The rail and the bias grid draw
+ * their own current state; this covers the declared groups a later surface
+ * adds, where nothing else would say. */
+[data-roving] [data-roving-item][tabindex="0"] {
+  scroll-margin: var(--space-lg);
+}

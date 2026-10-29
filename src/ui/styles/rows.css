@@ -1,0 +1,207 @@
+/**
+ * The row primitive (M32 R8).
+ *
+ * The seventh of the five reasons the product read as a website, and the one
+ * with a number attached: "replace `.card` stacks with a row primitive … it
+ * removes ~60% of the current border count and is what kills the rows-and-
+ * columns feel — paradoxically by making rows *more* row-like and less
+ * card-like." Findings on Checks and papers on Material were bordered boxes
+ * with their own radius and their own padding, stacked. Eight findings were
+ * eight boxes, and the boxes were doing more visual work than the sentences in
+ * them.
+ *
+ * Loaded immediately after components.css, because that is what it is: the
+ * second half of the primitive layer, written in its own file so the surfaces
+ * that consume it are not each carrying a copy. Before every surface, so a
+ * surface still overrides it at equal specificity — which is the property the
+ * three consumers below rely on, since each of them keeps its own padding.
+ *
+ * ── Why there are two classes ───────────────────────────────────────────────
+ *
+ * `.row` is the state and `.row-line` is the box, and the split is not tidiness.
+ * Three of the elements that have to read as a row are elements whose box is
+ * decided by semantics: `<tr>` in the claims table, `<summary>` on a data
+ * document, and the two finding articles that hold four stacked paragraphs.
+ * `display: flex` on a `<tr>` does not make a flex row out of a table row, it
+ * takes the table apart. So `.row` declares no display and no height at all:
+ * only the hairline, the two surfaces and the reveal. An element that brings
+ * its own box takes `.row` alone.
+ *
+ * ── The states, and where the tokens came from ──────────────────────────────
+ *
+ * `--surface-hover` and `--surface-selected` are R4's two new tokens, and the
+ * audit's fourth-ranked change was "add them and wire them to every row, card
+ * and tab — the app has no hover or selection surface at all today, which is a
+ * large part of why nothing feels interactive." This file is the row half of
+ * that wiring; rail.css is the navigation half.
+ *
+ * ── The reveal is never hover-only ──────────────────────────────────────────
+ *
+ * R8's last sentence: "Reveal-on-hover must also be reachable by keyboard
+ * focus." So the cluster comes back on five conditions, not one. `opacity`
+ * rather than `visibility` or `display`, because a hidden element cannot take
+ * focus and a rule that hid its own actions could never satisfy its own
+ * focus-within half. The control is in the tab order and in the accessibility
+ * tree throughout; only the paint waits.
+ *
+ * Descendant rather than child in the reveal selectors, because on the claims
+ * table the cluster sits inside a `<td>` and a child combinator would miss it.
+ */
+
+/* ── The list ────────────────────────────────────────────────────────────────
+ *
+ * The box the rows sit in, and it is here rather than in three surface files
+ * because of what happened when it was in three surface files.
+ *
+ * M32b item 1. Every multi-line finding row on Checks was sliced through the
+ * middle of its second line: measured in real Chrome, one `.finding-row` was
+ * exactly 44 CSS px while its content needed about 58, and nine rows shared a
+ * block 402px tall, which is 9 × 44 to the pixel. Every track had been pinned
+ * at the row's `min-height` floor, and the `overflow: hidden` that clips the
+ * first and last rows to the container's radius then cut the rest away without
+ * a scrollbar, without an error, and without anything a test could see. The
+ * claim sentence, which is the one thing a researcher opens the Checks tab to
+ * read, was the half that went.
+ *
+ * 44px is a floor on the row. It is not a height for the track that holds it.
+ * An `auto` track is meant to take its item's content height, and the item is a
+ * flex container carrying an explicit `min-height`, which is the shape whose
+ * intrinsic block-size contribution Chrome resolves to that minimum. Naming the
+ * track sizing rather than trusting the intrinsic path is the fix, and
+ * `min-content` is right twice over: it is the item's wrapped height at the
+ * track's inline size, and it never grows to absorb slack, so five rows in a
+ * tall pane stay five rows instead of five rows stretched down it.
+ *
+ * Three lists had copied the same six-declaration box between them and only the
+ * one that was measured got the seventh. So the box is one class now. A list
+ * of rows takes `.row-list` and adds what is its own — a margin, a list-style,
+ * a type step — and cannot be added to the app without the declaration that
+ * keeps its rows legible. tests/m32-rows.test.ts holds every file that renders
+ * a list of rows to using it. */
+.row-list {
+  display: grid;
+  grid-auto-rows: min-content;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* ── The state ───────────────────────────────────────────────────────────────
+ * One hairline between neighbours instead of a box around each. --line-faint
+ * is the token base.css names as "the inside of a grid", which is exactly what
+ * this is: the rule between two rows of one list, not the edge of an object. */
+.row {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-faint);
+}
+
+/* The last row draws no rule, because there is nothing under it to be separated
+ * from and a trailing hairline is the bottom edge of a box the list does not
+ * have. `:last-child` rather than `:last-of-type`: the lists this reaches are
+ * homogeneous, and `<tbody>`'s last `<tr>` is both. */
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+/* Selection is a filled row rather than a ring. A ring at these heights is
+ * thicker than the interval between two rows, which is the reason the claims
+ * table gave for filling rather than outlining and it holds for every list
+ * here. */
+.row[data-selected="true"] {
+  background: var(--surface-selected);
+}
+
+/* ── The box ─────────────────────────────────────────────────────────────────
+ * Drawn only by the Row component. The mark takes the gutter, the body takes
+ * what is left, the actions take the right edge. `align-items: start` rather
+ * than center, because a finding row is four stacked paragraphs and centring
+ * would float its mark and its Dismiss control halfway down the block. */
+.row-line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+}
+
+/* The claim's mark, in the gutter. It does not shrink when a long title pushes
+ * on it, for the same reason the claims table's own mark does not, and it is
+ * nudged onto the first line's optical centre rather than its baseline because
+ * it is a disc and not a glyph. */
+.row-mark {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--leading-body);
+}
+
+.row-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-xs);
+  align-content: start;
+}
+
+/* The cluster. `margin-left: auto` rather than `justify-content: space-between`
+ * on the row: three flex items and space-between would strand the body in the
+ * middle with the mark at one edge and the controls at the other, which is the
+ * correction material.css already wrote down for the document row. */
+.row-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+/* The five conditions, and four of them are not hover. Keyboard focus anywhere
+ * inside the row, the row being the selected one, the cluster saying a flow it
+ * opened is still live, and — below — a pointer that cannot hover at all. */
+.row:hover .row-actions,
+.row:focus-within .row-actions,
+.row[data-selected="true"] .row-actions,
+.row-actions[data-held="true"] {
+  opacity: 1;
+}
+
+/* Nothing hovers on a touch screen, so the reveal would be a permanent hide.
+ * Coarse pointers get the controls outright. */
+@media (hover: none) {
+  .row-actions {
+    opacity: 1;
+  }
+}
+
+/* The fade is decoration: the control is in the tab order and in the
+ * accessibility tree whether it is painted or not, so removing the transition
+ * removes nothing anyone needs. */
+@media (prefers-reduced-motion: reduce) {
+  .row-actions {
+    transition: none;
+  }
+}
+
+/* ── Elements that bring their own box ───────────────────────────────────────
+ * A data document is a fold, so its row is the `<summary>` and its box is the
+ * flex row material.css already draws. What it takes from here is the minimum
+ * height, so a one-chip row and a five-chip row are the same target. */
+summary.row {
+  min-height: 44px;
+  align-items: center;
+}
+
+/* No rule here for the summary's hover, and that is arithmetic rather than an
+ * omission. base.css gives every summary in the app `--surface-sunken` on
+ * hover, which is the rail's ground, at `details > summary:hover` — one
+ * pseudo-class and two elements. `.row:hover` above is two pseudo-classes and
+ * no element, so it wins on specificity wherever a summary is also a row, in
+ * either source order. One gesture, one colour, on all four lists. */

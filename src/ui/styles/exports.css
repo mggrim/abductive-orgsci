@@ -1,0 +1,298 @@
+/**
+ * The exports tab (MAT surface).
+ *
+ * Owned by the Material and Exports builder. The seven export buttons restated
+ * font, background, border, radius, padding and cursor between them, which is
+ * six of the twelve treatments FND-11 counted. They read the default button
+ * role now.
+ *
+ * What is here is the layout that replaced the pill row. Measured at 1440x806
+ * the old surface ended at y=442 with seven identical pills wrapping six and
+ * one, so 364px of the window held nothing and the caption's "first five" split
+ * existed only in the sentence. The fix is a table shape: one row per export,
+ * four columns, so name, filename, audience, contents and control each land in
+ * the same place on every row and the eye reads down a column instead of
+ * sorting seven equal boxes. The three groups are three headed blocks, which is
+ * the grouping the caption claims.
+ *
+ * The receipt takes a track of its own at 1100 and up, which is what turns the
+ * empty right-hand third into the part of the screen that answers "which
+ * version did I submit".
+ *
+ * Grid track widths are literal here on purpose: tokens.css states that
+ * genuinely singular geometry, grid tracks among them, stays literal rather
+ * than earning a name no second rule would read.
+ */
+
+/* M32, R5. The layout left this file. `.exports` is a `.panel-frame` and its
+ * two children are `.panel-main` and `.panel-side`, so the two-track shape this
+ * surface invented is now the grammar every study route shares and is declared
+ * once, in panels.css. What is left here is what is particular to exports: the
+ * row table, the stamp list and the receipt's own rhythm. */
+.exports {
+  min-width: 0;
+}
+
+/* ── How this was arrived at (M38, ISC-500) ──────────────────────────────────
+ *
+ * A header over the whole tab, above the file list, because it is what a reader
+ * wants before they take a file rather than a property of any one file.
+ *
+ * A definition list, which is what it is: five labels and five values. Two
+ * tracks at the tight measure so the labels line up and the numbers sit against
+ * them, collapsing to one track when the pane is narrow. No fill and no border
+ * of its own: the values are links and the links are the only marked thing in
+ * it, so the block reads as a run of reading rather than as a panel of counts
+ * competing with the files below. */
+.arrived {
+  min-width: 0;
+  margin-bottom: var(--space-xl);
+}
+.arrived-title {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-title);
+}
+.arrived-rows {
+  margin: var(--space-sm) 0 0;
+  display: grid;
+  gap: var(--space-hair) var(--space-lg);
+  max-width: var(--measure-wide);
+}
+/* D48's sibling on this page (D50, M43d). The label meets the value's first line.
+ *
+ * It was `align-items: baseline`, and the value is a `<button>`, which is
+ * inline-block: an inline-block's baseline is the baseline of its LAST line box.
+ * Four of the five rows held one line and looked right; "Claims, by who wrote
+ * them" wraps to three, so its value ran y=331 to 394 at 1480 and the label sank
+ * to y=373. The one row a reader looks hardest at was the one that read
+ * misaligned. `start` puts the label beside the line it labels, whatever the value
+ * does below it. */
+.arrived-row {
+  display: grid;
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  gap: var(--space-sm);
+  align-items: start;
+}
+@media (max-width: 700px) {
+  .arrived-row {
+    grid-template-columns: 1fr;
+  }
+}
+/* The label is a step smaller than the value, so `start` alone would leave its
+ * text riding high. The shared line box puts the two first lines on the same
+ * centre without bringing the baseline rule back (D50, M43d). */
+.arrived-row dt {
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.arrived-row dd {
+  margin: 0;
+  min-width: 0;
+  line-height: var(--leading-body);
+}
+/* The value is a `<button>`, and a button centres its own text whatever the
+ * block around it says, so the one row that wraps rendered three ragged centred
+ * lines beside a left-aligned label. Same row and the same defect as the
+ * alignment above it (D50, M43d). */
+.arrived-row dd .linkish {
+  text-align: left;
+}
+
+.export-groups {
+  min-width: 0;
+}
+
+/* A group is a heading, a line saying what the group is, and its rows. The
+ * gap is hair rather than a step because the blurb belongs to the heading
+ * above it and the rows below carry their own rule as a separator. */
+.export-group {
+  display: grid;
+  gap: var(--space-hair);
+  min-width: 0;
+}
+.export-group-title {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+}
+.export-group-blurb {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure-wide);
+}
+
+.export-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Two columns until there is room for four: what it is, and the control. The
+ * purpose line and the count chips span, because a 300px column of prose beside
+ * a 90px column of chips is two ragged edges and no table. */
+.export-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-xs) var(--space-md);
+  align-items: baseline;
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--line-faint);
+  /* base.css caps `:where(p, li, dd)` at --measure-wide and says a row that is
+   * a box rather than a sentence sets this once and has to mean it. Without it
+   * the row stopped at 448px inside an 888px track, and the four columns
+   * folded the purpose line to seven lines: measured 311px tall per row and a
+   * 3052px page. */
+  max-width: none;
+}
+.export-row > .export-purpose,
+.export-row > .export-contains {
+  grid-column: 1 / -1;
+}
+
+.export-what {
+  display: grid;
+  gap: var(--space-hair);
+  min-width: 0;
+}
+.export-name {
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+/* The filename is the answer to "what is this", so it is shown rather than
+ * described. Wrapping is allowed: a long study title makes a long slug and a
+ * clipped filename would be worse than a folded one. */
+.export-file {
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  overflow-wrap: anywhere;
+}
+
+.export-purpose {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+
+.export-contains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.export-do {
+  justify-self: end;
+}
+
+/* ── The receipt ────────────────────────────────────────────────────────────
+ * A panel and not a card: it is the second region of the page rather than an
+ * item in a list, so it takes the surface role's chrome and states its own
+ * rhythm. */
+/* M32, R5. The chrome came off: `.panel-side` carries the surface, the line
+ * and the radius, and `.panel-body` carries the padding and the scroll. The
+ * receipt keeps its own interval, which is one step tighter than a pane's
+ * default because it is a stamp list rather than a run of sections. */
+.export-receipt {
+  min-width: 0;
+}
+.export-receipt > .panel-body {
+  gap: var(--space-sm);
+}
+/* The size is `.panel-title`'s now, which is the register a pane's name takes.
+ * It is still an h2 in the markup, because it still heads a region. */
+.export-receipt-title {
+  margin: 0;
+}
+.export-receipt-note {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+
+.export-stamp {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-hair) var(--space-md);
+  margin: 0;
+  font-size: var(--text-small);
+}
+.export-stamp dt {
+  color: var(--ink-muted);
+}
+.export-stamp dd {
+  margin: 0;
+  color: var(--ink-strong);
+  overflow-wrap: anywhere;
+}
+
+.export-taken {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+.export-taken li {
+  display: grid;
+  gap: var(--space-hair);
+  padding: var(--space-xs) 0;
+  border-top: 1px solid var(--line-faint);
+  min-width: 0;
+  max-width: none;
+}
+
+/* The older rows, disclosed and bounded.
+ *
+ * The receipt grows by one row every time the researcher presses a button on
+ * this page and had no cap at all: measured at 1440 on a two-day-old fixture,
+ * 123 rows, the aside 7651px tall beside 658px of exports. The list on screen
+ * is capped in ExportBar; this bounds what the disclosure can add, so opening
+ * it scrolls inside its own box rather than turning the page into nine screens
+ * of filenames. 22rem is roughly ten rows, which is enough to scan without the
+ * aside overtaking the column it sits beside. */
+.export-taken-more > summary {
+  cursor: pointer;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  padding: var(--space-xs) 0;
+}
+.export-taken-more > .export-taken {
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+/* Four columns once the row is wide enough to hold them without the purpose
+ * line breaking every three words. Below this the row keeps the stacked shape
+ * above, which is the same information in the same order. */
+@media (min-width: 760px) {
+  .export-row {
+    /* The chip column is capped rather than `auto`.
+     *
+     * `minmax(0, auto)` sizes to the chips and takes the width off the purpose
+     * line, which was survivable at three chips and not at five: adding the
+     * open-question and set-aside counts to the agent-graph row squeezed its
+     * purpose column to about one word per line while the chips ran on a single
+     * 500px track. The chips are short strings that wrap cleanly and the purpose
+     * is a sentence that does not, so the sentence gets the elastic track and
+     * the chips get a ceiling. */
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) minmax(0, 18rem) auto;
+    align-items: center;
+  }
+  .export-row > .export-purpose,
+  .export-row > .export-contains {
+    grid-column: auto;
+  }
+  .export-contains {
+    justify-content: flex-end;
+  }
+}
+
+/* M32, R5. The receipt beside the exports rather than under them was this
+ * surface's own media query and a sticky offset. Both are gone: the track is
+ * `.panel-frame[data-panels="main-side"]` in panels.css, and the pane no longer
+ * needs to stick because it is as tall as the frame and scrolls inside itself.
+ * 19rem became the grammar's 320px, which is 5px wider and one number rather
+ * than two. */

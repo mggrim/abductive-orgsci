@@ -1,0 +1,703 @@
+/**
+ * Instrumentation and the ledger views (INS surface).
+ *
+ * The panels under the workbench: territory, spine, trajectory, timeline,
+ * flags, divergence and the three-layer coverage map. Owned by the
+ * Instrumentation and Ledger builder.
+ */
+
+/* Closed, this section was 1216px wide and 28% full: a paragraph capped at the
+ * measure stacked above a button, with 875px dead to the right of both, against
+ * this sheet's own rule that a block 44% full reads as a rendering failure
+ * whatever the words in it say. Stacking was the whole cause. The sentence and
+ * the control that acts on it are one row now, the sentence at the left edge
+ * and the button at the right, so the block is occupied end to end at any width
+ * and the measure still caps the prose. Open, the panels take the full row
+ * underneath, which is what they were always doing. */
+.instrumentation {
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-md);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--space-xl);
+}
+/* The section had no heading at all, so the word "ledger" was not on the page
+ * until the button was pressed. The heading takes row one beside the toggle and
+ * the sentence drops under it, which keeps the block occupied end to end at the
+ * same two-track width the comment above describes. */
+/* The heading takes the whole first row and the sentence keeps its row beside
+ * the button, which is the arrangement the comment above defends and the reason
+ * it is defended: with the button lifted up beside the heading instead, row two
+ * was 360px of prose and 850px of nothing, which is the same 28%-full block
+ * that arrangement was written to end. */
+.instrumentation-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0 0 var(--space-xs);
+}
+.instrumentation-toggle {
+  grid-column: 2;
+  grid-row: 2;
+  background: none;
+  justify-self: end;
+}
+/* The track minimum was 360px, which at the 1216px body gave three tracks of
+ * 395 and put the ledger, the widest thing in the app, in one of them. 22rem is
+ * 352 and still holds the three model panels side by side, and the two surfaces
+ * that need the whole row now say so with .panel-wide rather than by hoping the
+ * auto-fit lands right. align-items: start stops a short panel stretching to
+ * the height of the tallest thing in its row. */
+.instrumentation-body {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+  align-items: start;
+}
+.instrumentation-why {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  max-width: var(--measure-wide);
+}
+
+/* ── The tick ────────────────────────────────────────────────────────────────
+ * Twenty checkboxes on this surface, seventeen ledger kinds and three coverage
+ * layers, and not one rule anywhere in src/ui/styles named them. They rendered
+ * as the UA control: getComputedStyle reported appearance "auto" and
+ * accent-color "auto", which on Chrome means the checked box is the system
+ * blue. On a screen whose entire palette is three inks and a hairline, twenty
+ * saturated blue squares were the only chroma in view, and they sat in the two
+ * legends a reader consults to understand the figure beside them.
+ *
+ * Drawn rather than tinted. `accent-color` alone would have taken the blue out
+ * and left the control still shaped by the platform, so the box is this sheet's
+ * own: the panel's surface and hairline unchecked, accent ink filled when on,
+ * with the tick as two borders on ::after rather than a background image, since
+ * an inline SVG data URI would need a colour literal and tokens.css is the only
+ * file allowed one. 13px is the UA box's own size, so nothing in the two grids
+ * shifted. The focus ring is untouched: base.css rings `input:focus-visible`
+ * with an outline, which does not care what appearance the control has. */
+.tickbox {
+  appearance: none;
+  flex: none;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.tickbox:hover {
+  border-color: var(--ink-faint);
+}
+.tickbox:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+/* The tick, always drawn and revealed on :checked, so the box does not reflow
+ * between its two states. */
+.tickbox::after {
+  content: "";
+  display: block;
+  width: 3px;
+  height: 7px;
+  margin: 0 auto;
+  border: solid var(--ink-inverse);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+  visibility: hidden;
+}
+.tickbox:checked::after {
+  visibility: visible;
+}
+/* Name and gloss as one item, so the parent's 4px flex gap cannot open between
+ * "Retrieval" and the comma that follows it. */
+.covkey-name {
+  min-width: 0;
+}
+
+/* A panel was `padding: var(--pad)` and nothing else: seven surfaces sitting on
+ * the page ground with no edge between them, so the boundary between the spine
+ * and the trajectory beside it was whitespace and the reader had to infer which
+ * caption belonged to which figure. Every other container in the app is a
+ * surface with a line around it, and these are containers. */
+.panel {
+  padding: var(--pad);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  min-width: 0;
+}
+/* A panel's first child is its own heading and h2/h3 both carry a top margin,
+ * so every panel opened with a band of dead space above its title. */
+.panel > :first-child {
+  margin-top: 0;
+}
+.panel-wide {
+  grid-column: 1 / -1;
+}
+/* Three of the four views behind the toggle open with their own
+ * `<section class="card">`, which is --pad-roomy and a bottom margin. Inside a
+ * panel that is a second box around the first: 24px of padding inside 16px of
+ * padding, and 16px of margin under the last one hanging inside the panel's own
+ * bottom edge. Corrected here rather than in the three view files, which
+ * another surface owns. */
+.instrumentation-body .panel > .card {
+  padding: 0;
+  margin: 0;
+  background: none;
+}
+
+/* Three states, and each one is a tint plus a border rather than a tint alone,
+ * because the untouched and raised cells were #f1f1f1 and #fdf1d8 and read as
+ * the same pale block at 96px wide. */
+/* Thirty cells at two lines each is 715px of grid in a 488px column, and 27 of
+ * them say "untouched", which is a fact one glance should deliver. The cell is
+ * one line now, bias then stage, each clipped: four tracks instead of three and
+ * a fifth of the height. The grid is a shape to read, not a list to work
+ * through, and the full text is on the title where it always was. */
+.territory-grid {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: var(--space-hair);
+}
+.territory-cell {
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-xs);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  min-width: 0;
+  line-height: var(--leading-tight);
+}
+.territory-cell > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.territory-cell.untouched {
+  background: var(--surface-sunken);
+  color: var(--ink-faint);
+}
+.territory-cell.raised {
+  background: var(--notice-fill);
+  border-color: var(--notice-line);
+}
+.territory-cell.engaged {
+  background: var(--ok-fill);
+  border-color: var(--ok-line);
+}
+
+/* Same defect as .graph-node-label in ontology.css: an 11px SVG attribute on
+ * the spine's turn labels, invisible to every stylesheet check. */
+.spine-label {
+  font-size: var(--text-small);
+}
+/* The list under the territory grid. Compact, because it is a list of counts
+ * and the default list rhythm is built for prose. */
+.unmapped-list {
+  margin: 0;
+  padding-left: var(--space-lg);
+  line-height: var(--leading-tight);
+}
+/* Block, for the same reason .ontology-graph is: an inline SVG sits on a text
+ * baseline and carries the line box's descender under it. */
+.spine {
+  display: block;
+  max-width: 100%;
+}
+
+/* ── The panels behind the toggle ────────────────────────────────────────────
+ * Nothing below this line had a rule. The survey counted unstyled classNames on
+ * the routes as they load and found 31; opening "Show how this session has
+ * gone" adds twelve more, because the four ledger views under it were written
+ * against a stylesheet that never named them. They rendered as UA defaults
+ * inside cards that did have rules, which is the worst of both: a considered
+ * frame around an unconsidered inside.
+ *
+ * Encoding, and the constraint it works under. Colour means page type in this
+ * app and nothing else, so the coverage layers are depth of the ink ramp rather
+ * than three hues, in the same order the origin ramp uses: the faintest signal
+ * of attention reads faintest. Unattended is the one cell that matters most and
+ * it is a dashed outline rather than a fill, because absence should look like
+ * absence.
+ */
+.covlegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+.covkey {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--text-small);
+}
+.covdoc {
+  min-width: 0;
+  margin-top: var(--space-md);
+}
+.covgrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-hair);
+  margin-top: var(--space-xs);
+}
+.covcell {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.covcell.cov-retrieval {
+  background: var(--ink-ghost);
+}
+.covcell.cov-citation {
+  background: var(--ink-faint);
+}
+.covcell.cov-human {
+  background: var(--ink-strong);
+}
+.covcell.off {
+  background: var(--surface-sunken);
+}
+/* A chunk no attention layer reached is an observation about coverage, which is
+ * the definition of a notice. It was drawn in the destructive line, the same
+ * palette the Delete control wears, for being unread. */
+.unattended {
+  border-style: dashed;
+  border-color: var(--notice-line);
+  background: transparent;
+}
+
+/* The ledger, one row per event. The glyph carries the type, the pill the
+ * actor, and the summary drops to its own line so a long one does not push the
+ * three fixed columns apart. */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+.timeline li {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  gap: var(--space-hair) var(--space-sm);
+  max-width: none;
+}
+.evicon {
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+}
+.evtext {
+  grid-column: 1 / -1;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+/* A fired bias flag and its reasons. The toggle is the row, so the whole line
+ * is the hit target rather than the count badge at the start of it. */
+.flagrow {
+  max-width: none;
+}
+.flagtoggle {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border-color: transparent;
+  padding: var(--space-xs) var(--space-sm);
+}
+.flagtoggle:hover {
+  border-color: var(--line);
+}
+.flagreasons {
+  margin-top: var(--space-xs);
+  padding-left: var(--space-md);
+  border-left: 2px solid var(--line);
+}
+
+/* Dissent that was never answered. Drawn in the notice palette rather than the
+ * warn palette: it is an observation about the record, and this tool never
+ * tells the researcher an unanswered challenge is a failure. */
+.dissent {
+  border-left: 3px solid var(--notice);
+  background: var(--notice-fill);
+}
+
+/* ── The ledger ──────────────────────────────────────────────────────────────
+ * The panel the product's central claim rests on, and the one that had no view
+ * at all. What it replaces measured, on the fixture at innerWidth 1440: 44
+ * events, 5092px of panel, 116px per event, in a 395px track with 820px of the
+ * instrumentation body empty to the right of it, and seventeen filter
+ * checkboxes stacked into a wall above them because the label column was too
+ * narrow to hold two.
+ *
+ * Density here is a fixed grid and a banded date, not smaller type. Every cell
+ * is one line at the small step on the tight leading, which is a 21px row: the
+ * whole of the ledger's compression is that the summary is clipped rather than
+ * wrapped, and the day is written once per day instead of once per row.
+ */
+/* The panel takes the whole row and never the measure: it is a table, and the
+ * measure comment in base.css says a surface that needs its full column says so
+ * once and has to mean it. */
+.ledger {
+  max-width: none;
+}
+.ledger-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: var(--space-lg);
+  row-gap: var(--space-xs);
+}
+.ledger-head h3 {
+  margin: 0;
+}
+/* nowrap, because the auto track sizes to the chips' min-content and two chips
+ * that wrap put a second line into the panel header for no reason. */
+.ledger-counts {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+}
+.ledger-blurb {
+  grid-column: 1 / -1;
+  margin: 0;
+  max-width: var(--measure-wide);
+}
+
+/* One row at 1440 and two or three as it narrows. The controls are laid out
+ * flex rather than in a grid because they are different widths by nature: a
+ * search box wants room and a sort toggle wants none. */
+.ledger-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-sm) var(--space-md);
+  margin-top: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--line);
+}
+/* Field is the shared primitive and it is built for a form, where a bottom
+ * margin between rows is right. In a control bar the rows are columns. */
+.ledger-controls .field-row {
+  margin-bottom: 0;
+  min-width: 0;
+}
+.ledger-controls .field-label {
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+/* The global control rule is --space-sm padding at the body step, which is a
+ * 37px control. In a bar of five it is the difference between one row and two. */
+.ledger-controls input,
+.ledger-controls select {
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+  padding: var(--space-xs) var(--space-sm);
+}
+.ledger-search {
+  width: 12rem;
+}
+
+.ledger-families {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+/* Five families rather than seventeen kinds, because a filter with seventeen
+ * boxes is a filter nobody touches. The pressed state is the border and the
+ * fill together: `aria-pressed` alone is invisible, and the app's own rule is
+ * that no state is carried by colour on its own, so the count moving from faint
+ * ink to accent ink carries it a second time. */
+.ledger-family {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-muted);
+}
+.ledger-family[aria-pressed="true"] {
+  border-color: var(--accent-line);
+  background: var(--accent-fill);
+  color: var(--accent);
+  font-weight: 600;
+}
+/* Some of the family is on and some is off, which the fine-grained checkboxes
+ * below can produce and the family button cannot. A dashed edge says the button
+ * is not telling the whole story about its own kinds. */
+.ledger-family[data-state="some"] {
+  border-style: dashed;
+}
+.ledger-family-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+.ledger-family[aria-pressed="true"] .ledger-family-count {
+  color: var(--accent);
+}
+
+.ledger-order {
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--ink-muted);
+}
+.ledger-order[aria-pressed="true"] {
+  color: var(--ink);
+}
+
+/* Seventeen keys in as many columns as the panel holds, so the fold is a block
+ * of four rows rather than the seventeen-line wall it replaces. */
+.ledger-kinds {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-hair) var(--space-md);
+}
+/* min-width: 0 because a grid item's default minimum is its min-content, so
+ * "SAT saturation check" pushed its own count past the right edge of its track.
+ * The gloss wraps rather than clipping: since M64 the glosses carry their
+ * relative ("a question that Abductive asked"), and an ellipsis cut the agent
+ * off the end of every long one. */
+.ledger-kind-key {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-xs);
+  min-width: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+}
+.ledger-kind-name {
+  overflow-wrap: anywhere;
+}
+.ledger-kind-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+/* A bounded pane with the header pinned inside it. The alternative is a panel
+ * that grows without limit under everything else on the page, which is what
+ * made the old view 5092px tall and pushed the three figures below it off the
+ * bottom of any screen. */
+.ledger-pane {
+  max-height: 30rem;
+  overflow: auto;
+  margin-top: var(--space-md);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+}
+.ledger-table {
+  width: 100%;
+  min-width: 44rem;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+  table-layout: fixed;
+}
+.ledger-table th,
+.ledger-table td {
+  text-align: left;
+  vertical-align: baseline;
+  line-height: var(--leading-tight);
+  padding: var(--space-hair) var(--space-sm);
+}
+.ledger-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+/* Fixed layout, so the columns are declared once and no row can shift them.
+ * The two elastic columns are what happened and what it changed; everything
+ * else is a known width because its content is a code, a clock, a name or a
+ * rail label. */
+.ledger-table th:nth-child(1),
+.ledger-table td:nth-child(1) {
+  width: 3.5rem;
+}
+.ledger-table th:nth-child(2),
+.ledger-table td:nth-child(2) {
+  width: 3.5rem;
+}
+/* 5.5rem, down from 7. The column holds "you", "the tool" and a persona's
+ * name, and the longest of those ("zuckerman") measures 62px, so 112 was 50px
+ * of gutter on every row of the table. */
+.ledger-table th:nth-child(3),
+.ledger-table td:nth-child(3) {
+  width: 5.5rem;
+}
+/* 24%, down from 30%, and the 62px that frees goes to the summary. Measured on
+ * the density-200 fixture at 1024: the summary column was 301px and 181 of 200
+ * rows clipped inside it, because the sentences got longer the moment they
+ * stopped being templates and "Joined two pages as a scope condition, marked
+ * model-proposed" needs 340. This column clips on that fixture at any width
+ * (its content is a pair of page titles) and it carries a title attribute; the
+ * summary is the cell the eye resolves first and it should not have to. */
+.ledger-table th:nth-child(5),
+.ledger-table td:nth-child(5) {
+  width: 24%;
+}
+/* 9rem rather than 8: "Outcome of interest" is the longest rail label and it
+ * clipped to "Outcome of inter…" at 8. */
+.ledger-table th:nth-child(6),
+.ledger-table td:nth-child(6) {
+  width: 9rem;
+}
+
+/* The date, once per day, instead of once per row. 44 rows carried 44 copies of
+ * "3 August 2026 at 23:55" before this; they carry a clock now and the day sits
+ * on the band above them. */
+.ledger-day th {
+  background: var(--surface-sunken);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-faint);
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.ledger-row > td {
+  border-bottom: 1px solid var(--line-faint);
+}
+.ledger-row:hover > td {
+  background: var(--surface-sunken);
+}
+.ledger-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+/* One line per cell, clipped rather than wrapped, and one declaration site per
+ * selector: FND-10 forbids the same name in two rules in one file, so the
+ * shared clip is written out per cell rather than grouped and then amended. */
+.ledger-who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-muted);
+}
+.ledger-what {
+  overflow: hidden;
+}
+.ledger-station {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-muted);
+}
+.ledger-unplaced {
+  color: var(--ink-faint);
+}
+.ledger-changed {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-strong);
+}
+/* The whole cell is the control, so the hit target is the row's own text rather
+ * than a chevron at the end of it. No chrome: a border and a fill here would
+ * put a button on every one of two hundred rows. */
+.ledger-open {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ledger-open:hover {
+  text-decoration: underline;
+}
+/* Weight, and not `white-space: normal`. Unwrapping the summary on open put the
+ * full text in the row and then again in the panel underneath it, and a row
+ * that grows to four lines shifts every row below it, which is the grid the
+ * fixed layout exists to hold. The open row stays one line; the full text is
+ * the first thing in the detail. */
+.ledger-open[aria-expanded="true"] {
+  font-weight: 600;
+}
+
+/* The whole stored event, which is what makes this an audit trail rather than a
+ * list of summaries. Field names read as words and origin reads as its
+ * canonical one; everything else is the value as the ledger holds it. */
+/* Prose left at its measure, record right. Stacked, the text capped at 448px
+ * left the whole right half of a 1180px pane empty under every open row. */
+.ledger-detail > td {
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--line);
+}
+/* The grid is a wrapper rather than the cell itself: `display: grid` on a `td`
+ * takes it out of the table formatting context and its colspan with it. */
+.ledger-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  gap: var(--space-sm) var(--space-xl);
+  align-items: start;
+}
+.ledger-detail-text {
+  margin: 0;
+  max-width: var(--measure-wide);
+  white-space: pre-wrap;
+  color: var(--ink);
+}
+.ledger-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-xs) var(--space-lg);
+  margin: 0;
+}
+.ledger-field {
+  min-width: 0;
+}
+.ledger-field dt {
+  color: var(--ink-faint);
+}
+.ledger-field dd {
+  margin: 0;
+  max-width: none;
+  overflow-wrap: anywhere;
+}
+.ledger-id {
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+}
+
+.ledger-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+.ledger-foot p {
+  margin: 0;
+}

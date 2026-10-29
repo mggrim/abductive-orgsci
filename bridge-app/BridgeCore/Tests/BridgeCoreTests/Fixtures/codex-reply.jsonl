@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0e6dc-2e25-7a31-8900-b7581005ca50"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"Abductive reasoning in qualitative research is the process of developing the most plausible explanation for surprising or puzzling observations. Researchers move from empirical findings to possible interpretations, asking what underlying process, context, or theory could best account for the data.\n\nUnlike induction, which builds generalizations from data, or deduction, which tests predictions derived from theory, abduction moves iteratively between data and existing concepts. It is especially useful for refining theories, generating new hypotheses, and explaining findings that do not fit established expectations."}}
+{"type":"turn.completed","usage":{"input_tokens":4894,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":105,"reasoning_output_tokens":0}}

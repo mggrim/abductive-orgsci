@@ -1,0 +1,666 @@
+/**
+ * The bias by context matrix (FIN surface).
+ *
+ * D7 (M27): no longer a route. It is the last section of the Checks tab, and
+ * `#/study/:id/biases` resolves there and scrolls to it. Everything below still
+ * describes the same block; only its container changed, so the two-track
+ * masthead, the grid and the legend are untouched and `.coherenceview` owns the
+ * seam above it.
+ *
+ * The grid is the page. Trigger kind is carried by glyph SHAPE, never by colour
+ * alone: this is the surface a co-author prints and checks, and a colour-only
+ * encoding fails both on paper and for readers with colour-vision deficiency.
+ * Colour here is reinforcement, nothing more.
+ *
+ * Owned by the Findings builder. One ordering constraint in this file is
+ * load-bearing and is marked at the rule itself.
+ */
+
+/* `padding-bottom: var(--space-3xl)` was here and is gone. `.shell` already
+ * sets it on every route, so restating it spent 96px under the last line of
+ * this page where /studies and /design spent 48. The reasoning is at
+ * `.studyview` in shell.css, which is now the one place the app decides where a
+ * page ends. */
+/* The masthead and the exposure block, side by side above the grid.
+ *
+ * Both were full-width children capped at a reading column, so measured at
+ * innerWidth 1467 the top of this page ran 126 to 622 for 400px of vertical
+ * with 720px empty beside it, and the grid, which is the only thing here that
+ * wants the frame, started at y=585. Two blocks that each want a column, in two
+ * columns; the grid and the note keep the frame. Below 1100px it is block flow
+ * and this rule is inert, which is the same threshold every other two-track
+ * surface in the app breaks at. */
+@media (min-width: 1100px) {
+  .matrixpage {
+    display: grid;
+    grid-template-columns: minmax(0, var(--column-read)) minmax(0, 1fr);
+    column-gap: var(--space-2xl);
+    align-items: start;
+  }
+  .matrixpage > .exposure {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .matrixpage > .coverage,
+  .matrixpage > .matrix-note {
+    grid-column: 1 / -1;
+  }
+}
+/* Prose on this page takes the reading column; the grid below it keeps the full
+ * shell. The header block and the "In this study" card were both laid out at
+ * 1016px around 392px of text, so each carried an empty right half while the one
+ * element that actually needs the width sat underneath them. */
+/* No top margin. Beside the exposure block in the grid above, 8px on one of the
+ * two put their first lines on different baselines, which is the whole thing a
+ * two-track masthead is for. The bottom margin is what separates both from the
+ * grid below and it stays.
+ *
+ * It is --space-xl now rather than --space-2xl, and the reason is the block it
+ * sits beside rather than the block below. `.exposure` in the other track
+ * carries --space-xl, so the two-track masthead was separating itself from the
+ * grid by 32px on the left and 24px on the right. Measured on the six study
+ * tabs, the head-to-first-section gap was 16 on Coherence, 24 on Ontology,
+ * Material and Exports, and 32 here: four surfaces, three answers, for the one
+ * relationship every page in the app has. --space-xl is the one tokens.css
+ * names "between sections" and the one four of the six already spent. */
+.matrixpage-head {
+  margin: 0 0 var(--space-xl);
+  max-width: var(--column-read);
+}
+/* This was 2rem against 1.5rem on the Ontology tab and 1.45rem elsewhere: three
+ * h1 sizes across four routes, the largest of them here because the page was
+ * written last (FND-05). One h1 role for every study tab, and this is a study
+ * tab like the other five. The tracking followed the same argument one step
+ * further: this rule kept -0.02em where `.studyview h1` set -0.01em, so the one
+ * h1 that did not take its tab's name was also the one set differently from the
+ * tab names either side of it. It is not declared here at all now. The `h1`
+ * element rule in base.css carries it for all eight routes, which is what
+ * finally covered /studies and /design, the two that were set `normal`.
+ *
+ * `.matrix-eyebrow` and `.matrix-lede` were removed here, not merely unused.
+ * The eyebrow is gone from the markup (its clause is the lede's first sentence
+ * now, so the h1 can say "Biases"), and the lede takes the shared
+ * `.studyview-lede`, which it differed from in exactly one declaration. */
+/* D7 (M27): an h2, because the page's h1 is Checks and this is its second
+ * half. The size and the tracking are still the element rules' in base.css;
+ * what this says is the same thing it said as an h1, which is how far the
+ * heading sits from the lede under it. */
+.matrixpage-head h2 {
+  margin: 0 0 var(--space-sm);
+}
+
+/* --space-xl, matching `.matrixpage-head` and `.exposure` above it. This was
+ * the last --space-2xl separating two sections on any study tab: measured down
+ * this page the intervals ran 24, 24, 32, so the gap before the closing note
+ * was wider than the gap between the masthead and the grid. --space-2xl is
+ * "between columns" in tokens.css, and it still does that job in this file's
+ * `column-gap`. */
+.coverage {
+  margin-bottom: var(--space-xl);
+}
+.coverage-headrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+.coverage-headrow h2 {
+  margin: 0;
+}
+.coverage-count {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.coverage-scroll {
+  overflow-x: auto;
+}
+/* `table-layout: fixed` because the eight columns carry the same kind of thing
+ * and were rendering at eight widths: Site at 78px against Instrument at 190px,
+ * sized by the length of the heading word rather than by what is in the column.
+ * Comparing one row against another across squares that are not aligned is
+ * harder than it needs to be, and this grid is the one surface that gets
+ * printed. The two fixed cells below keep their declared widths under this
+ * algorithm; the seven intervention columns split what is left, equally. */
+.coverage-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
+  min-width: 44rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+}
+.cg-corner {
+  width: 11.5rem;
+  border-bottom: 1px solid var(--line);
+}
+/* `padding: 0` was a second declaration of this selector 160 lines below,
+ * carrying `!important` it never needed: nothing else sets padding on
+ * .cg-colhead, and at equal specificity the later site already won. The padding
+ * lives on .cg-colbtn, which fills the cell, because the column names became
+ * buttons and a padded cell would have left a dead margin around the hit
+ * target. Merged and de-plastered at FND-10. */
+.cg-colhead {
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  border-left: 1px solid var(--line-faint);
+  vertical-align: bottom;
+  font-weight: 600;
+}
+.cg-colhead[data-family="graph"] {
+  background: var(--family-graph-fill);
+}
+.cg-colhead[data-family="conduct"] {
+  background: var(--family-conduct-fill);
+}
+.cg-colname {
+  display: block;
+  font-size: var(--text-small);
+  letter-spacing: 0.01em;
+}
+.cg-coltotal {
+  display: block;
+  margin-top: var(--space-hair);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.cg-rowtotal-head {
+  padding: var(--space-sm) var(--space-sm);
+  border-bottom: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  vertical-align: bottom;
+  /* No declared width, deliberately. Under the fixed layout above, one column
+   * left auto absorbs the rounding remainder; with 4.5rem declared here the
+   * seven intervention columns each rounded up and the table ran 6px past its
+   * own scroll container. Auto puts all eight on 129px at the frame width and
+   * the table ends exactly where the container does. */
+}
+.cg-rowhead {
+  text-align: left;
+  padding: var(--space-sm) var(--space-sm);
+  border-bottom: 1px solid var(--line-faint);
+  font-weight: 500;
+  vertical-align: middle;
+}
+.cg-rowname {
+  display: block;
+  font-size: var(--text-small);
+  line-height: var(--leading-tight);
+}
+.cg-rowside {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+/* The rule that separates the researcher's five biases from the model's four.
+ * It carried `!important` until FND-10; nothing in the sheet sets border-top on
+ * a grid cell, so there was never anything to beat. */
+.cg-side-break > * {
+  border-top: 2px solid var(--line);
+}
+.cg-cell {
+  border-bottom: 1px solid var(--line-faint);
+  border-left: 1px solid var(--line-faint);
+  padding: 0;
+}
+.cg-rowtotal {
+  border-bottom: 1px solid var(--line-faint);
+  border-left: 1px solid var(--line);
+  text-align: center;
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+.coverage-grid tbody tr:last-child > * {
+  border-bottom: none;
+}
+
+/* `position: relative` and the 0.15rem gap arrived 90 lines below with the
+ * fired-count badge and were merged in here (FND-10). Neither property was
+ * declared in this block, so there was no conflict to resolve. The size bump
+ * for the blank mark could not come with them: see the note at
+ * .cg-mark[data-on="false"] below. */
+.cg-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: var(--space-hair);
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--text-title);
+  line-height: var(--leading-flush);
+  color: var(--mark-off);
+}
+.cg-mark[data-on="true"] {
+  color: var(--accent);
+}
+.cg-mark:hover {
+  background: var(--surface-sunken);
+}
+.cg-mark[data-selected="true"] {
+  background: var(--accent);
+  color: var(--ink-inverse);
+}
+/* The blank mark needs enough contrast to read as a target, since clicking it
+ * is how the page explains a gap. This rule must stay AFTER
+ * .cg-mark[data-selected="true"]: they are equal specificity and the blank grey
+ * only wins on source order, so reordering them turns every selected empty
+ * square white (FND-10). #c9ced4 on the default mark and #b0b7bf here were two
+ * greys for one state, and the legend swatch carried the first while the cell
+ * it explained carried the second; both read --mark-off now. */
+.cg-mark[data-on="false"] {
+  font-size: var(--text-title);
+  color: var(--mark-off);
+}
+.cg-mark[data-status="not-applicable"] {
+  color: var(--ink-faint);
+}
+/* Grid cells clip an outset ring against the neighbouring cell's border, which
+ * is the case --focus-offset-inset exists for (FND-03). */
+.cg-mark:focus-visible,
+.cg-rowbtn:focus-visible,
+.cg-colbtn:focus-visible {
+  outline-offset: var(--focus-offset-inset);
+}
+
+.coverage-legend {
+  list-style: none;
+  margin: var(--space-lg) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-xs) var(--space-xl);
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+.coverage-legend li {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+}
+.cg-legendmark {
+  color: var(--accent);
+  font-size: var(--text-body);
+}
+.cg-legendmark.off {
+  color: var(--mark-off);
+}
+/* A swatch rather than a glyph, because the thing being explained is a ground
+ * and not a mark. Same two fills the column headers take, read from the same
+ * tokens, so the legend and the header cannot drift the way the blank mark and
+ * its legend swatch once did. */
+.cg-legendtint {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.cg-legendtint[data-family="graph"] {
+  background: var(--family-graph-fill);
+}
+.cg-legendtint[data-family="conduct"] {
+  background: var(--family-conduct-fill);
+}
+/* The legend's labels were breaking mid-phrase ("on" / "arrival") at every
+ * width because each list item is a flex row and the label was allowed to
+ * shrink. Caught in a live capture, not in a test, twice, because deleting a
+ * neighbouring block by line range once severed a comment's opener and the
+ * unterminated rule silently swallowed the declaration below it. */
+.coverage-legend li strong {
+  white-space: nowrap;
+}
+.coverage-legend li > span:first-child {
+  flex: 0 0 auto;
+}
+
+/* ── The page's second block: what the instrument caught in this study ─────── */
+.exposure {
+  padding: var(--pad);
+  margin-bottom: var(--space-xl);
+  border-left: 4px solid var(--line-strong); /* M53, ISC-544 */
+  /* Prose, so a reading measure rather than a column cap. It was
+   * --column-read, which is a track minimum and not a width: sitting in the
+   * grid's second track it held the block at 496 inside 688 and put a third
+   * right edge on a page that already has two. The text stops where every other
+   * run of text on this page stops and the box reaches its track. */
+  max-width: none;
+}
+.exposure > * {
+  max-width: var(--measure);
+}
+.exposure-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-sm);
+}
+.exposure-head h2 {
+  margin: 0;
+}
+.exposure-line {
+  margin: 0;
+  max-width: var(--measure-wide);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+
+/* The findings line. Set at the small step and separated by a rule, because it
+ * is about a different population from the sentence above it: this page said
+ * "Nothing has fired yet" on a study holding eight open findings, and the fix
+ * is to name them, not to count them as firings. */
+.exposure-findings {
+  margin: var(--space-sm) 0 0;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--line-faint);
+  max-width: var(--measure-wide);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+
+/* Row headers are buttons now: the definition opens in place rather than in a
+ * card 1,500px below the row label it explains. */
+.cg-cornerhint {
+  display: block;
+  padding: 0 var(--space-sm) var(--space-sm);
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  line-height: var(--leading-tight);
+}
+.cg-rowbtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: var(--space-sm) var(--space-sm);
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 0;
+}
+.cg-rowbtn:hover {
+  background: var(--surface-sunken);
+}
+/* Columns are clickable too now. Rows had an inline definition and columns had
+ * only a hover title, invisible on touch and undiscoverable everywhere, which
+ * left the grid half-legible: rows explained, columns bare. */
+.cg-colbtn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: var(--space-sm) var(--space-xs) var(--space-sm);
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cg-colbtn:hover {
+  background: var(--accent-fill);
+}
+.cg-colhead[data-open="true"] .cg-colname {
+  color: var(--accent);
+  text-decoration: underline;
+}
+/* Declared twice, 50 lines apart, and the file stated the decision twice while
+ * contradicting itself once: the first site set 0.7rem and the later one set
+ * 0.85rem with a comment explaining that the caret was rendering as a stray
+ * speck at 0.7rem, leaving the superseded value standing (FND-10). */
+.cg-caret {
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  flex: 0 0 auto;
+}
+tr[data-open="true"] .cg-caret {
+  color: var(--accent);
+}
+tr[data-open="true"] .cg-rowname {
+  font-weight: 700;
+}
+.cg-defrow > td {
+  border-bottom: 1px solid var(--line-faint);
+  background: var(--surface-sunken);
+  padding: 0;
+}
+/* Two paragraphs across the band, not two paragraphs down the left of it.
+ *
+ * Round ten. The band spans the whole table (measured 1214px at 1440) and its
+ * two blocks were stacked, each capped at --measure-wide, so the definition
+ * used x=137..585 and 766px of drawn, tinted rectangle held nothing. Same shape
+ * as the station rail's, at a much lower cost, and the same answer: the content
+ * flows into as many tracks as the container gives it rather than one.
+ *
+ * `auto-fit` rather than a fixed two, so this needs no breakpoint of its own:
+ * at 1440 the row resolves to two tracks, and inside a narrow table it collapses
+ * to one without either paragraph dropping below a measure. The caps below stay
+ * because they are what stops a track from growing past a readable line, and
+ * they now bind on a track rather than on the band. */
+.cg-def {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr));
+  align-items: start;
+  gap: var(--space-xs) var(--space-2xl);
+  padding: var(--space-md) var(--space-lg) var(--space-md) var(--space-xl);
+}
+.cg-def-text {
+  margin: 0;
+  max-width: var(--measure-wide);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+.cg-def-tell {
+  margin: 0;
+  max-width: var(--measure-wide);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-faint);
+}
+
+/* The second layer on a square: declared (glyph) versus fired here (count). */
+.cg-fired {
+  font-size: var(--text-small);
+  font-weight: 700;
+  line-height: var(--leading-flush);
+  background: var(--notice);
+  color: var(--ink-inverse);
+  border-radius: var(--radius-pill);
+  padding: var(--space-hair) var(--space-xs);
+  font-variant-numeric: tabular-nums;
+}
+.cg-fired.inline {
+  margin-left: var(--space-hair);
+}
+.cg-mark[data-selected="true"] .cg-fired {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+/* The methodological caveats are still on the page, but folded: they are what a
+ * referee needs and they were interrupting the researcher's path. */
+/* No top margin: .coverage above already declares the interval below itself,
+ * and inside the grid the two do not collapse, so the two together rendered
+ * 40px where each of them names a step. */
+.matrix-note {
+  margin-top: 0;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-lg);
+}
+.matrix-note summary {
+  cursor: pointer;
+  font-size: var(--text-small);
+  color: var(--accent);
+}
+.matrix-note-body p {
+  margin: var(--space-md) 0 0;
+  max-width: var(--measure-wide);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The two thinnest columns and the thinnest row, as rows rather than as three
+ * parentheticals inside one 27-word sentence (R3, copy C1). Same ink and
+ * measure as the paragraphs it sits between, because it is one of them; only
+ * the shape changed. */
+.matrix-note-thin {
+  margin: var(--space-sm) 0 0;
+  padding-left: var(--space-lg);
+  max-width: var(--measure-wide);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* ── The hover box ───────────────────────────────────────────────────────────
+ * Fixed rather than absolute so the grid's horizontal scroll container cannot
+ * clip it, and rendered outside that container in the DOM.
+ */
+.cellpop {
+  position: fixed;
+  z-index: 40;
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-pop);
+  padding: var(--pad);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.cellpop[data-pinned="true"] {
+  border-color: var(--accent);
+  padding-right: var(--space-2xl);
+}
+.cellpop-where {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-small);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.cellpop-title {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  color: var(--ink);
+}
+.cellpop-body {
+  margin: 0 0 var(--space-sm);
+}
+.cellpop-dl {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: var(--space-xs) var(--space-md);
+  margin: 0 0 var(--space-sm);
+}
+.cellpop-dl dt {
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  padding-top: var(--space-hair);
+}
+.cellpop-dl dd {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.cellpop-fired {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--notice-fill);
+  border: 1px solid var(--notice-line);
+  border-radius: var(--radius-control);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.cellpop-hint {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+.cellpop-prompt {
+  margin-top: var(--space-sm);
+}
+.cellpop-prompt summary {
+  cursor: pointer;
+  font-size: var(--text-small);
+  color: var(--accent);
+}
+.cellpop-prompt p {
+  margin: var(--space-sm) 0 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-code);
+  border-radius: var(--radius-control);
+  font-size: var(--text-small);
+}
+.cellpop-close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.4rem;
+  border: none;
+  background: none;
+  padding: var(--space-hair) var(--space-xs);
+  font-size: var(--text-title);
+  line-height: var(--leading-flush);
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+.cellpop-close:hover {
+  color: var(--ink);
+}
+/* Unpinned, the box is a glance: the definition is clamped so the box annotates
+ * the square instead of covering the grid. Pinning shows it whole. */
+.cellpop-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* The persona prompt is a model input quoted verbatim, not the tool speaking.
+ * Rendering it as code marks it as such, which is also why it sits outside the
+ * prose rules that govern everything else here. */
+.cellpop-prompt pre {
+  margin: var(--space-sm) 0 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-code);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  overflow-x: auto;
+}
+.cellpop-prompt code {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  white-space: pre-wrap;
+  color: var(--ink-muted);
+}

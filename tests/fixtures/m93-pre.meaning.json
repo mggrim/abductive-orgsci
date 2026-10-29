@@ -1,0 +1,164 @@
+{
+ "accepted": [
+  {
+   "id": "93939393-9393-4393-9393-000000000003",
+   "name": "Queue talk",
+   "definition": "The talk among apprentices while they wait at the tool crib.",
+   "origin": "model-proposed",
+   "properties": [
+    [
+     "Length",
+     null
+    ]
+   ],
+   "why": {
+    "text": "Queue talk is where your puzzle starts; without it the design has nothing to watch.",
+    "by": "abductive",
+    "status": "accepted"
+   },
+   "statementIds": []
+  },
+  {
+   "id": "93939393-9393-4393-9393-000000000009",
+   "name": "Booked slot",
+   "definition": "A time an apprentice books at the crib in advance.",
+   "origin": "model-proposed",
+   "properties": [
+    [
+     "Lead time",
+     null
+    ]
+   ],
+   "why": {
+    "text": "Booked slot is the change your design turns on.",
+    "by": "abductive",
+    "status": "accepted"
+   },
+   "statementIds": [
+    "93939393-9393-4393-9393-000000000011"
+   ]
+  }
+ ],
+ "acceptedRelations": [
+  {
+   "id": "93939393-9393-4393-9393-000000000016",
+   "from": "93939393-9393-4393-9393-000000000009",
+   "to": "93939393-9393-4393-9393-000000000003",
+   "relation": "leads-to",
+   "claim": "",
+   "why": null,
+   "statementIds": []
+  },
+  {
+   "id": "93939393-9393-4393-9393-000000000021",
+   "from": "93939393-9393-4393-9393-000000000009",
+   "to": "93939393-9393-4393-9393-000000000003",
+   "relation": "contrasts-with",
+   "claim": "Booked slots contrast with queue talk.",
+   "why": {
+    "text": "The contrast is the comparison your sample needs.",
+    "by": "abductive",
+    "status": "accepted"
+   },
+   "statementIds": []
+  }
+ ],
+ "suggested": [
+  "93939393-9393-4393-9393-000000000026"
+ ],
+ "suggestedRelations": [],
+ "suggestedStatements": [],
+ "links": [
+  "93939393-9393-4393-9393-000000000016",
+  "93939393-9393-4393-9393-000000000021"
+ ],
+ "unplaced": [],
+ "argument": "You expect booked slots to cut queue talk at the tool crib.",
+ "researchQuestion": "You expected booked slots to empty the queue, and the talk moved to the slot list.",
+ "puzzleOfRecord": {
+  "text": "You expected booked slots to empty the queue, and the talk moved to the slot list.",
+  "whose": "reading"
+ },
+ "puzzleState": {
+  "kind": "read",
+  "text": "You expected booked slots to empty the queue, and the talk moved to the slot list."
+ },
+ "report": [
+  "## Emerging project ontology",
+  "",
+  "_The concepts that you define for this project, with their definitions, properties and relations._",
+  "",
+  "_Abductive wrote each Why it matters line in this section, except a line marked (yours), which you wrote. You haven't decided yet on a line marked (to decide)._",
+  "",
+  "### The argument so far",
+  "",
+  "You expect booked slots to cut queue talk at the tool crib.",
+  "",
+  "_Written by Abductive from your accepted cards._",
+  "",
+  "### Queue talk",
+  "",
+  "_Written by: suggested by the model, accepted by the researcher._",
+  "",
+  "The talk among apprentices while they wait at the tool crib.",
+  "",
+  "**Why it matters:** Queue talk is where your puzzle starts; without it the design has nothing to watch.",
+  "",
+  "**Relations:** [R1. Booked slot leads to Queue talk](#r1-booked-slot-leads-to-queue-talk); [R2. Booked slot contrasts with Queue talk](#r2-booked-slot-contrasts-with-queue-talk)",
+  "",
+  "**Evidence:** your answer at Context.",
+  "",
+  "### Booked slot",
+  "",
+  "_Written by: suggested by the model, accepted by the researcher._",
+  "",
+  "A time an apprentice books at the crib in advance.",
+  "",
+  "**Why it matters:** Booked slot is the change your design turns on.",
+  "",
+  "**Relations:** [R1. Booked slot leads to Queue talk](#r1-booked-slot-leads-to-queue-talk); [R2. Booked slot contrasts with Queue talk](#r2-booked-slot-contrasts-with-queue-talk)",
+  "",
+  "**Statements**",
+  "",
+  "- Context summary: Apprentices with booked slots skip the queue.",
+  "",
+  "**Evidence:** your answer at Context.",
+  "",
+  "_You have one suggested concept to decide on._",
+  "",
+  "### Relations",
+  "",
+  "#### R1. Booked slot leads to Queue talk",
+  "",
+  "Claim not written yet.",
+  "",
+  "**Conditions:** none written yet.",
+  "",
+  "**Evidence:** a passage or an answer is still to come.",
+  "",
+  "#### R2. Booked slot contrasts with Queue talk",
+  "",
+  "_Written by: suggested by the model, accepted by the researcher._",
+  "",
+  "Booked slots contrast with queue talk.",
+  "",
+  "**Why it matters:** The contrast is the comparison your sample needs.",
+  "",
+  "**Conditions:** none written yet.",
+  "",
+  "**Evidence:** a passage or an answer is still to come.",
+  "",
+  "## What to look for in the field",
+  "",
+  "### Queue talk",
+  "",
+  "- Compare Length.",
+  "",
+  "### Booked slot",
+  "",
+  "- Compare Lead time.",
+  "- Watch whether Booked slot leads to Queue talk, and under which conditions.",
+  "- Watch whether Booked slots contrast with queue talk, and under which conditions.",
+  ""
+ ]
+}

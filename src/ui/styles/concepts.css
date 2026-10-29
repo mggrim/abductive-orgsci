@@ -1,0 +1,671 @@
+/*
+ * The Emerging project ontology tab (M63, ISC-609).
+ *
+ * Concept cards in a grid that fills the main pane, the field list in the side
+ * pane, and the map in its own frame below both (M81). Every value is a token
+ * from tokens.css.
+ */
+
+.conceptsview .conceptsview-body > section + section {
+  margin-top: var(--space-xl);
+}
+
+.concepts-gloss {
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-lg);
+}
+
+/* M79 (the lead's ruling): a card's least width is 20rem or the column,
+   whichever is less. At 390 the pane body is one grid track sized by its
+   widest child, and a flat 20rem made that track 320 in a 300 column, so the
+   cards and the map's fold clipped on the right. */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+  gap: var(--space-md);
+  align-items: start;
+}
+
+.concept-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  padding: var(--space-md);
+  min-width: 0;
+}
+
+.concept-card[data-current="true"] {
+  background: var(--surface-selected);
+  border-color: var(--line-strong);
+}
+
+.concept-suggestion {
+  background: var(--notice-fill);
+  border-color: var(--notice-line);
+}
+
+.concept-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-sm);
+}
+
+.concept-name {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+}
+
+.concept-name .btn-bare {
+  font: inherit;
+  color: var(--ink-strong);
+  text-align: left;
+}
+
+.concept-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.concept-definition {
+  margin: var(--space-sm) 0;
+}
+
+.concept-original {
+  margin: 0 0 var(--space-sm);
+}
+
+.concept-part {
+  margin-top: var(--space-md);
+}
+
+.concept-part h4 {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.concept-list {
+  margin: 0;
+  padding-left: var(--space-lg);
+}
+
+.concept-list li + li {
+  margin-top: var(--space-xs);
+}
+
+.concept-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.concept-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.concept-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+
+.concept-field input,
+.concept-field textarea,
+.concept-field select {
+  width: 100%;
+}
+
+.unplaced-list li {
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--line-faint);
+}
+
+.look-for h3 {
+  margin: var(--space-md) 0 var(--space-xs);
+  color: var(--ink-strong);
+}
+
+.look-for-line .concept-form {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* M81, ISC-692: the map in its own frame below both columns, across the tab.
+   The frame is a pane's surface with a header row and a body whose height the
+   handle on its top edge sets; a body shorter than the drawing scrolls inside
+   itself, and a collapsed body is 0 high, so only the header shows. */
+.concept-map-dock {
+  position: relative;
+  flex: 0 0 auto;
+  /* The map draws at its 300 fallback before it measures, and a least width
+     would hold the frame open past a 268 column at 390 (M79's finding). */
+  min-width: 0;
+  margin-top: var(--space-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+}
+
+.concept-map-dock-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.conceptsview .concept-map-dock-head h2 {
+  margin: 0;
+}
+
+/* Expand at the row's right, after the count. */
+.concept-map-expand {
+  margin-left: auto;
+  font-size: var(--text-small);
+}
+
+.concept-map-dock-body {
+  overflow: auto;
+  border-top: 1px solid var(--line-faint);
+}
+
+.concept-map-dock[data-collapsed="true"] .concept-map-dock-body {
+  overflow: hidden;
+  border-top: 0;
+}
+
+.concept-map-dock-content {
+  padding: var(--space-md);
+}
+
+/* The handle's grip: the hit area is DockHandle's 12px band centred on the
+   frame's top border, and the grip is a short bar at its middle so a reader
+   can see where to take hold. */
+.concept-map-dock > .dock-handle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--space-2xl);
+  height: var(--space-xs);
+  transform: translate(-50%, -50%);
+  border-radius: var(--space-hair);
+  background: var(--line-strong);
+}
+
+.concept-map-dock > .dock-handle:hover::after,
+.concept-map-dock > .dock-handle:focus-visible::after {
+  background: var(--ink-muted);
+}
+
+/* At desktop the panes stop at the window, and the frame takes its room from
+   them: the tab is a column as tall as the panes' old cap, the panes take what
+   the frame leaves, and dragging the handle up shrinks the panes rather than
+   pushing the header out of the window. Below 1000px the panes are one column
+   in the page's own scroll, and the frame sits after them. */
+@media (min-width: 1000px) {
+  .conceptsview {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    /* The room under the study bar, measured by the tab (the lead's ruling):
+       the bar gains the open-question line, and the old fixed 11rem then ran
+       the tab 31px past a 625px window. */
+    max-height: var(--concepts-room);
+  }
+
+  .conceptsview > .panel-frame {
+    flex: 1 1 auto;
+    max-height: none;
+    /* The panes keep a strip in view however far the map is dragged open. */
+    min-height: 8rem;
+  }
+}
+
+/* The map's section is a block in the fold or the dialog; its frame scrolls
+   sideways when the drawing is wider than the room. */
+.concept-map {
+  min-width: 0;
+}
+
+.concept-map-caption {
+  margin: var(--space-xs) 0 0;
+}
+
+/* The expanded map: the app's Sheet at the viewport's size. The room under the
+   title takes the height the dialog has left, which is what the drawing starts
+   from, and scrolls inside itself when the drawing grows past it. */
+.sheet.concept-map-sheet {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+.concept-map-sheet .sheet-body {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  max-height: none;
+  overflow: hidden;
+}
+
+.concept-map-sheet .sheet-head h2 {
+  margin: 0;
+}
+
+.concept-map-sheet-room {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* M77b (the lead's ruling): the drawing takes its width from the panel, one
+   unit to a pixel, so the 11px labels render at 11px; a panel narrower than the
+   drawing's least width scrolls sideways, and a taller drawing makes the panel
+   scroll down, rather than shrinking the text. */
+.concept-map-frame {
+  overflow-x: auto;
+}
+
+.concept-map-svg {
+  display: block;
+  max-width: none;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-container);
+}
+
+/* M82, ISC-693: a relation line is a polyline, straight or bent once around a label. */
+.concept-map-edge line,
+.concept-map-edge polyline {
+  stroke: var(--ink-faint);
+  stroke-width: 1.25;
+  fill: none;
+}
+
+.concept-map-arrow {
+  fill: var(--ink-faint);
+}
+
+.concept-map-relation {
+  font-size: var(--text-micro);
+  fill: var(--ink-muted);
+}
+
+.concept-map-node {
+  cursor: pointer;
+}
+
+.concept-map-node circle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.concept-map-node[data-current="true"] circle {
+  fill: var(--accent);
+}
+
+.concept-map-label {
+  font-size: var(--text-micro);
+  fill: var(--ink);
+}
+
+/* M75, ISC-668: a suggested concept or relation is drawn dotted, with a ring and
+   the word "suggested" under its name; a suggested concept that is the proposed
+   home of a statement to place is faint. Accepted ones stay solid. */
+.concept-map-node .concept-map-ring {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.concept-map-node .concept-map-dot-suggested {
+  fill: var(--surface);
+  stroke-dasharray: 2 2;
+}
+
+.concept-map-edge .concept-map-line-suggested {
+  stroke-dasharray: 3 3;
+}
+
+.concept-map-suggested {
+  font-style: italic;
+  fill: var(--ink-faint);
+}
+
+.concept-map-home {
+  opacity: 0.55;
+}
+
+.concept-statement {
+  overflow-wrap: anywhere;
+}
+
+/* M75, ISC-669: where a statement came from, as a small label before it
+   ("Context summary", "Fieldnote 2", "From the papers"). */
+.statement-origin {
+  color: var(--ink-muted);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+p.statement-origin {
+  margin: 0 0 var(--space-xs);
+}
+
+.conceptsview h2 {
+  margin-top: 0;
+}
+
+.look-for details {
+  margin-top: var(--space-md);
+}
+
+.concept-flags {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--notice-fill);
+  border: 1px solid var(--notice-line);
+  border-radius: var(--radius-control);
+}
+
+.statement-controls {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-left: var(--space-sm);
+}
+
+.all-statements {
+  margin-top: var(--space-xl);
+}
+
+/* M67, ISC-631, ISC-632. Relation cards sit beside the concept cards, and a
+   link between the two kinds of card lands on the card with a brief ring. */
+.concept-card[data-focus="true"] {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+  transition: outline-color var(--motion-fast) var(--motion-ease);
+}
+
+.concept-card:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.concept-card[data-focus="true"]:focus {
+  outline: 2px solid var(--accent-line);
+}
+
+.relation-card .concept-head {
+  align-items: flex-start;
+}
+
+.relation-ends {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 600;
+}
+
+.relation-ends a,
+.card-link {
+  color: var(--ink-strong);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 0.18em;
+}
+
+.relation-kind {
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.relation-claim {
+  margin: var(--space-sm) 0 0;
+}
+
+.home-choice select {
+  max-width: 100%;
+}
+
+.concept-map-edge {
+  cursor: pointer;
+}
+
+.concept-map-edge .concept-map-hit {
+  stroke: transparent;
+  stroke-width: 12;
+}
+
+.concept-map-edge:hover .concept-map-line,
+.concept-map-edge[data-current="true"] .concept-map-line {
+  stroke: var(--accent);
+}
+
+/* M67, ISC-634: each statement to place is a card, so the list carries no bullet. */
+/* M70: the card keeps its own padding; the list row rule above zeroed its sides, so the text met the border. */
+.unplaced-list > li.concept-card {
+  list-style: none;
+  margin: 0 0 var(--space-sm);
+  padding: var(--space-md);
+}
+
+.unplaced-list:has(> li.concept-card) {
+  padding-left: 0;
+}
+
+/* M70, ISC-646, ISC-647 and the owner's addendum. A card on the page is a
+   preview with a count line, and Read more opens the whole card in a dialog
+   over the page (components/Sheet.tsx), so the page beneath does not move. A
+   passage, an answer or a reply behind a card reads whole: a long one scrolls
+   inside its own box rather than being cut, and the box takes focus so the
+   keyboard can scroll it. */
+.card-counts {
+  margin: var(--space-xs) 0 0;
+}
+
+.card-read {
+  margin-top: var(--space-sm);
+}
+
+/* The overlay: a card's measure rather than the sheet's wide one, centred by
+   the platform and bounded to the window, its body scrolling inside it. */
+.card-overlay {
+  width: min(46rem, calc(100vw - 2rem));
+}
+
+/* The title and Close stay at the top while the card scrolls beneath them: the
+   head sticks at the body's top edge (its top padding is --space-lg), on the card's ground,
+   and Close stays beside the title however long the pair of names runs. */
+.card-overlay .sheet-head {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  position: sticky;
+  top: calc(-1 * var(--space-lg));
+  z-index: 1;
+  margin-top: calc(-1 * var(--space-lg));
+  padding: var(--space-lg) 0 var(--space-sm);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-faint);
+}
+
+.card-overlay .sheet-head h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.card-full .concept-head {
+  justify-content: flex-start;
+}
+
+.concept-mark .status-chip {
+  flex: 0 0 auto;
+}
+
+.behind-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.passage-text {
+  margin: var(--space-xs) 0 0;
+  padding: var(--space-sm) var(--space-md);
+  max-height: 16rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  background: var(--surface-sunken);
+  border-left: 2px solid var(--line-strong);
+  border-radius: var(--radius-control);
+}
+
+.passage-text:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}
+
+.statement-body {
+  margin: var(--space-sm) 0 0;
+  white-space: pre-wrap;
+}
+
+.concept-passage + .concept-passage {
+  margin-top: var(--space-sm);
+}
+
+/* The researcher's own words carry the accent rule, a passage of the data the neutral one. */
+.answer-text {
+  border-left-color: var(--accent-line);
+}
+
+/* M77, ISC-677: a relation label that had to leave its line for a clear spot is
+   tied back to the line's middle by a short, thin leader. Solid, because a dash
+   on this map says "suggested". */
+.concept-map-leader {
+  stroke: var(--ink-faint);
+  stroke-width: 0.75;
+}
+
+/* ── M82, ISC-694 and ISC-695 ─────────────────────────────────────────────── */
+
+/* The argument so far, at the tab's top: Abductive's paragraph in a quiet panel. */
+/* The pane body's grid gap spaces it from Concepts, so it carries no margin of its own. */
+.argument-so-far {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-container);
+}
+
+.argument-so-far h2 {
+  margin: 0 0 var(--space-xs);
+}
+
+.argument-text {
+  margin: 0 0 var(--space-xs);
+}
+
+.argument-so-far .concept-mark,
+.argument-so-far [role="status"] {
+  margin: 0;
+}
+
+/* A card's Why it matters line: its label set apart, the line beneath the definition or claim. */
+.why-line {
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+
+.why-label {
+  font-weight: 600;
+  margin-right: var(--space-xs);
+}
+
+.relation-rests {
+  margin: var(--space-xs) 0;
+}
+
+.relation-rests ul {
+  margin: var(--space-xs) 0 0;
+}
+
+.suggest-relations {
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+.suggest-relations [role="status"] {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* Which property, relation or concept a field line settles. */
+.look-for-settles {
+  display: block;
+}
+
+/* ── M93: every model output the researcher keeps is a decision ─────────── */
+
+/* Whose words a suggestion from the chat draws on, beside its Suggested mark. */
+.chat-origin {
+  display: inline-block;
+  padding: 0 var(--space-xs);
+  border: 1px solid var(--notice-line);
+  border-radius: var(--radius-sm);
+  background: var(--notice-fill);
+  color: var(--ink-strong);
+}
+
+/* Reject on a Why it matters line opens its reason under the line. */
+.why-reject-form {
+  display: grid;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+/* The argument so far while it waits for a decision. */
+.argument-suggestion {
+  display: grid;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+/* The cards that Surface concepts and relationships brought, under the chat. */
+.station-suggestions {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.station-suggestions > h3 {
+  margin: 0;
+}
+
+/* The statement cards under a step's chat sit in a list, without markers, as Statements to place's do. */
+.station-suggestions > ul.concept-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

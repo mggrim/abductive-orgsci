@@ -1,0 +1,1639 @@
+/**
+ * The design station (DSN surface).
+ *
+ * The workbench frame, the standing state, the rail, the station card and the
+ * dialogue. Owned by the Design Station builder. Two ordering constraints in
+ * this file are load-bearing and are marked at the rules themselves.
+ */
+
+.workbench,
+.station-pane {
+  min-width: 0;
+}
+.workbench-body > * {
+  min-width: 0;
+}
+
+/* The h1 keeps its own line, and the measurement is why. It reads "Design" 46px
+ * under an underlined "Design" tab and it charges 36px of a first screen that is
+ * already 77% chrome, so this round tried folding it onto the standing bar's row
+ * as a flex sibling. Measured on the running app at 1440x773: .workbench-head
+ * 1216x138 and .station at y597 before, 1216x129 and y588 after. Nine pixels.
+ * The heading takes 71px plus the gap, which drops the bar from 1216 to 1129,
+ * and at 1129 the "Waiting on / Next / turns" line wraps, so the bar grows from
+ * 89 to 110 and gives back most of what the fold saved. Paying 87px of width on
+ * the widest information block on the page for 9px of height is the wrong trade
+ * on the axis the density complaint is actually about. The duplicate heading is
+ * real and still wants solving; it wants the study title bar above to absorb it,
+ * which is another builder's file. */
+.workbench-head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--space-md);
+}
+
+/* Four declarations of this selector were spread across 700 lines before the
+ * merge: the grid here, the max-width:1100px override below, a second column
+ * ratio 210 lines down that silently replaced 1.15fr/1fr with 1fr/1.05fr, and a
+ * `min-width: 0` folded into a group selector near the end of the file. All of
+ * them are here now (FND-10). The ratio kept is the one that was actually in
+ * force, 1fr/1.05fr.
+ *
+ * M39 took the offer that comment ends on. The tracks below are live for the
+ * first time since M26c, the ratio is a dragged fraction rather than a fixed
+ * 1fr/1.05fr, and the narrow case is the base rule rather than an override. */
+/* One column by default, two when Workbench says so (M39, ISC-503).
+ *
+ * The base is the one-column case now, rather than a two-column grid that
+ * `.workbench-body.one-column` then overrode at higher specificity. That
+ * arrangement was inert for thirteen milestones and the comment above said it
+ * was being kept because "DSN-04 is about to want the grid back above 1200px".
+ * This is that, at 1100 rather than 1200, and the dead `[data-sparse]` rule went
+ * with it: a third arrangement nothing writes is the next builder's invitation
+ * to invent a meaning for it.
+ *
+ * The attribute is what branches, not a class, so the one-column case is the
+ * absence of an attribute and there is no second selector to keep in step. */
+.workbench-body {
+  display: block;
+  margin-top: var(--space-lg);
+  min-width: 0;
+}
+@media (min-width: 1101px) {
+  /* `auto` in the middle is the separator, which is 6px of target and no track
+   * of its own. Both minima are what stop a drag destroying the surface: the
+   * left keeps the box the researcher types in at its measure, and the right
+   * keeps the companion readable rather than a column of broken words.
+   *
+   * `--design-left` is written inline by Workbench from the stored fraction. The
+   * fallback is here rather than in the component so a first render before the
+   * state is read still lays out. */
+  .workbench-body[data-panes="two"] {
+    display: grid;
+    grid-template-columns:
+      minmax(28rem, var(--design-left, 1fr))
+      auto
+      minmax(20rem, var(--design-right, 1fr));
+    gap: var(--space-xl);
+    align-items: start;
+  }
+}
+
+/* Design is one column since M26c; see the comment in Workbench.tsx. It takes
+ * the frame, because the frame is now the only width authority above it.
+ *
+ * It was --column-max, which stepped 62rem / 70rem / 76rem. That is what left
+ * the primary screen of the product 41% full: the station card measured 1120px
+ * with 1080px usable, the widest control in it was a 448px textarea, and 632px
+ * was dead to the right of every field the researcher types into. tokens.css
+ * calls a card under 44% "a rendering failure whatever the words in it say",
+ * and that standard had been shipped to /settings and /coherence and skipped
+ * here. Widening the box was not the fix on its own; see .station-pane below,
+ * which is where the width now goes. */
+/* `.one-column` is gone from the markup at M39: the base rule above is the
+ * one-column case, so the class had nothing left to say and a class that
+ * restates the default is a class someone later reads as meaningful. */
+
+.workbench-rq {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--text-title);
+  color: var(--ink-muted);
+  border-left: 3px solid var(--line-strong); /* M53, ISC-544 */
+  padding-left: var(--space-md);
+  max-width: var(--measure);
+}
+
+/* The standing state is a notice, not a warning.
+ *
+ * It ran the full width of the shell while the body below it stopped at
+ * --column-max, so the first block on the primary screen was 283px wider than
+ * everything under it and carried an empty right third at every width above
+ * 1200. One column edge for the whole surface, and that edge is the frame now,
+ * which both of them take without either naming a width. */
+.standing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  background: var(--notice-fill);
+  border-color: var(--notice-line);
+  padding: var(--pad-tight);
+}
+.standing-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  align-items: baseline;
+}
+/* The two sentences on the bar's first line, capped at the same measure as
+ * every other run of prose in the app.
+ *
+ * They had no cap at all, and a flex item with no cap takes whatever the frame
+ * gives it. Measured at 1440, the "Next" sentence rendered as one unbroken
+ * 678px line of 105 characters, in a 21px line box, while the paragraph
+ * directly under it stopped at 70. The wide measure rather than the default
+ * because these are two clauses sharing a row.
+ *
+ * The `:not(.standing-ratio)` exemption went with the ratio itself (D4). "8
+ * turns · 100% interrogation" was a number with no referent anywhere on the
+ * page, on the first thing a first-time user reads. */
+.standing-main > .small {
+  max-width: var(--measure-wide);
+}
+/* The outstanding items in as many tracks as the bar holds.
+ *
+ * They were a single stacked list: measured at innerWidth 1440 the bar was
+ * 1216x156 and its longest line 500px, so two thirds of the widest block on the
+ * primary screen was blank and the height was spent on a column nobody chose.
+ * The track minimum is a shade under the tight measure, so a track always holds
+ * a readable line and never a two-word one. */
+.standing-list {
+  margin: var(--space-xs) 0 0;
+  padding-left: var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+  gap: var(--space-hair) var(--space-xl);
+}
+.standing-list.held-open li {
+  color: var(--ink-muted);
+}
+
+/* ── Since you were last here (M38, ISC-498) ─────────────────────────────────
+ *
+ * Under the standing bar and drawn in nothing but text. The bar above it is the
+ * one notice-coloured block on this surface, and a second coloured band under
+ * it would make the head of Design a stack of two things demanding attention
+ * when only one of them is about now. So: no fill, no border, no hue. What is
+ * new here is a fold and a list of counts, and the counts are ink-faint like
+ * every other count in the app.
+ *
+ * The row is a link and a number on one line, at the tight measure, so a
+ * digest with eight rows is eight short lines rather than a table. */
+.since-last {
+  margin-top: var(--space-sm);
+}
+.since-last-rows {
+  margin: 0;
+  padding-left: var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--space-hair) var(--space-xl);
+}
+.since-last-rows li {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+  min-width: 0;
+}
+.since-last-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The theoretical motivation, as a page (M27 D2, M40, M41, M53 ISC-540) ───
+ *
+ * Three fields about the whole study, gathered, and gathered is the property every
+ * ruling about them has kept. They were behind a `<details>` at the bottom of the
+ * Context station's card with a fourth as a 26rem side card on Material, so the
+ * study's framing was split across two tabs and half of it was under a save button
+ * on one of eight screens. D2 gathered them; M40 folded the gathered band at the
+ * foot of Design; M41 made the fold the app's footer bar; M53 makes it the study's
+ * first tab, on the owner's word of 2026-09-26.
+ *
+ * What the tab changes is the frame, not the contents. Every rule below the layout
+ * ones here is unchanged from the dock: the papers fold, the puzzle block, the
+ * conversation, the three field blocks. What went is the dock's own frame, which
+ * was in shell.css, and the three-column `.framing-fields` grid with its named
+ * areas, which existed because a bar a third of a window tall had to place five
+ * blocks of unequal height in a strip.
+ *
+ * Two tracks above 1100px. The reader's own three answers are the left column, in
+ * the order they are asked; the tool's reading of the puzzle and the conversation
+ * are the right. That is the split the dock could not hold: at 33dvh, opening the
+ * conversation pushed the venue box off the bottom of the scroller, which is why
+ * the grid it replaced spanned the conversation across all three tracks and let it
+ * grow downwards into nothing.
+ *
+ * The left track is the form controls' own measure (`--measure-wide`), because the
+ * three boxes stop there whatever the track is: a wider track left each field's
+ * provenance mark 240px beyond its box at 1480. The right track takes the rest. */
+.motivation {
+  /* The page's own measure is its two columns; every run of prose inside carries
+     its own. No `max-width` here, so the frame is the content cell (FND-12). */
+  padding-bottom: var(--space-2xl);
+}
+/* The lede and the chip, on one row, because the chip is a fact about the page and
+   the lede is what the page is for. `align-items: baseline` so the chip sits on the
+   first line of the sentence rather than in the middle of a paragraph that wraps. */
+.motivation-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+/* M92, ISC-750 (Matthew, 2026-10-15: "needs to actually be a section header
+   consistent with the other section headers in the app"): the element's own h2
+   style, as Sources' Papers and Data, the ontology tab's Concepts and Relations,
+   and Export's groups set theirs, with only the top margin taken off so the
+   heading sits level with its chip. */
+.motivation-heading {
+  margin: 0;
+}
+/* M78b, ISC-681: each Starting point field's Save answer, or its chip, under the field. */
+.framing-save-row {
+  margin: var(--space-xs) 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+/* ISC-592: the one sentence over the conversation, saying what the chat is for. */
+.framing-talk-lede {
+  margin: 0 0 var(--space-sm);
+  max-width: var(--measure-wide);
+}
+.motivation-lede {
+  margin: var(--space-sm) 0 var(--space-md);
+  max-width: var(--measure-wide);
+}
+.motivation-head > .status-chip {
+  flex: none;
+}
+/* M84, ISC-703: the stage line at the head of Starting point, one sentence pair
+   over both columns, at the prose measure. */
+.motivation-stage {
+  margin: 0 0 var(--space-md);
+  max-width: var(--measure-wide);
+}
+/* ISC-589 (owner, 2026-09-30): the full width of the content cell, with no empty
+ * column. The empty column was the right one: with the puzzle block gone it held
+ * one "Open chat" button. The conversation is open on arrival now and fills every
+ * pixel of that track, composer included. The left track stays the fields' own
+ * measure, because every text field in the app stops at `--measure-wide`
+ * (base.css) and a wider track only put blank space beside three 448px boxes.
+ * The conversation is always open (M62, ISC-597), so there is no one-column
+ * hidden state. */
+.motivation-frame {
+  display: grid;
+  /* ISC-592: the conversation on the left, the answers on the right, as on a
+     Design step. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure-wide));
+  gap: var(--space-2xl);
+  align-items: start;
+}
+/* One column below 1100px. The conversation goes under the answers rather than
+   beside them, which is the order they are read in.
+
+   One pixel under the step every other two-pane surface takes, and on purpose
+   (ISC-589: the owner's full width "at every width from 1100 to 1920"). Stacked at
+   1100, the 448px answers sat in a 1012px column with 564px of blank beside them,
+   and the fields cannot widen past the measure (base.css). Side by side at 1100
+   they fit as they do at 1101: 448px of answers and 460px of conversation. */
+@media (max-width: 1099px) {
+  .motivation-frame {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-xl);
+  }
+  /* Under the answers, the column is as tall as the conversation in it, and the
+     thread keeps the cap it has everywhere else. Selectors one class heavier than
+     the column rules below, which come later in the file and would win a tie. */
+  .motivation-frame .motivation-aside {
+    position: static;
+    height: auto;
+  }
+  .motivation-frame .motivation-aside .chat-thread {
+    max-height: min(60vh, 36rem);
+  }
+}
+/* The three answers, stacked in the order they are asked. Held to the boxes'
+   measure in one column as well, so each field's label row ends where its box does. */
+.motivation-answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  min-width: 0;
+  max-width: var(--measure-wide);
+}
+/* The conversation's column, beside the answers above 1100px (ISC-589). It holds
+   the viewport under the study bar, so the composer stays at its foot while the
+   answers scroll, the way a chat's box does. `--study-chrome` is the bar's
+   measured ceiling (tokens.css); the column starts at the top of the page, level
+   with the lede, so at rest it fits under the bar as well. */
+.motivation-aside {
+  position: sticky;
+  top: var(--study-chrome);
+  /* 5rem is what sits under the frame at the end of the scroll (the page's own
+     bottom padding and the cell's), measured at 80px on the example at 1480x900.
+     Less, and the column's top rides under the study bar at the foot of a long
+     page; this way it comes to rest exactly under the bar. */
+  height: calc(100dvh - var(--study-chrome) - 5rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  min-width: 0;
+  align-self: start;
+}
+/* The conversation fills the column: the thread takes what the actions and the
+   composer leave, scrolls inside it, and the composer sits at the foot. */
+.motivation-aside .framing-talk {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+.motivation-aside .dialogue,
+.motivation-aside .conversation {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.motivation-aside .chat-thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+.motivation-aside .chat-compose {
+  margin-top: auto;
+}
+/* The composer spans the column, as the conversation does (owner, 2026-09-12:
+   it "should make use of the full width of the section"). */
+.motivation-aside .chat-composer {
+  max-width: none;
+}
+/* Under the papers field, hard against the field it belongs to rather than
+ * floating between two of them.
+ *
+ * M32, R7. It was three identical underlined links, one action and two counts,
+ * and the critique reads that as the app not having controls. The action is a
+ * secondary button and the two counts are status rows: same words, same order,
+ * same destinations, three different weights instead of one.
+ *
+ * The status rows are still links, because each count is the route to the
+ * thing it counts and a number with no way into it is a dead end. What they
+ * lose is the underline and the accent, which is what made them look like the
+ * button above them. */
+/* Under the box, not on it. The negative margin here pulled the button eleven
+ * pixels up over the textarea's bottom edge, measured on 2026-09-12 (the box's
+ * bottom at 1100, the button's top at 1089). */
+.framing-papers-do {
+  margin: var(--space-sm) 0 0;
+}
+.framing-papers-status {
+  margin: var(--space-xs) 0 0;
+  color: var(--ink-faint);
+}
+.framing-papers-status a {
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+.framing-papers-status a:hover {
+  color: var(--ink-strong);
+  text-decoration: underline;
+}
+/* ── The papers, read beside the framing (M38, ISC-499) ──────────────────────
+ *
+ * One fold under the papers field, holding each paper the study names, its
+ * verdict and what the reader drew out of it. Judging whether a paper fits
+ * needs the paper and the framing in one glance, and they were on two tabs.
+ *
+ * Read-only, and it looks it: no card, no border, no control. The row on
+ * Material is where an expectation is added to your model or turned down, and a
+ * second set of the same two buttons here would be a second place to make one
+ * decision.
+ */
+.framing-papers-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-md);
+  max-width: none;
+}
+.framing-paper-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  margin: 0;
+  font-size: var(--text-small);
+}
+/* The expectations, indented under the paper they came out of. Each one is a
+ * sentence about the world that this setting could break, which is why they are
+ * a list rather than a paragraph: they are read one at a time. */
+.framing-paper-expects {
+  margin: var(--space-xs) 0 0;
+  padding-left: var(--space-md);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The save, the chip and the sentence about the record, on one row that wraps.
+ * The chip is a report on the form and never a control, so it sits beside the
+ * button rather than in the row of them. */
+/* The conversation at the theoretical motivation (ISC-488). Its own column on
+ * the page since M53, filling that column, because the exchange is about the
+ * study rather than about one box. */
+.framing-talk {
+  display: grid;
+  /* The whole row (owner, 2026-09-12: the conversation "should make use of the
+     full width of the section"). `start` sized the dialogue to its content and
+     left the right half of the panel empty while a reply streamed in. */
+  justify-items: stretch;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+.framing-talk > .dialogue,
+.framing-talk .conversation,
+.framing-talk .dialogue > * {
+  max-width: none;
+}
+/* The open control alone keeps its own width; a button stretched to 1168px is a
+   bar, not a button. */
+.framing-talk > button {
+  justify-self: start;
+  align-self: flex-start;
+}
+/* And inside the conversation, the two boxes that carry their own measure: the
+   chat box (448px at the step, where it sits in a column) and the empty state's
+   card. In the dock the row is the measure. */
+.framing-talk .answer-box textarea,
+.framing-talk .conversation-empty .empty-state {
+  max-width: none;
+}
+.framing-talk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+/* Summarise at the foot of the Summaries column (the owner's amendment to
+   M62): set off from the last field's save control above it. */
+.motivation-foot {
+  margin-top: var(--space-md);
+}
+/* The puzzle's read block left Starting point at ISC-587; its rules went with it. */
+.framing-note {
+  margin: 0;
+  max-width: var(--measure-wide);
+}
+
+/* ── The rail (M8) ───────────────────────────────────────────────────────────
+ * A ring, not a queue. Context sits above, outcome below, site and process
+ * either side, and the literature in the middle where the loop turns. Numbers
+ * came off at M21: the rail printed 1-2-3-4 directly above a sentence saying
+ * the order was not a sequence, and one of the two had to be lying.
+ */
+/* ── The station mark ────────────────────────────────────────────────────────
+ * A glyph, not a swatch, and the reasoning is in StationRail.tsx beside the
+ * table that picks it. What belongs here is why the rules below set colour and
+ * nothing else.
+ *
+ * They were four 7px pills separated by hue alone, one of them --warn, the hue
+ * this app deletes a study in, standing for "the tool has an open question
+ * about this" on five stations of eight. Three of the four sat within 1.5 L* of
+ * each other, so greyscale, a photocopier and the commonest form of colour
+ * blindness each reduced the app's primary progress indicator to one grey dot
+ * repeated eight times.
+ *
+ * Shape carries the state now. Colour is left in as agreement, at a lightness
+ * that runs with the shape rather than against it: ghost for the state you can
+ * skip, faint for one you set aside, the green convention for a thing that
+ * holds, and the advisory ink for a question. Nothing here is --warn, and the
+ * assertion in tests/styles-integrity.test.ts that used to check one advisory
+ * selector now checks every one of them. */
+.rail-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  font-size: var(--text-small);
+  line-height: var(--leading-flush);
+  color: var(--ink-ghost);
+}
+
+.rail-dot.stated {
+  color: var(--ok);
+}
+/* The state the survey found painted in the destroy hue. --notice is the ink
+ * this app renders every other observation in, and the glyph is the same "?"
+ * the ontology graph puts on a page the tool has a question about, so one mark
+ * means one thing in both places. */
+.rail-dot.flagged {
+  color: var(--notice);
+  font-weight: 700;
+}
+/* The fourth state, which is the one three of the eight stations are in on a
+ * fresh study and the only one that had no rule of its own: `rail-dot empty`
+ * fell through to the base rule and read as the same dot as a station whose
+ * state simply is not one of the other three. It is the smallest mark in the
+ * set on purpose, because it is the one the eye should be able to skip. */
+.rail-dot.empty {
+  color: var(--ink-ghost);
+}
+
+/* The legend. Four marks that had no definition anywhere in the app, on the
+ * indicator the researcher reads first on the primary screen. */
+.rail-legend {
+  list-style: none;
+  margin: var(--space-md) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+.rail-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  max-width: none;
+}
+/* ── What each place produced, and the eighth place (M38, ISC-493) ───────────
+ *
+ * One line under a cell's label, and it adds no channel. Text, one ink, one
+ * size, and the same ink and size on both halves of it: the researcher's own
+ * first words at that place, and what the conversation produced as counts and
+ * states. The rail's four glyphs stay the only encoding on this surface, which
+ * is what M32's greyscale work bought and what a second hue here would spend.
+ *
+ * `grid-column: 1 / -1` because the cell is a two-track grid, label and mark,
+ * and the line is a row under both rather than a third thing beside them. The
+ * front page draws the same cell with no line at all, so nothing there moves.
+ */
+.rail-line {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-sm);
+  margin-top: var(--space-hair);
+  font-size: var(--text-micro);
+  line-height: var(--leading-tight);
+  color: var(--ink-muted);
+  min-width: 0;
+}
+/* The researcher's own words. One line, cut by the box rather than by an
+ * ellipsis this file would have to add: the text is theirs and the projection
+ * already cuts it at a word. */
+.rail-said {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The counts. Same ink, same size, no chip: a count in a pill is a badge, and a
+ * badge on eight cells is a score. */
+.rail-state {
+  white-space: nowrap;
+}
+
+/* M58, ISC-566: the Starting point cell above the loop (.rail-framing, M38 to
+ * M57) is gone with Design showing nothing of Starting point. */
+
+/* ── Station workspace ───────────────────────────────────────────────────────
+ * Not sticky. It was, from M8, when the station was the only thing in this
+ * column and pinning it was free. The dialogue moved in below it at M14, so
+ * sticky meant the transcript scrolled underneath an opaque panel. A sticky
+ * element is only safe while nothing shares its scroll container.
+ */
+.station {
+  padding: var(--pad-roomy);
+  /* The step card morphs rather than being replaced (M39, ISC-504).
+   *
+   * Moving along the rail is the one route change in the app where the same
+   * object is on screen before and after: it is this step's card, then that
+   * step's card. Under one name the browser matches the two and moves the box;
+   * under two it would cross-fade them, which says they are different things.
+   *
+   * Declared here rather than inline because exactly one `.station` renders on
+   * this route, so the uniqueness a `view-transition-name` requires is a
+   * property of the markup and not of a state that has to be cleared. The name
+   * string is `ui/transitions.ts`'s `TRANSITION.step`, and
+   * `tests/view-transitions.test.ts` pins the two against each other. */
+  view-transition-name: vt-step;
+}
+
+/* Where the frame's width actually goes on the primary screen.
+ *
+ * The survey measured the Design station card at 1120px with 1080px usable,
+ * holding a 448px textarea: 41% full, with 632px dead to the right of every
+ * field. Two answers were available and only one of them is honest. Stretching
+ * the textarea to the card would have put 89 characters on a line the measure
+ * tokens exist to hold at 70. So the second thing this view already renders
+ * moves up beside the first instead.
+ *
+ * The station and the dialogue are the two halves of the same act: the question
+ * with somewhere to answer it, and the record of what has been said here. They
+ * were stacked, so the record was below the fold at every width and the card
+ * carried an empty right half. Side by side, each track is 572px at innerWidth
+ * 1467 and each holds a 448px control or a 448px measure of prose, and the
+ * surface fills the frame without a single line of text getting longer.
+ *
+ * This is not the two-column grid .workbench-body still carries. That one put
+ * the *ontology* in the right column, which is the arrangement M26 removed on
+ * the argument recorded in Workbench.tsx: no ontology surface renders in this
+ * view, and none does here either. Dialogue is still a sibling of
+ * StationWorkspace in the markup, so moving along the rail still reconciles it
+ * rather than remounting it and dropping a streaming answer. */
+@media (min-width: 960px) {
+  /* Two columns and two rows (D4).
+   *
+   * Left is what the researcher commits, right is what the tool says back, and
+   * the reading order is the order of action. It was three columns above 1400
+   * with the findings pushed under all of them: the brief box, the interview,
+   * then a 17rem column of explanation headed "What the tool does at this
+   * station", and only then the tool's own output. Explanatory prose in a
+   * column of its own, and the thing the researcher came for last.
+   *
+   * The aside is a fold under the save button now, so the pane has two blocks
+   * to place on the right and the findings sit directly under the conversation
+   * that produced them. The station spans both rows, because the left column is
+   * one act: read the question, write the answer, commit it.
+   */
+  /* M37: one column again, and this time because the conversation moved inside
+   * the station card rather than because there was nothing to put beside it.
+   *
+   * The two-column arrangement above was measured and it was right for what it
+   * held: a card whose question and answer box left 632px dead to its right,
+   * and a transcript that would otherwise sit below the fold. It does not
+   * survive the conversation becoming the way a step is answered. The order is
+   * now the order of the act: the step's question, the conversation about it,
+   * the box you type in, and the answer as it stands. Splitting that across two
+   * columns puts the box you type in beside the box the answer lands in, which
+   * is two places to write on one screen.
+   *
+   * The measure is held by `.station` rather than by a track: prose and controls
+   * still stop at the measure tokens, so nothing on this page runs to 89
+   * characters a line. */
+  .station-pane {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "station";
+    row-gap: var(--space-xl);
+    align-items: start;
+    align-content: start;
+  }
+  .station-pane > .station {
+    grid-area: station;
+  }
+}
+
+/* The card's header block, which StationWorkspace has always wrapped in a
+ * <header className="station-head"> that no rule reached. The kicker and the
+ * blurb were spaced by their own margins and the gap between the header and the
+ * prompt below it was whatever those two happened to add up to. Naming the
+ * block puts that distance on the scale once instead of twice. */
+.station-head {
+  display: grid;
+  gap: var(--space-hair);
+  margin-bottom: var(--space-md);
+}
+/* Levelled at M26d. This was 1.32rem display type, the largest text on the
+ * page, sitting third in a card whose other three inputs (starting interest,
+ * research question, target venue) are label-sized. All four write a field on
+ * the same brief, so the hierarchy was claiming an importance this one does not
+ * have, and size and reading order disagreed with each other. The element stays
+ * an h2 because it is still the station's heading in the document outline; only
+ * the type comes down to match its neighbours, which under the eight-step scale
+ * means the body step at weight 600 (FND-05). */
+.station-prompt {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-weight: 600;
+  margin: var(--space-lg) 0 var(--space-hair);
+  /* Was --measure-tight, which is 336px above a 448px box. A label narrower
+   * than the control it names wraps mid-phrase over a field with room to
+   * spare, so the question and its answer box take the same measure. */
+  max-width: var(--measure-wide);
+  color: var(--ink-strong);
+}
+.station-prompt label {
+  cursor: pointer;
+}
+.station-field {
+  display: block;
+  margin-bottom: var(--space-md);
+}
+.station-field > span {
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+/* The station label is the name of the field; the sentence under it is only a
+ * hint, and it was rendering larger than the thing it qualifies. */
+.station-field .field-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--space-hair);
+}
+.station-field .field-hint {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  max-width: var(--measure-tight);
+}
+/* The scoped textarea treatment that stood here is gone. It was one of five,
+ * each pinned to a parent, which is why the /coherence reason inputs and the
+ * /settings credential field fell through to the UA and rendered as 1996 boxes
+ * (FND-03). The element rule in base.css covers all of them, and the focus ring
+ * this block used to declare is now the global one. */
+/* The decision block: the chip, the group, and the recorded declination.
+ *
+ * It was `.station-actions`, a flex row of three buttons, one of which was a
+ * save that spent most of its life disabled and labelled "No changes". The row
+ * read as a three-way choice and was not one. DecisionGroup draws the controls
+ * and states the difference between the three roles once for the whole app, so
+ * what is left here is the interval around it and where the chip sits.
+ *
+ * A grid rather than a flex row: the chip and the group are on separate lines
+ * because the chip reports on the form and the group acts on it, and a status
+ * word sitting inline with two buttons reads as a third button, which is the
+ * exact defect being removed. */
+.station-decide {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+/* The primary and its chip on one row, above the declinations (D4). One
+ * control, one label in both states, and the report on the form beside it
+ * rather than in place of it. */
+.station-primary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+/* The one hint under the box, capped at the box's own measure. */
+.station-hint {
+  margin: var(--space-xs) 0 0;
+  max-width: var(--measure-wide);
+}
+
+/* The answer box, under the conversation that produced it (M37). Set apart from
+ * the exchange above it, because it is the one thing on this card that goes on
+ * the record as the researcher's own answer. */
+.station-answer {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--line);
+}
+/* The mark on a box the tool filled from what they said. It reads as a notice
+ * rather than as a warning: a draft is an offer, and the researcher is being
+ * told where the words came from, not that anything is wrong. */
+.station-drafted {
+  margin: var(--space-xs) 0 0;
+  padding: var(--space-xs) var(--space-md);
+  border-left: 3px solid var(--line-strong); /* M53, ISC-544 */
+  background: var(--accent-fill);
+  border-radius: var(--radius-control);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+/* The declination that sat here at text weight ("Doesn't apply to this study",
+ * D4 to M58) went at M59, ISC-571. "Set this step aside for now" is a `.linkish`
+ * button in the save row, which carries its own text weight. */
+
+/* Declining, and the sentence that says declining is fine.
+ *
+ * The note carried a class and had no rule, so the sentence explaining that a
+ * set-aside station is recorded rather than counted against you sat hard
+ * against the buttons with only its own paragraph margin. It is DecisionGroup's
+ * `note` now, which is the slot the primitive reserves for a statement about
+ * the record. What stays here is the recorded state, which takes the notice
+ * treatment because it is a state of the record rather than advice. */
+.station-declined {
+  margin: var(--space-sm) 0 0;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 3px solid var(--notice-line);
+  background: var(--notice-fill);
+  border-radius: var(--radius-control);
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+/* ── What happens to this answer ─────────────────────────────────────────────
+ * What the 17rem aside column used to hold, folded under the control it is
+ * about (D4). `.station-aside` and `.station-framing` are both gone: the fold
+ * is a Disclosure, which components.css already draws. `.station-feeds-note`
+ * went with the paragraph it drew (M29b), which restated the sentence directly
+ * above it inside the same fold.
+ */
+/* Same correction as .station-prompt: a filled box holding a paragraph should
+ * be as wide as the fields it sits under, not two thirds of them. */
+.station-feeds {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-control);
+  color: var(--ink-muted);
+  max-width: var(--measure-wide);
+}
+/* M89: `.station-findings` and `.station-findingsregion`, the step's flag panel
+ * and its grid cell, went with the checks. */
+.early-data {
+  margin: var(--space-sm) 0 var(--space-lg);
+}
+/* A closed step (M58): Sample or Early data before the loops settle. One
+ * sentence saying what opens it, then the way to the loop step still waiting. */
+.station-closed {
+  margin: var(--space-md) 0 var(--space-sm);
+  max-width: var(--measure-wide);
+}
+
+/* ── The dialogue ────────────────────────────────────────────────────────────
+ * It moved into the station column at M14, so the question, the answer and the
+ * record are one column and the ontology owns the other. It is a sibling of the
+ * station rather than a child, so moving along the rail reconciles it instead
+ * of remounting it and dropping a streaming answer.
+ */
+.dialogue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+/* Inside the station card since M37, so the separator that marked the boundary
+ * between two stacked blocks has nothing to separate. What is left is the
+ * interval, which the card's own gap provides. */
+.station .dialogue {
+  margin-top: var(--space-lg);
+}
+/* The conversation scrolls inside the card rather than growing the page (M37).
+ *
+ * Newest at the bottom, which is where the chat box's caret already is, so the
+ * researcher's eye does not travel up to read the reply and back down to answer
+ * it. `overflow-anchor` keeps the view at the foot while a turn streams in
+ * rather than letting the growing text push the last line off screen. */
+.transcript {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-sm);
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-anchor: auto;
+}
+.transcript-earlier {
+  margin-bottom: var(--space-sm);
+}
+.transcript-earlier summary {
+  cursor: pointer;
+  font-size: var(--text-small);
+  color: var(--accent);
+}
+/* The fold takes its height back. It is already bounded by the details it sits
+ * in, and a second scroll container inside a scroll container is two scrollbars
+ * on one list. */
+.transcript-earlier .transcript {
+  margin-top: var(--space-sm);
+  max-height: none;
+  overflow-y: visible;
+}
+
+.turn {
+  padding: var(--pad-tight);
+}
+.turn p {
+  margin: var(--space-hair) 0 0;
+  white-space: pre-wrap;
+}
+/* Four kinds of turn and only three of them were declared. `turn-agent` is what
+ * Dialogue writes on every model turn and on the streaming one, and it had no
+ * rule at all, so the most common card in the transcript was the only one whose
+ * appearance was an accident of what the other three did not claim. It keeps
+ * the plain surface, which is correct and is now on purpose: the researcher's
+ * own turn is tinted because it is theirs, and the model's is the ground. */
+.turn-agent {
+  background: var(--surface);
+}
+/* M66: the speaker line over a turn (`.turn-label`) is gone. A screen reader
+ * hears the speaker from a visually hidden name in each bubble, and the eye reads
+ * the side. */
+.turn-human {
+  background: var(--accent-fill);
+}
+/* A redirection is a move the tool made, which is a thing to notice and not a
+ * thing that went wrong. It read the warn triad, which is the palette the
+ * Delete control and the offline failure share, on a turn in a transcript. */
+.turn-redirection {
+  background: var(--notice-fill);
+  border-color: var(--notice-line);
+}
+/* A decline is a real answer and is recorded as one, but it is one word long.
+ * Rendered as a full card it took the same room as a paragraph of the
+ * researcher's own reasoning, and half of a four-turn window could be "Not
+ * now." set in a box. Label and text share a line instead.
+ *
+ * This rule must stay AFTER `.turn`. They are equal specificity and the compact
+ * padding only wins on source order; move it above and a one-word decline takes
+ * a full card again (FND-10). */
+.turn-refusal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-hair) var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--notice-fill);
+}
+.turn-refusal p {
+  margin: 0;
+}
+/* The selected question, its own paragraph inside the turn that delivered it,
+ * so the reaction and the question read as one turn rather than the same
+ * sentence twice in two bubbles. See TranscriptEntry.question. M66: plain
+ * weight and no rule beside it; the question is distinct only by being the last
+ * grey bubble. */
+.turn-asked {
+  margin: var(--space-sm) 0 0;
+}
+
+/* ── The chat, as Messages draws it (M66, ISC-627 to ISC-629) ─────────────────
+ *
+ * Matthew, 2026-10-01: "make the chats look more like imessage. Remove the
+ * placeholder text in the chats." M58 gave every conversation one thread with
+ * the newest turn at the foot; M66 draws it as Messages does. Abductive's turns
+ * are bubbles on the left in the quiet grey (`--accent-fill`) with ink text;
+ * yours are on the right in ink (`--accent`) with light text. The tool stays
+ * achromatic, so there is no blue. A run of bubbles from one side sits tight,
+ * and the last of the run carries the tail. Centred times open the thread and
+ * mark a gap of more than ten minutes. No speaker rows: each bubble names its
+ * speaker for a screen reader only.
+ *
+ * These rules come after `.turn`, `.turn-agent` and `.turn-refusal` on purpose:
+ * equal specificity, so the bubble wins on source order over a card's padding
+ * and a decline's compact notice row. */
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hair);
+  max-height: min(60vh, 36rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Room on both sides for the tails, which sit just outside their bubbles. */
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
+}
+.chat-turn {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* A bubble. The surface role's card (border, container radius, padding) goes;
+ * the bubble's own shape replaces it. */
+.chat-bubble {
+  position: relative;
+  display: block;
+  max-width: 75%;
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--radius-bubble);
+  box-shadow: none;
+}
+.chat-bubble p {
+  margin: 0;
+}
+.chat-bubble p + p {
+  margin-top: var(--space-sm);
+}
+.chat-tool.chat-bubble {
+  align-self: flex-start;
+  background: var(--accent-fill);
+  color: var(--ink);
+}
+.chat-you.chat-bubble {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--ink-inverse);
+}
+/* A new run starts a step further down than the next bubble in a run. */
+.chat-tail + .chat-bubble,
+.chat-tail + .chat-system {
+  margin-top: var(--space-sm);
+}
+/* The tail: the bubble's corner on its own side squares off, and a horn in the
+ * bubble's colour sweeps out from it to a point at the bottom. The horn is the
+ * part of a 14 by 16 box outside an ellipse anchored at its top outer corner, so
+ * it needs no knowledge of the colour behind the thread. The box overlaps the
+ * bubble by 6px and reaches 8px past it. */
+.chat-tool.chat-tail {
+  border-bottom-left-radius: var(--radius-sm);
+}
+.chat-you.chat-tail {
+  border-bottom-right-radius: var(--radius-sm);
+}
+.chat-tail::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 0.875rem;
+  height: 1rem;
+  pointer-events: none;
+}
+.chat-tool.chat-tail::after {
+  left: -0.5rem;
+  background: radial-gradient(0.5rem 0.8125rem at 0 0, transparent 97%, var(--accent-fill) 100%);
+}
+.chat-you.chat-tail::after {
+  right: -0.5rem;
+  background: radial-gradient(0.5rem 0.8125rem at 100% 0, transparent 97%, var(--accent) 100%);
+}
+/* A note that is neither person's message, centred as Messages centres one:
+ * the tool setting its own question aside, or a change of subject. It keeps a
+ * decline's notice row from `.turn-refusal` from applying. */
+.chat-system,
+.chat-system.turn-refusal,
+.chat-system.turn-redirection {
+  display: block;
+  align-self: center;
+  max-width: 85%;
+  margin: var(--space-sm) 0;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: center;
+}
+.chat-system p {
+  margin: 0;
+}
+/* The time over a run: small, grey and centred. */
+.chat-stamp {
+  align-self: center;
+  margin: var(--space-sm) 0 var(--space-xs);
+  font-size: var(--text-micro);
+  color: var(--ink-faint);
+}
+/* The step's question reads as any of Abductive's bubbles does; it is distinct
+ * only by being the last grey bubble. */
+.chat-question {
+  color: inherit;
+}
+/* "Answer saved", where Messages puts "Delivered": under the bubble, at the
+ * right edge. It ends a run. */
+.chat-saved {
+  align-self: flex-end;
+  margin: var(--space-hair) 0 var(--space-xs);
+  font-size: var(--text-micro);
+}
+.chat-tail + .chat-saved {
+  margin-top: var(--space-hair);
+}
+/* Under a tool turn the researcher stopped (M58). */
+.chat-cut {
+  margin: var(--space-xs) 0 0;
+}
+/* A reply that could not reach the model, with Try again beside the sentence
+ * (M74b, ISC-664). The control is a link-styled button inside the line, so the
+ * line reads as one sentence and one action. */
+.chat-unreachable {
+  margin: var(--space-xs) 0 0;
+}
+.chat-unreachable .linkish {
+  margin-left: var(--space-hair);
+}
+/* "Read the data" at the head of the Data section on Sources (M74b, ISC-665). */
+.read-data {
+  margin: 0 0 var(--space-sm);
+}
+/* The typing indicator: three dots that rise in turn while the reply waits to
+ * start, in the same grey bubble the text then fills. */
+.chat-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: var(--leading-body);
+}
+.chat-typing > span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--ink-faint);
+  animation: chat-typing 1.2s ease-in-out infinite;
+}
+.chat-typing > span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.chat-typing > span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes chat-typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-0.1875rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-typing > span {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+/* M69 (the lead's ruling, 2026-10-02): a sentence that the voice retry rewrote
+ * after the stream ended fades into place, so the reply settles rather than
+ * jumps. Opacity only: the words take the room the old ones had. */
+.chat-settle {
+  animation: chat-settle var(--motion-move) var(--motion-ease);
+}
+@keyframes chat-settle {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-settle {
+    animation: none;
+  }
+}
+.chat-compose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+/* Drawn above the composer and reached after it by Tab: the DOM has the box
+ * first (see Dialogue.tsx), and `order` puts the chips back on top, left-aligned
+ * where "Ask me differently" has sat since M58. */
+.chat-chips {
+  order: -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+.chat-chip {
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+.chat-chip:hover {
+  background: var(--surface-hover);
+}
+/* The composer: a pill at one line that rounds into a box as it grows, with
+ * the round send button inside its right edge. */
+.chat-composer {
+  /* The box inside keeps its 36em reading cap (D13); the frame follows it, so
+   * the send button stays beside the text when the column is wider than the cap. */
+  max-width: 42em;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-composer);
+  background: var(--surface);
+}
+.chat-composer textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-xs) 0;
+  border: none;
+  background: transparent;
+  line-height: var(--leading-body);
+  min-height: 0;
+  resize: none;
+  overflow-y: hidden;
+}
+/* The round send button. Quiet grey and a no-op with an empty box, ink and live
+ * with text (M58; the lead's ruling for M66, 2026-10-01: never disabled, so the
+ * FND-03 rule on controls inert at rest is kept). Stop takes its place, live,
+ * while a reply streams. */
+.chat-send {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--accent-fill);
+  color: var(--ink-faint);
+  cursor: default;
+}
+.chat-send svg {
+  width: 1rem;
+  height: 1rem;
+}
+.chat-send[data-live="true"] {
+  background: var(--accent);
+  color: var(--ink-inverse);
+  cursor: pointer;
+}
+/* The keyboard ring goes round the composer rather than the box inside it, so
+ * it stays visible without a second frame inside the first (ISC-544 keeps the
+ * ring, in the focus tokens). */
+.chat-composer:has(textarea:focus-visible) {
+  outline: var(--focus-width) solid var(--focus-colour);
+  outline-offset: var(--focus-offset);
+}
+.chat-composer textarea:focus-visible {
+  outline: none;
+}
+/* At phone width the bubbles take up to 85% of the thread, and the composer
+ * stays in view at the foot of the chat pane while the page scrolls. */
+@media (max-width: 700px) {
+  .chat-bubble {
+    max-width: 85%;
+  }
+  .chat-compose {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding: var(--space-sm) 0;
+    background: var(--paper);
+  }
+  /* On a Design step the chat sits in the step's white card, so the pinned
+     strip takes the card's colour rather than the page's. */
+  .station .chat-compose {
+    background: var(--surface);
+  }
+}
+.chat-note {
+  margin: 0;
+}
+/* The tool's puzzle reading, offered as a turn at the puzzle step (M58). The
+ * reading is quoted, since the words are the tool's, and the control that reads
+ * again is a chip, the same shape as the moves under the thread. */
+.puzzle-offer {
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: start;
+}
+.puzzle-offer > p {
+  margin: 0;
+}
+.puzzle-offer-text {
+  margin: 0;
+  padding-left: var(--space-md);
+  border-left: 1px solid var(--line-strong);
+  color: var(--ink-strong);
+  white-space: pre-wrap;
+}
+
+/* The two boxes in this column take the track, up to 36em (D13, M43).
+ *
+ * Read this beside the M39 note above, which is the decision it works inside.
+ * M39 measured the card at 1120px holding a 448px textarea, refused to stretch
+ * the box to the card because "that would have put 89 characters on a line the
+ * measure tokens exist to hold at 70", and gave the width to a second column
+ * instead. That decision stands: the cap is still a measure and the card is
+ * still not the measure.
+ *
+ * What the walk of 2026-09-13 measured is what 448px costs a long answer. At
+ * innerWidth 1600 a 4,000-character answer rendered 448 by 1341 inside a 658px
+ * field in a 708px pane, with a 512px companion beside it only 134px tall: a
+ * ribbon down the left of a mostly empty window. Nothing caps the height, so the
+ * height is entirely what the width did.
+ *
+ * 36em is 504px at this control's 14px, which is 75 characters measured in the
+ * app's own font. tokens.css sets the bar at 80 and records 36em as the step
+ * that "renders its lede, convention and falsifier at 79, 80 and 80 against that
+ * bar, which is passing with nothing to spare"; that was 36em of --text-small
+ * prose. Here the same 36em is on a 14px control and lands at 75, which is
+ * inside the bar with room, and short of the 89 M39 refused.
+ *
+ * em rather than rem deliberately. A rem is 16px, so 36rem would be 576px and 86
+ * characters, over the bar. The cap has to follow the control's own size, which
+ * is what every measure token in this app does and why they are stated in em.
+ *
+ * Both boxes, in one rule. The chat box and the saved answer sit one above the
+ * other in the same column, and base.css says why they cannot take two
+ * different caps: "a card holding an input above a textarea had two right edges
+ * by construction". */
+.answer-box textarea,
+.station-answer textarea {
+  width: 100%;
+  max-width: 36em;
+}
+.answer-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.moves ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+.move {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  text-align: left;
+  padding: var(--pad-tight);
+  cursor: pointer;
+  font: inherit;
+}
+.move:hover {
+  border-color: var(--accent);
+}
+.move-question {
+  font-weight: 600;
+}
+/* The reason a question is being offered sat behind "asking you ·", a speaker
+ * label doing duty as a reason. The speaker is now only named when it is not
+ * the interrogation the heading above already promises. */
+.move-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--text-small);
+}
+.move-why {
+  line-height: var(--leading-body);
+}
+/* An expectation a paper holds, above the question that asks about it (M33).
+ * Set off from the question below it, because it is not the tool's sentence and
+ * not the researcher's: the kicker above says whose it is. */
+.move-quoted {
+  display: block;
+  margin-bottom: var(--space-xs);
+  line-height: var(--leading-body);
+  color: var(--ink-strong);
+}
+
+/* M47. The redirect box that used to sit here is gone, and with it `.redirect`,
+ * `.redirect-row` and the row's input rule. The box asked the researcher to type
+ * a topic to work on instead, which the rail already does by being a list of
+ * steps, and the redirection it recorded is still recorded by the paths that
+ * write one: writing at a step while a question waits at another, asking the
+ * tool for directions, and picking one of the offered questions. */
+
+/* Below the station card the column ran as unlabelled boxes while every section
+ * of the right column carried a heading, so there was nothing on screen saying
+ * that the toggle and the turn cards were one thing. When
+ * the exchange is record rather than live it drops below the next action, and
+ * the separator marks that boundary (ISC-357, ISC-358). */
+.conversation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.conversation-head {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+.conversation-scope {
+  margin: 0 0 var(--space-xs);
+}
+/* One line where the chat box would be, with no model attached (ISC-491). */
+.conversation-offline {
+  margin: 0;
+}
+/* Nothing said here yet (M38, ISC-497).
+ *
+ * The same block as a conversation that has turns in it, so the heading sits
+ * where it will sit once the place fills. No fill and no border of its own: the
+ * empty state inside already draws its own frame, and a second one around it
+ * would make an empty step look heavier than a full one, which is the rail
+ * reading as a checklist by another route. */
+.conversation-empty .empty-state {
+  margin: 0;
+}
+
+/* A finding brought here from Checks (M38, ISC-495).
+ *
+ * The notice ground, the same as the open-question pointer below it, because it
+ * is the same kind of thing: a pointer from elsewhere in the study, on screen
+ * until it is acted on. Nothing here is a new channel; it is the one fill this
+ * column already uses for exactly this. */
+.invited {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  background: var(--notice-fill);
+  border-color: var(--notice-line);
+  padding: var(--pad-tight);
+}
+.invited > p {
+  margin: 0;
+}
+.invited-question {
+  max-width: var(--measure);
+}
+
+/* The line naming a question open at another station went at M84 (ISC-706). */
+
+/* An open question filed under no station: only reachable in studies that
+ * predate turns recording one. Shown in full because there is nowhere to point
+ * at. See Dialogue's `unplaced`. */
+.open-unplaced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  background: var(--notice-fill);
+  border-color: var(--notice-line);
+}
+.open-unplaced-head {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+.open-unplaced > p {
+  margin: 0;
+}
+
+/* ── The next step (M27, D4) ─────────────────────────────────────────────────
+ * One sentence and one link, at the foot of every station. It is the only
+ * surface on this view that names a destination: the standing bar at the top
+ * used to name three of them in prose with nothing to click, on the first
+ * screen a researcher meets, before they had done anything.
+ *
+ * Full width and visually quiet. It is persistent, so it must never compete
+ * with the station's own primary; what makes it findable is that it is always
+ * in the same place saying the same kind of thing.
+ */
+/* In the standing header since 2026-09-12, as its first row.
+ *
+ * M32 (R11) made it sticky at the foot of the content cell, because the app's
+ * one persistent "what now" had been an inline element at the foot of a
+ * 4,082px document and was only ever seen by a reader who had already finished
+ * the page. M40 put the framing fold under it, and the owner's ruling on seeing
+ * the two together was that the fold should replace the bar. So the bar went up
+ * rather than away: the standing header already printed its sentence as
+ * "Waiting on you: …", and now it prints the control beside it. The box, the
+ * fill and the shadow belong to `.standing` here; this is a row inside it and
+ * draws no box of its own, so the header does not carry a notice inside a
+ * notice. */
+.nextbar {
+  width: 100%;
+  /* M32b, fix 1. A row, so a sentence can never break a button box.
+   *
+   * The control used to be a word inside the sentence's own paragraph. An
+   * anchor is an inline box and fragments across lines like the words around
+   * it, which is the whole reason the inline controls in this app are anchors;
+   * once this one wore `btn btn-primary` it fragmented with its background, so
+   * at 1449 "Open your exports" broke after "your" and the second half rendered
+   * as a separate dark slab under the sentence, overlapping it.
+   *
+   * `align-items: center` rather than baseline: the sentence wraps to two lines
+   * on the longer states and a baseline-aligned control would ride the first
+   * of them. */
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+/* The sentence takes what is left and wraps inside itself. `min-width: 0` is
+ * what lets it, since a flex item's automatic minimum is its longest word run
+ * and without this the row would push the control off the end instead. */
+.nextbar-line {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: var(--measure-wide);
+}
+/* And the control never wraps. `flex: none` so it is its own width whatever the
+ * sentence is doing, and `nowrap` so a two-word label stays one box. */
+.nextbar-action {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ── The field the page's named move points at (R4 item 1) ───────────────────
+ * Weight, not a gate. The bar at the head and the foot of this page name one
+ * move; before this, the only filled control on an empty study belonged to a
+ * different one. The named field carries a rule down its left edge and a tinted
+ * ground, in the same accent the primary button uses, so the sentence and the
+ * thing it points at read as one instruction.
+ */
+.motivation .station-field[data-highlight="true"] {
+  border-left: 2px solid var(--line-strong); /* M53, ISC-544 */
+  padding-left: var(--space-md);
+  background: var(--accent-fill);
+  border-radius: var(--radius-sm);
+}
+
+/* ── The divider, and the pane beside the step ─────────────────────────────
+ * M39, ISC-503. The separator's own rules are in components.css, where every
+ * primitive's are. The companion that sat in the right pane (the papers, M39 to
+ * M58) went at M59, ISC-572.
+ */
+
+/* ── The summary beside the thread (M59, ISC-573) ───────────────────────────
+ * Where the companion was. The pane keeps its own scroll, so a long answer does
+ * not lengthen the page and move the thread the researcher is reading, and it
+ * sticks under the study bar above 1100px so the summary is beside the step
+ * wherever the thread is scrolled. `--summary-top` and `--summary-h` are written
+ * inline by Workbench from a ResizeObserver, for the reason M47 gave: the study
+ * bar's height is not a constant. Below 1100px the summary sits under the
+ * thread, and a sticky block in a single column would pin the step off screen. */
+.summary-pane {
+  display: grid;
+  gap: var(--space-md);
+  align-content: start;
+  min-width: 0;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+@media (min-width: 1101px) {
+  .workbench-body[data-panes="two"] .summary-pane {
+    position: sticky;
+    top: var(--summary-top, 0px);
+    max-height: var(--summary-h, 80vh);
+  }
+  /* A long summary scrolls inside its box, so the save row stays in the pane's
+   * view beside the thread. Measured on the shipped example at 1480x898: the box
+   * grew to 795px and put "Save this answer" 300px under the pane's fold. */
+  .workbench-body[data-panes="two"] .summary-pane .station-answer textarea {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+.station-summary {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+.summary-head {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+.summary-lede {
+  margin: 0;
+}
+
+/* M92, ISC-752: a summary read as text, and the row of controls under it, on
+   Starting point and on a Design step alike. */
+.summary-text {
+  margin: 0;
+  white-space: pre-wrap;
+  max-width: var(--measure-wide);
+}
+.summary-buttons {
+  margin: var(--space-xs) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+/* M92 polish: the two read-state controls share a row, and when the column is
+   too narrow for both they stack, each the full width, so neither wraps alone. */
+.summary-buttons[data-mode="read"] > button {
+  flex: 1 1 auto;
+}
+/* The chip beside a summary's label sits at the row's right. */
+.field-label-row > .status-chip {
+  margin-left: auto;
+}
+/* M92 polish: a breath between the sentence under Summary and the summary itself. */
+.station-answer .summary-lede {
+  margin-bottom: var(--space-sm);
+}
+
+/* M93, ISC-755: Surface concepts and relationships closes the chat at every step. */
+.surface-step {
+  display: grid;
+  gap: var(--space-xs);
+  margin: var(--space-md) 0;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--line-strong);
+}
+
+.surface-control {
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: start;
+}
+
+.surface-step [role="status"],
+.surface-control > p {
+  margin: 0;
+}
+
+/* M93, ISC-763: Accept, Edit and Reject on the puzzle reading. */
+.reading-decision {
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: start;
+}
+
+.reading-decision > p {
+  margin: 0;
+}
+
+/* M93: in Starting point's column, which holds the viewport, the chat keeps at
+   least half of the column; the surfacing and its cards scroll in the rest. */
+.motivation-aside .surface-step {
+  flex: 0 1 auto;
+  max-height: 50%;
+  min-height: 0;
+  overflow-y: auto;
+  margin-bottom: 0;
+}

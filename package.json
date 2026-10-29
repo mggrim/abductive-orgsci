@@ -1,0 +1,34 @@
+{
+  "name": "abductive",
+  "private": true,
+  "version": "2.0.0-alpha.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun scripts/dev.ts",
+    "build": "bun scripts/ship-bridge.ts && tsc --noEmit && vite build && bun scripts/site-manifest.ts dist",
+    "test": "bun test",
+    "bridge": "bun scripts/cli-bridge.ts",
+    "typecheck": "tsc --noEmit",
+    "wt": "bun scripts/worktree.ts",
+    "dev:app-only": "vite"
+  },
+  "dependencies": {
+    "@types/d3-force": "^3.0.10",
+    "d3-force": "^3.0.0",
+    "idb": "^8.0.0",
+    "pdfjs-dist": "^6.1.200",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.14.0",
+    "@types/bun": "^1.2.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "fake-indexeddb": "^6.2.5",
+    "happy-dom": "^20.14.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.0"
+  }
+}

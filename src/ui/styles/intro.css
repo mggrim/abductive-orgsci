@@ -1,0 +1,1213 @@
+/**
+ * The introduction (SHL surface).
+ *
+ * The one screen a researcher meets before any research happens. Owned by the
+ * App Shell and Entry builder. It is the only surface with display type and the
+ * only one with a dark ground, which is why its focus ring is overridden in
+ * base.css rather than here.
+ */
+
+/* `.intro { padding-bottom: var(--space-3xl) }` was here and is gone: `.shell`
+ * sets that interval on every route already, and restating it put 96px under
+ * the front door against 48px under /studies, which is the next screen a
+ * reader sees. Reasoning at `.studyview` in shell.css. */
+/* The intro's section titles are the single documented exception FND-05 allows
+ * to "one h2 role everywhere". They read as chapter openings on a page with no
+ * study bar above them and nothing else on it competing, so they take the head
+ * step, which on every other route belongs to the one h1. They took the display
+ * step until the scale collapsed from eight rendered sizes to five; the hero
+ * has that step to itself now, so the two stopped being the same size. */
+.intro h2 {
+  font-size: var(--text-head);
+  margin: 0 0 var(--space-sm);
+  letter-spacing: -0.01em;
+}
+.intro-section-lede {
+  max-width: var(--measure);
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-xl);
+}
+
+.intro-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
+  gap: var(--space-2xl);
+  align-items: center;
+  /* M32, R13. The backdrop is absolutely positioned inside this box and
+   * cropped to it, so the hero is its containing block and its clip. The
+   * gradient below stays: it is the ground when there is no file, which is the
+   * state the build ships in until the six images land, and it is what the
+   * scrim composites over at the left edge. */
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    150deg,
+    var(--hero-ground-top) 0%,
+    var(--hero-ground-mid) 48%,
+    var(--hero-ground-end) 100%
+  );
+  color: var(--hero-ink);
+  border-radius: var(--radius-container);
+  padding: var(--space-3xl) var(--space-2xl);
+  margin: var(--space-sm) 0 var(--space-3xl);
+}
+@media (max-width: 880px) {
+  .intro-hero {
+    grid-template-columns: 1fr;
+    padding: var(--space-2xl) var(--space-xl);
+  }
+}
+
+/* The left half of the hero: eyebrow, title, lede, start form. Introduction.tsx
+ * has wrapped these four in a div carrying this class since the hero was
+ * written and nothing in the directory named it, so the four blocks were held
+ * apart by four unrelated margins inside a grid cell that had no opinion. It is
+ * the first screen in the product. One column, one interval, and min-width 0 so
+ * the 1.25fr track can actually give way at 880px. */
+.intro-hero-copy {
+  min-width: 0;
+  /* Over the backdrop. M32, R13. */
+  position: relative;
+  z-index: 1;
+}
+
+.intro-eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: var(--text-small);
+  color: var(--hero-ink-muted);
+}
+/* The top of the scale, and the only rule in the app that reads it. It was a
+ * clamp(1.9rem, 4vw, 2.9rem) reaching 46.4px at 1440, which is what made the
+ * intro and the ontology tab render nine distinct sizes between them. A fixed
+ * 28px keeps the hero the largest thing in the product without buying a sixth
+ * step to say so. 19ch is a ragging measure for a two-line title, not one of
+ * the three prose measures. */
+.intro-title {
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: -0.02em;
+  margin: var(--space-sm) 0 var(--space-lg);
+  max-width: 19ch;
+  color: var(--ink-inverse);
+  font-weight: 600;
+}
+/* The last `ch` cap in the app, and the widest true line the survey measured:
+ * 78 characters, two under the bar. `ch` is the advance of the digit zero,
+ * about 1.37 times the average advance of English prose in system-ui, which is
+ * the same unit error the three measure tokens were corrected for. It reads the
+ * token now and lands near 70. */
+.intro-lede {
+  margin: 0 0 var(--space-xl);
+  max-width: var(--measure-wide);
+  color: var(--hero-ink-muted);
+  line-height: var(--leading-body);
+}
+
+.intro-start {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  max-width: 34rem;
+}
+/* M92 polish: the field's label, above it on its own line, in the field-label
+   weight and the hero's own ink. */
+.intro-start-label {
+  flex: 1 0 100%;
+  font-weight: 600;
+  color: var(--ink-inverse);
+}
+.intro-start input {
+  flex: 1 1 16rem;
+  min-width: 0;
+  padding: var(--space-md) var(--space-md);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--hero-field-line);
+  background: var(--hero-field);
+  color: var(--ink-inverse);
+  max-width: none;
+}
+.intro-start input::placeholder {
+  color: var(--hero-ink-faint);
+}
+.intro-start button {
+  font-weight: 600;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-control);
+  border: none;
+  background: var(--hero-button);
+  color: var(--hero-button-ink);
+}
+
+/* Was a single baseline row of three bare titles and a count. It is a short
+ * list now, because each entry carries a second line saying what is waiting in
+ * that study, and three name-plus-state pairs on one line is a paragraph
+ * pretending to be navigation. */
+.intro-continue {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: start;
+  margin-top: var(--space-xl);
+  color: var(--hero-ink-faint);
+}
+.intro-continue a {
+  color: var(--hero-ink);
+}
+.intro-continue-head {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--hero-ink-faint);
+}
+.intro-resume {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+.intro-resume > li {
+  display: grid;
+  gap: var(--space-hair);
+}
+.intro-resume-state {
+  font-size: var(--text-small);
+  color: var(--hero-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One ink for the whole figure and its legend, inherited by the disc marks
+ * through `currentColor`. The three --origin-*-inverse tokens that used to
+ * paint this figure are gone: origin is fill share now and colour is not part
+ * of it, so a hero teaching an ink ramp was teaching a channel the ontology
+ * graph does not draw. */
+.intro-hero-art {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: center;
+  color: var(--hero-ink);
+  /* Over the backdrop. M32, R13. */
+  position: relative;
+  z-index: 1;
+}
+.hero-svg {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  overflow: visible;
+}
+.hero-edge {
+  stroke: var(--hero-edge);
+  stroke-width: 1.4;
+  opacity: 0;
+  animation: heroIn 0.7s ease forwards;
+}
+.hero-glow-in {
+  stop-color: var(--hero-glow);
+  stop-opacity: 0.55;
+}
+.hero-glow-out {
+  stop-color: var(--hero-ground-top);
+  stop-opacity: 0;
+}
+.hero-node {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: heroPop 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) forwards;
+}
+
+/* No origin rule here any more, and that is the fix.
+ *
+ * This block held the hero's own definition of the mark: an ink ramp for two
+ * origins and fill:none + a 2px dashed rim for the third, which is not what
+ * OntologyGraph draws and not what the export writes. Three surfaces, three
+ * definitions, and the dashed rim this screen taught as "the model proposed
+ * it" meant "nothing joins this page yet" on the ontology tab. The fill share,
+ * the rim weight come from src/ui/components/PageMark.tsx and the legend wording
+ * from src/ui/originVocabulary.ts now,
+ * as attributes on the element, so there is nothing left for a stylesheet to
+ * disagree with. */
+@keyframes heroIn {
+  to {
+    opacity: 0.55;
+  }
+}
+@keyframes heroPop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-edge,
+  .hero-node {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+/* M32b, fix 3. The legend carries its own ground.
+ *
+ * It reads --hero-ink-faint, which was written for the hero's flat gradient
+ * slab and is 6.5:1 on it. R13 put a photograph behind the hero, and the copy's
+ * scrim covers the left 40% because the right is where the picture is actually
+ * visible, which is also where this legend sits: four labels at 13px over a lit
+ * doorway and a corridor falling to black, at whatever contrast that pixel
+ * happens to be.
+ *
+ * A plate rather than a brighter ink, for two reasons. The ink is a token doing
+ * the same job in four places and this is not a reason to move it. And the
+ * legend is the one thing on the front page that teaches the origin encoding,
+ * so it has to be legible against every frame of every image anybody ever puts
+ * behind it, not against this one. Solid --hero-ground-top, the same value the
+ * copy's scrim uses, so the two treatments are one decision. The plate hugs the
+ * labels rather than spanning, because `.intro-hero-art` centres its children
+ * and sizes them to content. */
+.hero-legend {
+  list-style: none;
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--hero-ink-faint);
+  flex-wrap: wrap;
+  justify-content: center;
+  background: var(--hero-ground-top);
+  border-radius: var(--radius-control);
+}
+/* The swatch reads in the figure's ink rather than the caption's, because it is
+ * the figure's mark. The caption around it stays faint. */
+.hero-legend .origin-swatch {
+  color: var(--hero-ink);
+}
+
+/* M29. The ring inside the fourth mark is drawn in the ground colour, and this
+ * is the one surface whose ground is not paper: a near-white ring on a
+ * near-white disc on a dark ground is not a ring, so "from the papers" and
+ * "yours" would be the same mark in the legend that defines them. A rule beats
+ * a presentation attribute, which is why the mark ships the attribute and this
+ * re-points it rather than the mark asking every caller for its ground. */
+.hero-legend .mark-inner-ring,
+.intro-hero-art .mark-inner-ring {
+  stroke: var(--hero-ground-mid);
+}
+
+/* The intro keeps its own, wider section gap, and that is a decision rather
+ * than a leftover: it is the one route with no study bar over it, its h2s take
+ * the head step as chapter openings (see the note at `.intro h2`), and the
+ * blocks between them are 200 to 1000px tall. Every other route separates
+ * sections by --space-xl.
+ *
+ * The last one does not, and that is the coherence fix. `.intro-close` carried
+ * the same bottom margin as its siblings, and because `.intro` no longer sets
+ * its own padding-bottom that margin escaped the main box: measured on the
+ * running app the document ended 96px under the last line here against 48px on
+ * the other seven routes, which is the defect that was just removed from four
+ * surfaces reappearing on the fifth through a different property. A trailing
+ * gap is the frame's, and `.shell` has it. */
+.intro-obstacles,
+.intro-stations,
+.intro-commitments,
+.intro-terms,
+.intro-close {
+  margin-bottom: var(--space-3xl);
+}
+
+/* M61. The terms Abductive keeps, folded: one table, the reader's own words in
+ * the last column. The table takes the prose measure rather than the frame. */
+.intro-terms-table {
+  border-collapse: collapse;
+  max-width: 48rem;
+  width: 100%;
+}
+.intro-terms-table th,
+.intro-terms-table td {
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
+  text-align: left;
+  vertical-align: top;
+}
+.intro-terms-table thead th {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+.intro > section:last-child {
+  margin-bottom: 0;
+}
+
+/* D8 (M27). `.loop-steps` and `.loop-n`, renamed with the section they dress.
+ * Four cards about how the tool runs became nine about what goes wrong in a
+ * study, so the class that says "step in a loop" would have been describing
+ * something that is no longer a loop. The track minimum went from 230px to
+ * 260px with them: an obstacle's heading is a full sentence where a step's was
+ * two or three words, and at 230 the nine headings wrapped to four lines each. */
+/* M34: the track's own rule is `.intro-slider-track` at the foot of this file.
+ * `.obstacle-cards` kept the auto-fit grid and the list reset until the nine
+ * became a slider; both moved to the shared rule so the two sliders cannot
+ * disagree about how a track scrolls. What is left keyed on this class is what
+ * an obstacle card holds, which is the only thing that is still its own. */
+.obstacle-card {
+  padding: var(--pad-roomy);
+}
+.obstacle-cards h3 {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-title);
+}
+.obstacle-cards p {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+.obstacle-n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--ink-inverse);
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+
+
+.commitment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+}
+/* An undertaking, not a warning. It was drawn with the same red-brown left
+ * border as a destructive action, which is the collision FND-04 named. */
+.commitment {
+  background: var(--surface-sunken);
+  border-color: transparent;
+  padding: var(--pad-roomy);
+  border-left: 3px solid var(--notice);
+}
+.commitment h3 {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--text-title);
+}
+.commitment p {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+/* The reasoning behind each refusal (R5). A subheading rather than a fold: the
+ * owner asked for the logic to be on the page, and a reader deciding whether to
+ * trust a refusal should not have to open anything to find out why it is there.
+ * Set apart from the card's own sentence by space and a label, not by a rule.
+ *
+ * Compound selectors rather than `!important`: `.commitment p` above zeroes the
+ * margin on every paragraph in the card, and one class on its own loses to it.
+ * Two classes beat one, which is what this file's own rule asks for. */
+.commitment .commitment-why-head {
+  margin-top: var(--space-md);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.commitment .commitment-why {
+  margin-top: var(--space-xs);
+}
+
+.intro-close p {
+  max-width: var(--measure);
+  color: var(--ink-muted);
+}
+
+/* ── How the pieces fit together (R5) went at M88 ────────────────────────────
+ * The owner, 2026-10-14: "remove how the parts fit together section". The
+ * seven moves, their vertical track and the two-column drawing left the front
+ * page, and their rules here and further down went with them.
+ */
+
+/* ── The six front-page images (M32, R13) ────────────────────────────────────
+ * A hero backdrop, two section banners and one square inside each commitment
+ * card. Six slots and no seventh: "Where your data lives" gets nothing,
+ * because a claim about locality illustrated with stock art reads as
+ * marketing.
+ *
+ * Every rule here has to survive the file being absent. Introduction.tsx
+ * unmounts the wrapper on `onError`, so a missing file leaves no box, no
+ * reserved height and no broken-image glyph, and none of these rules can paint
+ * an empty container: nothing below sets a background or a border on a wrapper,
+ * only on the image inside it.
+ *
+ * The aspect ratios are singular geometry and stay literal, which is what
+ * tokens.css says about geometry no second rule needs to agree about.
+ */
+.intro-hero-back {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-container);
+  overflow: hidden;
+  z-index: 0;
+}
+.intro-hero-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* The copy must stay legible over whatever the photograph is doing behind it,
+ * and a wash over the whole frame would flatten the picture to a texture. The
+ * left 40% carries it and the rest clears, so the type sits on ink and the
+ * image is still an image. 13.0:1 was the hero's measured contrast before this
+ * and the scrim is opaque enough at the left edge to hold it. */
+.intro-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--hero-ground-top) 0%,
+    var(--hero-ground-top) 40%,
+    transparent 72%
+  );
+}
+/* The hero's own `position: relative` and `overflow: hidden`, and the stacking
+ * on the two things that sit over the backdrop, are declared with those rules
+ * up the file rather than restated here (FND-10). What is here is only what the
+ * images add. */
+
+/* The two banners. 3:1 and cropped, because a band is a rule with a picture in
+ * it rather than a picture: it says a new section has started and then gets out
+ * of the way of the heading under it. */
+.intro-banner {
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-container);
+  overflow: hidden;
+}
+.intro-banner img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+}
+
+/* One square per commitment card, above the refusal it illustrates. */
+.commitment-image {
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.commitment-image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/* ── The front page's glyphs, labels and two sliders (M34) ───────────────────
+ *
+ * The owner: "For what goes wrong early, there should be icons for each of the
+ * nine aspects … What goes wrong early should probably be a slider. Same with
+ * how to use the tool."
+ *
+ * Three additions, and they share a register on purpose. The glyph, the number
+ * and the micro label are all chrome: they say which card this is and which
+ * half of it you are reading, and none of them carries a claim. So all three
+ * sit on --ink-faint and none of them takes a hue. Hue is spent entirely on
+ * page type (tokens.css), and a coloured icon on the first screen would be a
+ * second palette teaching a channel that stops existing at the second click.
+ *
+ * Why several of these are element-qualified. `.obstacle-cards p` is 0-1-1
+ * and sets margin, colour and leading on every paragraph inside a card (the
+ * moves' card rule beside it went at M88). A class on its own is 0-1-0 and
+ * loses to it, so the label and the mark row would have rendered at body ink
+ * inside a card and at chrome ink outside one. `p.intro-card-label` is 0-1-1
+ * and declared after it, which is what this sheet asks for in place of a shout
+ * (FND-10).
+ */
+
+/* The number and the glyph, across the top of a card. */
+p.intro-mark-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0 0 var(--space-sm);
+}
+/* Inherited ink, so a glyph is the colour of the chrome around it and never a
+ * colour of its own. The size is the icon's own box: 24 units of viewBox drawn
+ * at 24px, which is the scale every glyph in FrontIcons.tsx is drawn for. */
+.front-icon {
+  display: block;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: var(--ink-faint);
+}
+
+/* R4's register: what a region is, said once, without competing with anything
+ * inside it. Two of them on an obstacle card, naming the problem and naming
+ * what the tool does about it, because both were on the card already and
+ * nothing said which was which. */
+p.intro-card-label {
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-faint);
+  line-height: var(--leading-tight);
+  margin: var(--space-md) 0 var(--space-hair);
+}
+/* The first label opens the card, so it takes the mark row's gap rather than a
+ * section interval of its own. */
+p.intro-mark-row + p.intro-card-label {
+  margin-top: 0;
+}
+/* Same on a step card, where the heading follows the row directly: the row
+ * already carries the interval, and `.station-card h3` declares a hair of top
+ * margin for the arrangement it had before the glyph arrived. */
+p.intro-mark-row + h3 {
+  margin-top: 0;
+}
+/* M83, ISC-697: the group a question belongs to, at the head of every card,
+ * so a page of two or three cards always names the group it opens in. Sentence
+ * case rather than the micro capitals, because it is a heading of the reader's
+ * own kind (the co-author's three) and the label under it is chrome.
+ *
+ * M85, ISC-709 (a co-author, 2026-10-13: "can have a different color (e.g.
+ * different shade of grey) in order to indicate that they fit under the same
+ * rubric"): the label is a band of its own, a tint with a rule down its left
+ * edge and an ink that is neither the kicker's (--ink-faint) nor the body's
+ * (--ink-muted). Each group sets its shade once below, so every card of a group
+ * carries the same band and the three groups read apart. */
+p.intro-card-group {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--rubric-ink);
+  border-left: 3px solid;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  /* Two lines held, so a page that holds a two-line group ("the theoretical
+   * starting point") beside a one-line one keeps every card's number row on
+   * one line across the page (Safari, 1398 wide, M83). */
+  min-height: calc(2 * var(--leading-tight));
+  box-sizing: content-box;
+}
+/* Each group's shade, set once for all its cards (tokens.css, Rubric). */
+p.intro-card-group[data-group="theory"] {
+  background: var(--rubric-theory-fill);
+  border-left-color: var(--rubric-theory-rule);
+}
+p.intro-card-group[data-group="collection"] {
+  background: var(--rubric-collection-fill);
+  border-left-color: var(--rubric-collection-rule);
+}
+p.intro-card-group[data-group="analysis"] {
+  background: var(--rubric-analysis-fill);
+  border-left-color: var(--rubric-analysis-rule);
+}
+/* `.intro-kicker` was here, the same register above "How the parts fit
+ * together", and it went with that section at M88. */
+
+/* ── The track ───────────────────────────────────────────────────────────────
+ *
+ * One rule for both sliders. Snap on the x axis, one card per snap point, and
+ * `scroll-behavior` in the sheet rather than in the handler, so the button only
+ * has to assign a number and reduced motion is honoured without a branch in the
+ * component.
+ *
+ * The bottom padding is the focus ring's. A card takes a tab stop, the ring is
+ * drawn outside the box, and a scroll port clips its own overflow, so without
+ * it the ring on a focused card would be cut off at the foot of the track.
+ */
+/* The wrapper: the track, and the foot under it. It exists so the two belong to
+ * one box that a section can space against, rather than a list and a row of
+ * controls that happen to be adjacent. */
+.intro-slider {
+  position: relative;
+}
+.intro-slider-track {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-xs);
+  display: flex;
+  gap: var(--space-lg);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+/* M34 round four. The design critic measured a native scrollbar under the moves
+ * track and none under this one, which is one page saying where you are two
+ * different ways. Both are hidden now and the drawn count below is what says it
+ * on both. WebKit needs the pseudo-element; `scrollbar-width` above is the
+ * standard property every other engine reads. */
+.intro-slider-track::-webkit-scrollbar {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-slider-track {
+    scroll-behavior: auto;
+  }
+}
+/* 320px, held rather than fluid, so the number of cards in view follows the
+ * width of the window rather than the other way round: three at 1440 and two at
+ * 1024, in both cases with the next one part-shown, which is the whole of how a
+ * track says it continues. Geometry no second rule has to agree about, so it
+ * stays literal, which is what tokens.css says about the hero's 600px diagram.
+ */
+.intro-slide {
+  flex: 0 0 320px;
+  min-width: 0;
+  max-width: none;
+  scroll-snap-align: start;
+}
+/* Under the narrow breakpoint there is no room for a fixed card and a peek, so
+ * the card takes the port and leaves a thumb's width of the next one. Touch
+ * scrolling is the control here; the buttons are still there and still work. */
+@media (max-width: 700px) {
+  .intro-slide {
+    flex: 0 0 86%;
+  }
+}
+
+/* The foot: the two buttons, and the announced position beside them. Nothing
+ * appears or disappears here at either end of the track, so the row has one
+ * height at every scroll position and needs no reserved line. */
+.intro-slider-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+.intro-slider-buttons {
+  display: flex;
+  flex: none;
+  gap: var(--space-sm);
+}
+/* Where you are, drawn (M34 round four). It sits opposite the buttons, in the
+ * micro register the card labels and the kicker use, so it reads as chrome
+ * rather than as a number the reader has to do something about. Tabular figures
+ * because it changes under the eye and a proportional 1 would shift the line.
+ *
+ * `aria-hidden`, because the live region beside it says the same number in
+ * words. The pair is `SliderCount` in Introduction.tsx. */
+.intro-slider-count {
+  margin: 0 0 0 auto;
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+}
+
+/* ── The seven steps, in the Design tab's own arrangement (M34, round 3) ──────
+ *
+ * The owner: "The seven steps on the front page should be organized in the same
+ * way as the framework layout in the design tab."
+ *
+ * The loop, the row, the two sentences beside them and the cell are all
+ * components.css's, shared with the Design rail so the two cannot draw the same
+ * seven two ways. What is here is only what this surface adds: the wrapper's
+ * own interval, and the panel the cards' words moved into.
+ *
+ * `.station-cards` and its four card-part rules were here and are gone with the
+ * cards. The step's number, blurb and prompt are all still rendered; they are
+ * in the panel, in the workspace's own kicker form, rather than repeated seven
+ * times down a grid.
+ */
+.steps-rail {
+  margin-top: var(--space-lg);
+}
+/* The panel under the rail. A grid so the three lines take the scale's own
+ * intervals rather than the paragraph margins each would bring, which is the
+ * same reason `.station-head` on the Design tab is one. */
+.steps-panel {
+  display: grid;
+  gap: var(--space-xs);
+  margin-top: var(--space-lg);
+  padding: var(--pad-roomy);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-container);
+  max-width: var(--column-read);
+}
+/* The question the step asks, set apart from the sentence describing it the way
+ * the card did before the cards went: the rule and the italic are the card's
+ * own treatment, kept because it is the one line on this surface the researcher
+ * is meant to hear in the tool's voice. */
+.steps-panel-prompt {
+  margin: var(--space-xs) 0 0;
+  color: var(--ink-strong);
+  font-style: italic;
+  border-top: 1px dashed var(--line);
+  padding-top: var(--space-sm);
+  max-width: var(--measure);
+}
+
+/* ── The other way in (M36) ─────────────────────────────────────────────────
+ *
+ * Under the create form, on the hero's dark ground. Outlined rather than
+ * filled, because Create study is this screen's one primary. (M91: the example
+ * project's button beside it went, 2026-10-14.)
+ *
+ * The face and the hint take the hero's inks rather than the light ones
+ * base.css gives every field in the app, for the reason `.intro-start input`
+ * already restates them: this is the one block in the product that sits on a
+ * dark ground, and a field that inherits the page palette here renders white
+ * on white.
+ */
+.intro-alt {
+  display: grid;
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+  max-width: 34rem;
+}
+.intro-alt button,
+.intro-alt .field-row > .field-face {
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--hero-field-line);
+  background: transparent;
+  color: var(--hero-ink);
+}
+.intro-alt button:hover,
+.intro-alt .field-row > .field-face:hover {
+  border-color: var(--hero-edge);
+}
+.intro-alt .muted,
+.intro-alt .field-row > .field-hint {
+  color: var(--hero-ink-muted);
+}
+/* --warn is #a4452b and the ground behind it here is #23282f, which measures
+ * under 2:1. --warn-line is the same hue family at about 9.8:1 on that ground,
+ * so the sentence stays warm and stays readable. The weight carries the rest:
+ * on this ground a hue alone is not enough of a difference to notice. */
+.intro-alt .error {
+  color: var(--warn-line);
+  font-weight: 600;
+}
+
+/* ── The walkthrough (M49, ISC-527) ────────────────────────────────────────
+ *
+ * Four paced screens, on the light ground the rest of the app uses. The hero is
+ * the one dark block in the product and this surface is not it: two of the four
+ * screens mount the obstacle slider and the step loop, both of which are drawn
+ * for a light ground, and a dark page around them would have meant a second
+ * palette for each.
+ *
+ * The one block that keeps the hero's ground is `.walk-start`, and it keeps it
+ * because it IS the hero's block: `StartStudyForm` and the two doors beside it
+ * are the hero's own markup, and `.intro-start input` and `.intro-alt button`
+ * take their inks from the --hero-* tokens. Rendered over white those rules put
+ * white type on a near-white field. The ground travels with the markup rather
+ * than the markup being restyled, so there is still one declaration of what the
+ * start block looks like.
+ *
+ * The eyebrow is `.walk-eyebrow` rather than `.intro-eyebrow` for the same
+ * reason read the other way: that rule is --hero-ink-muted, which is #ccd1d6.
+ */
+/* The frame is the content cell (M52, ISC-537).
+ *
+ * It was capped at 58rem, which is 928px, and that cap is what the owner saw:
+ * measured on the live site in a 1495px window the column was centred at x 382
+ * inside a cell 1,265px wide, and the nine-aspect track it mounts measured
+ * 3,008px, so the fourth card ran out of the column and was cut at the window's
+ * edge. A cap narrower than the cell cannot contain anything wider than itself.
+ *
+ * So the surface takes the cell, at every width, and `.shell-body`'s gutter is
+ * the only inset. Every run of prose on these screens still carries its own
+ * measure (`.walk-lede`, `.walk-list > li`), so the frame being wide costs no
+ * line length; what it buys is the room the card row and the scene need. */
+.walk {
+  max-width: none;
+}
+/* The screen: the text column, and the scene beside it (M52, ISC-537, ISC-539).
+ *
+ * Two tracks at 1200 and up, 60/40, which is where the frame and the gutter
+ * already step, so the column count changes on the same pixel the frame does.
+ * One track below that, the scene under the text.
+ *
+ * The min-height is the other half of ISC-537. The four screens are different
+ * heights, so the foot moved every time the reader pressed Next and Back was
+ * never where Next had been. Pinned off the tallest, measured in Chrome (M52):
+ * the fourth, which carries the three places, the data sentence and the create
+ * block on the hero's ground. A literal, like the hero's 600px diagram and the
+ * track's 320px card: singular geometry no second rule has to agree about. */
+.walk-screen {
+  display: grid;
+  gap: var(--space-2xl);
+  align-content: start;
+  /* M53: the containing block and the stacking context for the photograph
+     behind the screen; see the backdrop block below. */
+  position: relative;
+  isolation: isolate;
+}
+/* The screens are as tall as their content (Matthew, 2026-10-15: "minimize the
+ * vertical space between the main body and the footers"). The min-height pins of
+ * M52 to M83 held Back and Next in one place across the first three screens, but
+ * after M86 to M91 shortened the third screen they left 150 to 240px of empty
+ * space above the foot. The foot now follows the content, so it moves between
+ * screens. */
+/* The scene's track (M52) went with the scene (M53, ISC-542): the screen is one
+ * column, and the photographs sit behind it (ISC-543). */
+.walk-text {
+  min-width: 0;
+  align-self: start;
+}
+
+/* ── The first screen's head on the corridor (M53, ISC-543) ─────────────────
+ *
+ * The long page's hero, at the walkthrough's size: the photograph behind
+ * (`.intro-hero-back`, absolutely placed, so it takes no room), the scrim on its
+ * left (`.intro-scrim`, solid to 40 percent and clear by 72), and the eyebrow,
+ * title and lede in the hero inks on the solid part. The copy is held inside the
+ * solid 40 percent so every letter is on the scrim's ground, not the photograph.
+ * The gradient is the ground when the file is missing, as on the long page. The
+ * commitments sit below it on the page ground, one vignette per card. */
+.walk-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-container);
+  padding: var(--space-2xl);
+  background: linear-gradient(
+    160deg,
+    var(--hero-ground-top),
+    var(--hero-ground-mid) 55%,
+    var(--hero-ground-end)
+  );
+}
+.walk-hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 36%;
+}
+/* Two classes, so the hero inks beat `.walk-eyebrow` and `.walk-title`, which
+ * are declared later in this sheet and would otherwise print dark ink on the
+ * scrim. */
+.walk-hero .walk-hero-eyebrow {
+  color: var(--hero-ink-muted);
+}
+.walk-hero .walk-hero-title {
+  margin-bottom: var(--space-md);
+  color: var(--ink-inverse);
+}
+.walk-hero-lede {
+  margin: 0;
+  color: var(--hero-ink-muted);
+  line-height: var(--leading-body);
+}
+/* One square per commitment card, above its title, as on the long page. The
+ * long page's `.commitment-image` reserves the square (`aspect-ratio: 1 / 1`), so
+ * nothing moves when it loads; the walkthrough only sets its size. */
+.walk-commit-image,
+.walk-output-image {
+  width: 6rem;
+  /* M68: never wider than its column, which is 87px for an output at 390. */
+  max-width: 100%;
+}
+
+/* ── The photographs behind the screens (M53, ISC-543) ──────────────────────
+ *
+ * The owner: "Can't they be brought in as helpful backdrop." The corridor under
+ * the first screen and the two banners across the top of the second and third,
+ * from the long page's files (`WALKTHROUGH_BACKDROPS` in Walkthrough.tsx).
+ *
+ * The photograph is absolutely placed inside the screen, so it takes no room and
+ * its arrival moves nothing. `isolation` gives the screen its own stacking
+ * context, so the photograph's negative z-index puts it under the panel and never
+ * under the page. Every word is on `.walk-panel`, an opaque surface: contrast is
+ * the panel's ink on the panel's ground, and the photograph can be as dark or as
+ * busy as it is without costing a reader a letter. */
+.walk-screen:not([data-backdrop="none"]) {
+  padding: var(--space-2xl);
+  border-radius: var(--radius-container);
+  overflow: hidden;
+}
+/* A banner screen's photograph covers only the top, so the inset under the panel
+ * was empty page ground above the foot (Matthew, 2026-10-15). */
+.walk-screen[data-backdrop="banner"] {
+  padding-bottom: 0;
+}
+.walk-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+/* A banner rather than a field: the top of the screen, the proportion the long
+ * page shows these two at, and the panel over its lower edge. */
+.walk-backdrop[data-kind="banner"] {
+  bottom: auto;
+  height: var(--walk-banner-h);
+}
+.walk-backdrop-image {
+  width: 100%;
+  height: 100%;
+}
+.walk-backdrop-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.walk-panel {
+  position: relative;
+  padding: var(--space-xl);
+  background: var(--surface);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-raised);
+}
+/* Over the banner's lower edge: the top of the photograph is clear, the rest is
+ * behind the panel. */
+.walk-screen[data-backdrop="banner"] .walk-panel {
+  margin-top: calc(var(--walk-banner-h) - var(--space-2xl) - var(--space-3xl));
+}
+/* The last screen has no photograph, so its panel is the page: no ground, no
+ * edge and no inset of its own. */
+.walk-screen[data-backdrop="none"] .walk-panel {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* The scene's rules (M52, ISC-539) were here: the scene box, its canvas and its
+ * still. The owner removed the scenes the day they shipped ("Get rid of the 3js
+ * images"), M53, ISC-542. */
+
+/* ── The nine aspects, paged inside the frame (M52, ISC-537) ────────────────
+ *
+ * The long page scrolls them (`.intro-slider`). Inside a screen that has a foot
+ * of its own that component put a second Previous and Next fifty pixels above
+ * Back and Next, and neither pair said which one it moved. Here the row pages:
+ * three columns at 1200 and up, two below, each a share of the row rather than
+ * a held 320px, so a page is exactly the row and no card is cut at an edge.
+ *
+ * Three tracks: a chevron, the row, a chevron. The arrows have columns of their
+ * own rather than sitting over the cards, so nothing on this screen overlaps
+ * anything else, which is the whole complaint M52 answers. The dots go under
+ * the row, in the row's own track. */
+.walk-pager {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-sm);
+  row-gap: var(--space-md);
+}
+.walk-pager-track {
+  grid-column: 2;
+  list-style: none;
+  margin: 0;
+  /* No padding, because the page arithmetic in `AspectPager` reads clientWidth
+   * as the content box: page n sits at n × (row + one gap), and padding would
+   * put every page half a pad out. */
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  /* Two columns here, three past the breakpoint below. The count is declared
+   * in the sheet rather than handed in as a custom property, because FND-08
+   * (tests/styles-integrity.test.ts) requires every `var(--x)` a sheet reads to
+   * be declared in tokens.css, and a pager's column count is not a token. The
+   * breakpoint is the same 1200 `ASPECTS_THREE_UP` uses in Walkthrough.tsx, and
+   * a test holds the two to each other. */
+  grid-auto-columns: calc((100% - var(--space-lg)) / 2);
+  gap: var(--space-lg);
+  /* The clip is what makes the page a page. `overflow-y` cannot stay visible
+   * beside it (one hidden axis computes the other to auto), so the focus ring on
+   * a card is drawn inside the card, which is what --focus-offset-inset is for
+   * in tokens.css. */
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+@media (min-width: 1200px) {
+  .walk-pager-track {
+    grid-auto-columns: calc((100% - 2 * var(--space-lg)) / 3);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .walk-pager-track {
+    scroll-behavior: auto;
+  }
+}
+.walk-pager-card {
+  min-width: 0;
+}
+.walk-pager-card:focus-visible {
+  outline-offset: var(--focus-offset-inset);
+}
+/* Quiet on purpose: a 32px box, a 16px chevron, the faint ink, no face until
+ * the pointer is on it. The screen's own controls are words in the foot, and
+ * these have to read as belonging to the row instead. Both stay live at both
+ * ends, on the owner's M34 ruling about the track's arrows: a control with
+ * nowhere to go is not waiting on a condition, and a press at the end scrolls
+ * nothing. */
+.walk-pager-arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+.walk-pager-arrow:hover {
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+}
+.walk-pager-dots {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+.walk-pager-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  cursor: pointer;
+}
+.walk-pager-dot[data-current="true"] {
+  background: var(--ink-faint);
+  border-color: var(--ink-faint);
+}
+.walk-eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+.walk-title {
+  font-size: var(--text-head);
+  line-height: var(--leading-head);
+  letter-spacing: -0.01em;
+  margin: var(--space-sm) 0 var(--space-lg);
+  color: var(--ink-strong);
+}
+.walk-body {
+  display: grid;
+  gap: var(--space-lg);
+}
+.walk-lede {
+  margin: 0;
+  max-width: var(--measure-wide);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+.walk-subhead {
+  margin: var(--space-lg) 0 0;
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  color: var(--ink-strong);
+}
+/* Both lists this class draws are triples: the three refusals on the first
+ * screen and the three places on the last. Across the column they read as three
+ * things at once, which is what they are, and the frame stops being a wide box
+ * around a narrow paragraph. Below about 52rem the auto-fit drops them to one
+ * per row. */
+.walk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* M68: the minimum is capped at the list's width. At 390 the panel's body is
+   * 190px, and a bare 16rem made the list 256px and cut the panel off at the
+   * screen's clip (measured on main before M68). */
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: var(--space-lg) var(--space-2xl);
+  align-items: start;
+}
+.walk-list > li {
+  display: grid;
+  gap: var(--space-xs);
+  align-content: start;
+  max-width: var(--measure);
+}
+.walk-list > li > p {
+  margin: 0;
+  color: var(--ink-muted);
+}
+.walk-list-title {
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+/* M68, ISC-637: the third screen's title, as the first thing on its panel. The
+ * panel's padding is the space above it, and the body's gap the space below. */
+.walk-panel-title {
+  margin: 0;
+}
+/* M68, ISC-638: the outputs, each under its photo, all across the panel and
+ * two across at phone width. Tracks of their own rather than the triples'
+ * auto-fit, which drops to one per row below about 52rem. Three since M89,
+ * when Checks went. */
+.walk-outputs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+@media (max-width: 700px) {
+  .walk-outputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* At 390 a column is 87px, narrower than the 6rem square, so the photo takes
+ * the column's width there (its cap is on the shared vignette rule) and 6rem
+ * wherever the column is wider. The item's own track has a zero minimum, or it
+ * would size to the photo and the cap would resolve against the photo. */
+.walk-outputs > li {
+  grid-template-columns: minmax(0, 1fr);
+}
+.walk-start {
+  margin-top: var(--space-xl);
+  padding: var(--space-xl);
+  border-radius: var(--radius-container);
+  background: linear-gradient(
+    160deg,
+    var(--hero-ground-top),
+    var(--hero-ground-mid) 55%,
+    var(--hero-ground-end)
+  );
+}
+.walk-start .walk-subhead {
+  margin: 0 0 var(--space-md);
+  color: var(--hero-ink);
+}
+.walk-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-lg);
+  /* The row keeps its height when Back or Next is absent at either end, so
+   * nothing under the foot moves as the reader steps through. 44px is the
+   * minimum control box the rest of the app uses. */
+  min-height: 44px;
+}
+.walk-foot-buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+.walk-count {
+  margin: 0 0 0 auto;
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+}
+.walk-leave {
+  margin: var(--space-lg) 0 0;
+}
+.intro-reread {
+  margin: var(--space-lg) 0 0;
+}
+.intro-reread .linkish {
+  color: var(--hero-ink-muted);
+}

@@ -1,0 +1,310 @@
+{
+  "format": "bounds-bundle",
+  "version": 1,
+  "project": {
+    "id": "m93-pre-project",
+    "title": "M93 pre-bundle fixture",
+    "stage": "design-brief",
+    "createdAt": 1760000000000,
+    "brief": {
+      "startingInterest": "",
+      "seminalCorpus": "",
+      "targetVenue": "",
+      "researchQuestion": "You expected booked slots to empty the queue, and the talk moved to the slot list.",
+      "contextAnswer": "I plan to study the tool crib at a shipyard, where apprentices queue for tools and talk.",
+      "dataType": ""
+    }
+  },
+  "documents": [],
+  "chunks": [],
+  "anomalies": [],
+  "twin": null,
+  "events": [
+    {
+      "id": "93939393-9393-4393-9393-000000000001",
+      "ts": 1760000001000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "bound",
+      "subject": "context",
+      "statement": "I plan to study the tool crib at a shipyard, where apprentices queue for tools and talk."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000002",
+      "ts": 1760000002000,
+      "actor": "persona:concept-suggester",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "concept-suggested",
+      "conceptId": "93939393-9393-4393-9393-000000000003",
+      "name": "Queue talk",
+      "definition": "The talk among apprentices while they wait at the tool crib.",
+      "properties": [
+        "Length"
+      ],
+      "relations": [],
+      "statementIds": [],
+      "statements": [],
+      "source": {
+        "kind": "summary",
+        "station": "context"
+      },
+      "whyItMatters": "Queue talk is where your puzzle starts; without it the design has nothing to watch."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000004",
+      "ts": 1760000003000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "concept-accepted",
+      "conceptId": "93939393-9393-4393-9393-000000000003",
+      "origin": "model-proposed"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000005",
+      "ts": 1760000004000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "concept-property-set",
+      "conceptId": "93939393-9393-4393-9393-000000000003",
+      "propertyId": "93939393-9393-4393-9393-000000000006",
+      "name": "Length"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000007",
+      "ts": 1760000005000,
+      "actor": "system",
+      "projectId": "m93-pre-project",
+      "type": "look-for-raised",
+      "itemId": "look:property:93939393-9393-4393-9393-000000000003:93939393-9393-4393-9393-000000000006",
+      "conceptId": "93939393-9393-4393-9393-000000000003",
+      "kind": "property",
+      "targetId": "93939393-9393-4393-9393-000000000006",
+      "text": "Across your cases of Queue talk, compare Length."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000008",
+      "ts": 1760000006000,
+      "actor": "persona:concept-suggester",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "concept-suggested",
+      "conceptId": "93939393-9393-4393-9393-000000000009",
+      "name": "Booked slot",
+      "definition": "A time an apprentice books at the crib in advance.",
+      "properties": [
+        "Lead time"
+      ],
+      "relations": [
+        {
+          "relation": "leads-to",
+          "to": "93939393-9393-4393-9393-000000000003"
+        }
+      ],
+      "statementIds": [],
+      "statements": [],
+      "source": {
+        "kind": "summary",
+        "station": "context"
+      },
+      "whyItMatters": "Booked slot is the change your design turns on."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000010",
+      "ts": 1760000007000,
+      "actor": "persona:concept-suggester",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "statement-suggested",
+      "statementId": "93939393-9393-4393-9393-000000000011",
+      "text": "Apprentices with booked slots skip the queue.",
+      "home": {
+        "kind": "concept",
+        "id": "93939393-9393-4393-9393-000000000009"
+      },
+      "source": {
+        "kind": "summary",
+        "station": "context"
+      }
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000012",
+      "ts": 1760000008000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "concept-accepted",
+      "conceptId": "93939393-9393-4393-9393-000000000009",
+      "origin": "model-proposed"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000013",
+      "ts": 1760000009000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "concept-property-set",
+      "conceptId": "93939393-9393-4393-9393-000000000009",
+      "propertyId": "93939393-9393-4393-9393-000000000014",
+      "name": "Lead time"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000015",
+      "ts": 1760000010000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "concept-relation-set",
+      "relationId": "93939393-9393-4393-9393-000000000016",
+      "from": "93939393-9393-4393-9393-000000000009",
+      "to": "93939393-9393-4393-9393-000000000003",
+      "relation": "leads-to"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000017",
+      "ts": 1760000011000,
+      "actor": "system",
+      "projectId": "m93-pre-project",
+      "type": "look-for-raised",
+      "itemId": "look:property:93939393-9393-4393-9393-000000000009:93939393-9393-4393-9393-000000000014",
+      "conceptId": "93939393-9393-4393-9393-000000000009",
+      "kind": "property",
+      "targetId": "93939393-9393-4393-9393-000000000014",
+      "text": "Across your cases of Booked slot, compare Lead time."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000018",
+      "ts": 1760000012000,
+      "actor": "system",
+      "projectId": "m93-pre-project",
+      "type": "look-for-raised",
+      "itemId": "look:relation:93939393-9393-4393-9393-000000000009:93939393-9393-4393-9393-000000000016",
+      "conceptId": "93939393-9393-4393-9393-000000000009",
+      "kind": "relation",
+      "targetId": "93939393-9393-4393-9393-000000000016",
+      "text": "Watch whether Booked slot leads to Queue talk, and under which conditions."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000019",
+      "ts": 1760000013000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "statementId": "93939393-9393-4393-9393-000000000011",
+      "text": "Apprentices with booked slots skip the queue.",
+      "source": {
+        "kind": "answer",
+        "subject": "context"
+      },
+      "type": "statement-attached",
+      "conceptId": "93939393-9393-4393-9393-000000000009"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000020",
+      "ts": 1760000014000,
+      "actor": "persona:concept-suggester",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "relation-suggested",
+      "relationId": "93939393-9393-4393-9393-000000000021",
+      "from": "93939393-9393-4393-9393-000000000009",
+      "to": "93939393-9393-4393-9393-000000000003",
+      "relation": "contrasts-with",
+      "claim": "Booked slots contrast with queue talk.",
+      "statementIds": [],
+      "statements": [],
+      "source": {
+        "kind": "relate"
+      },
+      "whyItMatters": "The contrast is the comparison your sample needs."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000022",
+      "ts": 1760000015000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "relation-accepted",
+      "relationId": "93939393-9393-4393-9393-000000000021",
+      "origin": "model-proposed"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000023",
+      "ts": 1760000016000,
+      "actor": "human",
+      "projectId": "m93-pre-project",
+      "type": "concept-relation-set",
+      "relationId": "93939393-9393-4393-9393-000000000021",
+      "from": "93939393-9393-4393-9393-000000000009",
+      "to": "93939393-9393-4393-9393-000000000003",
+      "relation": "contrasts-with"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000024",
+      "ts": 1760000017000,
+      "actor": "system",
+      "projectId": "m93-pre-project",
+      "type": "look-for-raised",
+      "itemId": "look:relation:93939393-9393-4393-9393-000000000009:93939393-9393-4393-9393-000000000021",
+      "conceptId": "93939393-9393-4393-9393-000000000009",
+      "kind": "relation",
+      "targetId": "93939393-9393-4393-9393-000000000021",
+      "text": "Watch whether Booked slots contrast with queue talk, and under which conditions."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000025",
+      "ts": 1760000018000,
+      "actor": "persona:concept-suggester",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "concept-suggested",
+      "conceptId": "93939393-9393-4393-9393-000000000026",
+      "name": "Crib clerk",
+      "definition": "The clerk who hands out tools.",
+      "properties": [
+        "Shift"
+      ],
+      "relations": [
+        {
+          "relation": "condition-for",
+          "to": "93939393-9393-4393-9393-000000000003"
+        }
+      ],
+      "statementIds": [],
+      "statements": [],
+      "source": {
+        "kind": "summary",
+        "station": "context"
+      },
+      "whyItMatters": "The clerk decides who waits."
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000027",
+      "ts": 1760000019000,
+      "actor": "persona:argument-writer",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "argument-written",
+      "text": "You expect booked slots to cut queue talk at the tool crib.",
+      "basis": "pre"
+    },
+    {
+      "id": "93939393-9393-4393-9393-000000000028",
+      "ts": 1760000020000,
+      "actor": "persona:interviewer",
+      "projectId": "m93-pre-project",
+      "model": "claude-sonnet-5-5",
+      "modelVersion": "2026-10-01",
+      "type": "puzzle-reading",
+      "text": "You expected booked slots to empty the queue, and the talk moved to the slot list.",
+      "sources": [
+        {
+          "kind": "answer",
+          "subject": "context"
+        }
+      ],
+      "digest": "d1"
+    }
+  ]
+}

@@ -1,0 +1,322 @@
+/**
+ * The navigation rail (SHL surface, M32 R2).
+ *
+ * The app had no chrome, only a masthead. `.appbar` was a flex row holding a
+ * wordmark, one text link and a right-aligned settings link over a 1px bottom
+ * border: no rail, no persistent study switcher, no list of studies, no place
+ * for global state. That is the silhouette of a website, and the critique named
+ * it as the second of five reasons the product reads as one.
+ *
+ * Same three items, laid down the left edge, plus the two the rail exists to
+ * add: the switcher, promoted out of the study bar, and the list of studies
+ * with what each one is waiting on. Nothing here is a new string. Every word in
+ * this rail is a word the app already rendered somewhere, which is the
+ * constraint R2 sets and the reason the wordmark is still "Abductive", the
+ * section head is still "Studies" and the settings link is still
+ * "Claude access".
+ *
+ * It does not scroll with the page. `.shell-content` owns the scroll, so the
+ * rail is a fixed-height column beside it and its own study list takes a
+ * scrollbar when there are more studies than fit.
+ *
+ * Widths are not declared here. `--rail-w` and `--rail-w-collapsed` are read by
+ * `.shell`'s grid template in shell.css, because a rail that set its own width
+ * would be the defect FND-12 closed, one level down: the chrome deciding the
+ * frame from inside it.
+ */
+
+.navrail {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: var(--space-md);
+  /* M41. `.shell` gained a second row for the framing dock, and the rail spans
+   * both of them so it is still the full-height left edge: the dock is a footer
+   * for the content cell, not for the window. Placement rather than size — the
+   * track this sits in is still declared once, in `.shell`. */
+  grid-column: 1;
+  grid-row: 1 / -1;
+  /* No width of any kind, not even a `min-width: 0`: the track is a fixed
+   * `var(--rail-w)` in `.shell`'s template and `overflow: hidden` here is what
+   * keeps a long study title from widening it. FND-12's rule is that the
+   * chrome cannot decide the frame from inside it, and the check that holds it
+   * reads every width declaration on this selector. */
+  padding: var(--space-md) var(--space-sm) var(--space-lg);
+  background: var(--surface-sunken);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+  font-size: var(--text-body);
+}
+
+/* Every row in the rail is the same box: one line, the full width, a radius,
+ * and a hover surface. That is what makes a stack of links read as navigation
+ * rather than as a list of sentences, and it is where `--surface-hover` and
+ * `--surface-selected` earn their place. */
+.navrail a {
+  display: grid;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  text-decoration: none;
+  min-width: 0;
+}
+.navrail a:hover {
+  background: var(--surface-hover);
+  text-decoration: none;
+}
+/* Where you are. The app had no selection surface at all, on any row, which is
+ * a large part of why nothing in it felt interactive. */
+.navrail a[aria-current="page"] {
+  background: var(--surface-selected);
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+
+/* The brand is 700 on every route including the one it points at, so it is the
+ * one item that takes no current-page weight and no selected ground: it is the
+ * wordmark first and a link second. */
+.navrail a.navrail-brand[aria-current="page"] {
+  background: none;
+  font-weight: 700;
+}
+
+.navrail-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-xs);
+}
+/* The fold control. A button rather than a link: it changes nothing about
+ * where you are, which is the difference this app already draws between an
+ * anchor and a button everywhere else. */
+.navrail-toggle {
+  display: grid;
+  place-items: center;
+  min-height: 32px;
+  width: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--ink-faint);
+  font-size: var(--text-body);
+  cursor: pointer;
+}
+.navrail-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+/* The switcher's rules went with the switcher (M32c, fix 3). `.navrail-switch`
+ * wrapped a head and a `<select>`; the select is gone, so the wrapper had one
+ * child and the head is a row of the rail like any other. `.navrail-pick` and
+ * its appearance reset went with it. The reasoning is at the markup. */
+
+/* The section head, and the route to the full list. It is the `Studies` link
+ * the masthead used to carry, doing two jobs at once: naming what is under it
+ * and going there. --text-micro is the register R4 added for exactly this. */
+.navrail-head {
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  min-height: 24px;
+}
+.navrail a.navrail-head[aria-current="page"] {
+  color: var(--ink-strong);
+}
+
+/* The initial, which is the whole row when the rail is folded to 56px. A 24px
+ * mark on the accent fill so a study reads as a study rather than as a letter,
+ * and the current one takes the accent itself, because the folded rail has no
+ * other way to say which study is open. */
+.navrail-initial {
+  display: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-fill);
+  color: var(--ink-strong);
+  font-size: var(--text-small);
+  font-weight: 650;
+  line-height: var(--leading-flush);
+}
+.navrail a[data-current="true"] .navrail-initial {
+  background: var(--accent);
+  color: var(--ink-inverse);
+}
+
+/* The list of studies. It scrolls on its own, so a researcher with thirty
+ * studies still reaches "Claude access" at the foot without the rail growing
+ * past the window. */
+.navrail-studies {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-hair);
+  align-content: start;
+  overflow-y: auto;
+  min-height: 0;
+}
+.navrail-study {
+  min-width: 0;
+}
+/* Two lines only when there is something to say. The chip is the second row
+ * and it carries the same word the studies table carries, because a state that
+ * reads one way in the rail and another in the list is two states. */
+.navrail a.navrail-studylink {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-hair);
+  padding-top: var(--space-xs);
+  padding-bottom: var(--space-xs);
+  align-content: center;
+}
+/* M32b, fix 4. Two lines, not twenty characters.
+ *
+ * A 224px rail minus its padding leaves about 190px, which at 13px is roughly
+ * twenty characters, so every study in the list read "Night handovers on an
+ * acut…" and the list could not do the one job it exists for: telling two
+ * studies apart. Studies here are named in sentences, not in slugs.
+ *
+ * Clamped to two rather than left to wrap freely, because a rail whose rows are
+ * one, four and two lines tall stops scanning as a list. Two lines is about
+ * forty characters, which fits every study name the walk has produced, and a
+ * longer one still ellipses rather than being cut mid-word. `overflow-wrap` is
+ * there for the study nobody has named yet whose first word is longer than the
+ * rail. */
+.navrail-studytitle {
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.navrail-study .status-chip {
+  justify-self: start;
+  white-space: nowrap;
+}
+
+/* The spacer R2 names is the study list itself: it is the `minmax(0, 1fr)` row
+ * of the grid above, so it takes whatever height is left and what follows sits
+ * at the foot however many studies there are, including none. A spacer element
+ * would have been a second thing doing the same job. */
+.navrail-foot {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+.navrail a.navrail-settings {
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+}
+.navrail a.navrail-settings[aria-current="page"] {
+  color: var(--ink-strong);
+}
+
+/* The shortcut hints (R12). The keyboard model has been complete since FND-02
+ * and invisible ever since, and a printed chord in the chrome is the fastest
+ * thing on a screen to say "application". The label and the chord both come
+ * out of bindings.ts, so nothing here writes a key name or a sentence of its
+ * own. */
+.navrail-hints {
+  display: grid;
+  gap: var(--space-hair);
+  padding: var(--space-sm) var(--space-sm) 0;
+  border-top: 1px solid var(--line);
+}
+.navrail-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  min-width: 0;
+}
+.navrail-hint > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Folded ──────────────────────────────────────────────────────────────────
+ * 56px holds one 32px control with the container padding either side and
+ * nothing else, so everything that is a run of text is hidden rather than
+ * squeezed. What survives is the wordmark's first letter, which is why the
+ * brand renders a mark and a name and this hides the name.
+ *
+ * It is `display: none` rather than a width of zero: a truncated string still
+ * reaches a screen reader and still takes a tab stop, and a rail the
+ * researcher has folded should cost neither. */
+.shell[data-rail="collapsed"] .navrail {
+  padding-left: var(--space-xs);
+  padding-right: var(--space-xs);
+}
+.shell[data-rail="collapsed"] .navrail-name,
+.shell[data-rail="collapsed"] .navrail-head,
+.shell[data-rail="collapsed"] .navrail-hints,
+.shell[data-rail="collapsed"] .navrail-settingsname {
+  display: none;
+}
+/* M32c, fix 3. The list survives the fold; its rows do not.
+ *
+ * It used to go with everything else, so a folded rail had a wordmark, a
+ * settings link and nothing in between: no way to see which study was open or
+ * to reach another without unfolding first. The list stays and each row becomes
+ * its study's initial, with the full name on the row's `title`. That is what
+ * makes the fold a narrower rail rather than a different one. */
+.shell[data-rail="collapsed"] .navrail-studytitle,
+.shell[data-rail="collapsed"] .navrail-study .status-chip {
+  display: none;
+}
+.shell[data-rail="collapsed"] .navrail-initial {
+  display: grid;
+}
+.shell[data-rail="collapsed"] .navrail-top {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+}
+.shell[data-rail="collapsed"] .navrail a {
+  justify-items: center;
+  padding: 0;
+}
+
+/* The mark. One glyph, drawn from the wordmark's own initial, so the folded
+ * rail still says which application this is. It is `aria-hidden` in the
+ * markup: the accessible name comes from the name beside it, which is present
+ * in the tree at both widths. */
+.navrail-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--ink-inverse);
+  font-size: var(--text-small);
+  font-weight: 700;
+  line-height: var(--leading-flush);
+}
+.navrail-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 700;
+  font-size: var(--text-title);
+  letter-spacing: 0.02em;
+}
+.navrail-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

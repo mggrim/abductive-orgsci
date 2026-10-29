@@ -1,0 +1,8 @@
+{"type":"thread.started","thread_id":"01a0e6d8-a75e-7523-8e8d-5e98ba7b71cf"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"AI assistant, helping."}}
+{"type":"turn.completed","usage":{"input_tokens":4890,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":93,"reasoning_output_tokens":82}}
+{"type":"thread.started","thread_id":"01a0e6d8-c102-7621-8461-6ce3d48543b1"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"Plants convert sunlight."}}
+{"type":"turn.completed","usage":{"input_tokens":4887,"cached_input_tokens":4736,"cache_write_input_tokens":0,"output_tokens":28,"reasoning_output_tokens":18}}

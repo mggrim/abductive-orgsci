@@ -1,0 +1,511 @@
+/**
+ * The material tab (MAT surface).
+ *
+ * The brief, the corpus, the uploaded documents and their chunks, and the twin
+ * panel. Owned by the Material and Exports builder.
+ */
+
+/* `.material-sections` stood here and is gone with the markup that wore it
+ * (M32, R5), so the reasoning it carried is worth keeping.
+ *
+ * It was a 1fr / 26rem grid first: the documents on the left, the literature
+ * textarea on the right. Two problems, and the second is the one that
+ * mattered. The textarea had no use for 26rem and the table wanted every pixel
+ * of the other track; and putting them side by side said they were two views
+ * of one thing, when the whole defect this surface was carrying is that the
+ * tool could not tell the papers from the data. D5 stacked them.
+ *
+ * Stacking paid for the squeeze in the other direction. Measured at 1449 for
+ * M32, this page rendered one ~450px prose column with roughly 650px of blank
+ * paper beside it, and the critique names prose sizing layout as the single
+ * largest cause of the whole product reading as a website.
+ *
+ * Two panes now: `.panel-list` for the papers and `.panel-main` for the data,
+ * declared once in panels.css, so the papers column is a stated pane width
+ * rather than whatever a textarea happened to want. Below 1100px they stack,
+ * which is D5's own layout at the widths D5 was written for. The half of D5
+ * that was never about the squeeze is untouched: the papers come first,
+ * because you know which conversation you are joining before you know what
+ * your data says. */
+
+.material h2 {
+  margin-top: 0;
+}
+/* The heading line. It carried a strip of five counts on the right until M49
+ * (ISC-530) took them off the working tabs; the row keeps its shape so a control
+ * put back on this line lands where the strip did. */
+.material-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+/* Adding material, on the tab called Material. It was only ever possible at
+ * the Early data station, one tab over and behind a station sequence, which is
+ * the defect the first survey found and the second survey found still open. */
+.material-add {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--pad-tight);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-container);
+}
+.material-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+.material-add-note {
+  margin: 0;
+  max-width: var(--measure-wide);
+}
+
+.corpus {
+  margin-top: var(--space-lg);
+}
+/* Finding one document among forty (MAT-03).
+ *
+ * The bar sits above the list and below the picker, which is the order the two
+ * jobs happen in. It is deliberately not a card: a filter is chrome on a list,
+ * and drawing it as a panel of its own would have put three boxes on a surface
+ * whose whole content is a list of documents. A rule under it is enough to say
+ * where the controls stop and the material starts.
+ *
+ * The search field is a --measure-tight rather than the full column. It holds a
+ * word, not a sentence, and a 1000px box for the word "handover" reads as an
+ * empty form the researcher has left unfinished. */
+.corpus-find {
+  margin-top: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-sm) var(--space-lg);
+}
+/* The field keeps its label and its hint and loses its bottom margin: inside a
+ * row the interval between controls is the row's gap, and a margin under one of
+ * three items is what makes a toolbar look assembled rather than laid out. */
+.corpus-find > .field-row {
+  margin-bottom: 0;
+}
+.corpus-find input[type="search"] {
+  max-width: var(--measure-tight);
+}
+.corpus-find-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  align-items: baseline;
+}
+/* The count takes its own line under the controls whatever the width, because
+ * it is a statement about all three of them and not a fourth control. */
+.corpus-find-note {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* The list, and at M32 R8 it is a list.
+ *
+ * It was a grid with an 8px gap between bordered boxes, which is the `.card`
+ * stack the audit counted on this surface: "papers on Material become this. It
+ * removes ~60% of the current border count." One box round the whole list, one
+ * hairline between neighbours, no gap — a gap between rows is what turns a list
+ * back into a stack, because the hairline stops being a rule between two things
+ * and becomes the bottom edge of one of them.
+ *
+ * M32b item 1: the box and the clip are `.row-list` in rows.css now, which this
+ * container carries alongside its own class. Six declarations had been copied
+ * between three lists and the seventh, `grid-auto-rows: min-content`, was in
+ * none of them, which is what sliced every multi-line finding row on Checks
+ * through the middle of its second line. This list is the same shape and was
+ * one longer paper row from the identical defect. What is left here is the one
+ * thing that is this list's own and not every list's. */
+.corpus-docs {
+  margin-top: var(--space-md);
+}
+/* An empty list is a panel with an empty state centred in it, not a bordered
+ * strip with a dashed box inside a solid one. `:has` rather than a class on the
+ * container, because whether the list is empty is something the list already
+ * knows and a second source of that truth is a second thing to keep in step. */
+.corpus-docs:has(> .empty-state) {
+  border: 0;
+  background: transparent;
+}
+/* What the current view is not showing, stated inside the document it belongs
+ * to. The alternative was to correct the chips on the row, and that would have
+ * been the count defect this pair was sent back for twice: a number beside a
+ * control that disagrees with what the control describes. The chips describe
+ * the document. This line describes the view. */
+.corpus-doc-withheld {
+  margin: 0;
+  padding: 0 var(--space-md) var(--space-sm);
+}
+/* A document row reads as a row: the mark, the name on the left, its five
+ * facts on the right, in the same place on every line so the eye runs down a
+ * column instead of re-reading each entry.
+ *
+ * `cursor: pointer` used to be declared here and on the passage summary below,
+ * and both are gone: base.css draws the marker and the pointer for every fold
+ * in the app now, which is the whole reason this row has a mark at all. */
+/* M32 R8: no border and no radius of its own. The box round the list is
+ * `.corpus-docs` above and the rule between two rows is `.row` in rows.css.
+ * What is left here is nothing, so the declaration is the fold's own state:
+ * an open document is a row plus its contents, and it needs the ground under
+ * both. The surface colour stays because `.row` only paints the summary. */
+.corpus-doc {
+  background: var(--surface);
+}
+/* A document row is a fold, so the hairline the primitive puts under its
+ * summary separates the row from its own contents once it is open, and the next
+ * document then butts straight onto those contents with nothing between them.
+ * The open fold closes itself off. `.corpus-doc` is also the paper row, which
+ * is not a fold and never carries `[open]`, so this reaches only the list that
+ * needs it. */
+.corpus-doc[open] {
+  border-bottom: 1px solid var(--line-faint);
+}
+/* And the last row in the list draws no rule, because the container's own
+ * border is under it. `.row:last-child` in rows.css gets this right wherever
+ * the row IS the child; here the child is the `<details>` and the row is the
+ * summary inside it, so the list says it for both shapes it holds. */
+.corpus-docs > :last-child,
+.corpus-docs > :last-child > summary.row {
+  border-bottom: 0;
+}
+/* `justify-content: space-between` went with the marker's arrival. Three flex
+ * items instead of two, and space-between would have stranded the filename in
+ * the middle of the row with the mark at one edge and the chips at the other.
+ * The chips take the right edge by `margin-left: auto` on themselves, so any
+ * number of items before them still reads left to right. */
+.corpus-doc > summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+}
+.corpus-doc-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.corpus-doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+
+/* The papers section. It was a `.card` in the right-hand column and is a
+ * section of the page now, so it takes the page's own rhythm rather than a
+ * card's padding: the h2 and the lede line up with the h2 and lede of "Your
+ * data" below it, which is what makes the two read as siblings. */
+.corpus-lit > h2 {
+  margin-top: 0;
+}
+.corpus-lit .btnrow {
+  margin-top: var(--space-sm);
+}
+/* The one control on this page that spends a model call (M29). Same rhythm as
+ * `.early-data`, the station's own reading control, because the two are the
+ * same kind of thing one tab apart: a button, what it is about to do, and where
+ * the drafts will be waiting. */
+.literature-read {
+  margin: var(--space-md) 0 var(--space-lg);
+}
+
+/* A paper is a row and not a fold. There is nothing behind the disclosure worth
+ * opening: the researcher is not reading a journal editorial passage by passage
+ * in here, and a triangle that opens onto the same two chips it was already
+ * showing is a control that does nothing.
+ *
+ * M32 R8: it is the row primitive's row now, so the box, the padding and the
+ * hairline are `.row-line` and `.row` in rows.css and nothing about them is
+ * restated here. What was one wrapping flex box holding four items — the name,
+ * the chips and two sentences — is the row's body holding a line and two
+ * sentences, because the two sentences were never part of that line and were
+ * only ever kept off it by `flex-wrap`. */
+.corpus-lit-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  align-items: center;
+}
+
+/* What a paper expects, under the verdict that judged it (M33).
+ *
+ * Inside the row rather than beside it, because it is about this paper and
+ * nothing else on the page. The heading is the row's own scale rather than a
+ * document heading: a paper's row is not a section, and an h4 at h4 size would
+ * make five papers read as five chapters.
+ *
+ * The claim carries the weight and the scope line is muted under it, which is
+ * the order the researcher reads them in: what the paper expects, then where
+ * its authors say that holds. */
+.paper-expects {
+  margin-top: var(--space-sm);
+}
+.paper-expects-head {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+.paper-expects-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.paper-expects-claim {
+  margin: 0;
+  max-width: var(--measure-full);
+}
+.paper-expects-scope {
+  margin: var(--space-hair) 0 0;
+  max-width: var(--measure-full);
+}
+.paper-expects-do {
+  margin-top: var(--space-xs);
+}
+/* The three reasons, opened by the control above them. A list rather than a
+ * row, because they are sentences and a row of three sentences wraps into
+ * something nobody can scan. */
+.paper-expects-reasons {
+  list-style: none;
+  margin: var(--space-xs) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hair);
+}
+
+/* The question a paper nobody has placed carries, and the answer to it (M51,
+ * ISC-533).
+ *
+ * The same offset as the expectations section it stands in place of, because it
+ * is the same slot in the row: a reader running down the page meets one block
+ * per paper, whether the block lists what the paper expects or asks them what it
+ * bears on.
+ *
+ * The recorded sentence keeps the measure every other body line on this page
+ * keeps, so a long answer wraps into the column rather than running the width of
+ * the row. */
+.paper-bearing {
+  margin-top: var(--space-sm);
+}
+.paper-bearing-said {
+  margin: 0;
+  max-width: var(--measure-full);
+}
+
+.brief {
+  padding: var(--pad-tight);
+}
+.brief summary {
+  font-weight: 600;
+}
+.brief label {
+  display: block;
+  margin: var(--space-sm) 0 0;
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+/* The scoped `.brief textarea, .brief select` treatment went with the other
+ * four (FND-03). What is left is the layout the brief needs and nothing about
+ * how a control looks, which is base.css's job now. */
+.brief textarea,
+.brief select {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-hair);
+}
+
+/* A passage is a <details> again.
+ *
+ * attachChunkObservers listens for `toggle` on `details.chunk[data-chunk-id]`,
+ * and this surface had been rendering `<li class="chunk" data-chunk-id>` since
+ * the panel split. No toggle, no match, no attention events: the human layer
+ * captured nothing from the one surface built to feed it, while the page said
+ * out loud that what you open is recorded. These three rules were already here
+ * and had no element to reach. */
+details.chunk {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  /* Clear of the study bar when a link lands on this passage (M46).
+   *
+   * Your model's side pane offers the way over to a cited passage here, and
+   * `scrollIntoView({ block: "start" })` puts the target at the top of the
+   * scrollport, which is under an opaque sticky bar: measured in real Chrome, the
+   * passage landed at y=0 with the bar's bottom at 133, so its summary row and the
+   * first four lines of the transcript were behind the bar. 9rem is the same number
+   * the side pane sticks at, and both read it from tokens.css. */
+  scroll-margin-top: var(--study-chrome);
+}
+details.chunk summary {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-small);
+}
+/* The one place in the app where the researcher reads source text line by
+ * line, and it was the one run of prose with no measure on it: 141 characters
+ * at 1024, wider at 1440, in a block declaring padding, white-space and
+ * font-size and no max-width. base.css caps `:where(p, li, dd)` and a div is
+ * none of those, so nothing upstream was going to catch it. --measure-wide is
+ * the reference-text measure, which is what a transcript is. */
+details.chunk .chunktext {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  white-space: pre-wrap;
+  font-size: var(--text-small);
+  max-width: var(--measure-wide);
+}
+
+/* Retagging a document, inside the disclosure rather than on its summary row.
+ * A select inside a <summary> swallows the toggle and puts a control the
+ * keyboard reaches before the thing it labels. */
+.corpus-doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  align-items: center;
+  padding: 0 var(--space-sm) var(--space-sm);
+}
+.corpus-doc-actions > span {
+  max-width: var(--measure);
+}
+
+/* Removing a document, in the row it belongs to (M29c). Faint at rest and
+ * indented with the rest of the row's controls: the ask is not the act, so the
+ * destructive palette waits for the button inside the confirmation. */
+.doc-remove {
+  padding: 0 var(--space-sm) var(--space-sm);
+}
+.doc-remove-ask {
+  color: var(--ink-faint);
+}
+.doc-remove-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: var(--measure);
+  padding: var(--space-sm) 0 0;
+}
+/* An opened passage is marked on the left edge, because "what you never read
+ * is part of the record too" is a claim the researcher should be able to check
+ * by looking down the list rather than by exporting the ledger. */
+details.chunk[data-opened="true"] {
+  border-left: 2px solid var(--line-strong); /* M53, ISC-544: the quiet line, not the ink */
+}
+.chunk-index {
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+/* The one line of a passage you read before deciding to open it. Capped at the
+ * reference measure like the passage text under it, so the widest run of text
+ * on this surface is not the row that exists to be glanced at: at 611px it was
+ * fitting 97 characters, against a bar of 80 everything else on the screen
+ * keeps. `flex: 0 1 auto` with the cap rather than `flex: 1`, so the line stops
+ * at the measure and the state chips stay where the eye already found them. */
+.chunk-preview {
+  flex: 0 1 auto;
+  max-width: var(--measure-wide);
+  color: var(--ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.chunk-list {
+  padding: 0 var(--space-sm) var(--space-sm);
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.twin-panel {
+  margin-top: var(--space-lg);
+  padding: var(--pad);
+}
+/* The line under the button while the ordinary version is being written (M47).
+ *
+ * A block of its own rather than a bare paragraph, because the slow branch puts
+ * a control beside the sentence and a control glued to the paragraph above it by
+ * that paragraph's line box is the distance-nobody-chose defect again. The
+ * sentence keeps the measure every sentence on this card has. */
+.twin-status {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+.twin-status p {
+  margin: 0;
+  max-width: var(--measure);
+}
+
+/* The one place in the app where reading something can damage the study, and
+ * the card that says so had no rule: it rendered as an ordinary .card, exactly
+ * like the two blocks either side of it. This is the warn palette used for what
+ * warn is for, a thing that cannot be undone, rather than for an observation. */
+.twinwarn {
+  border-left: 4px solid var(--warn);
+  background: var(--warn-fill);
+}
+
+/* Typed papers the reader would not draft from (M29b). Under the field they
+ * were typed into, because that is the text the researcher edits to answer the
+ * finding. A list rather than rows, since a typed line has no upload to show a
+ * passage count for. */
+.corpus-typed-misfits {
+  list-style: none;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+}
+.corpus-typed-misfits > li {
+  margin: 0 0 var(--space-sm);
+}
+.corpus-typed-misfits p {
+  margin: var(--space-xs) 0 0;
+}
+
+/* M32: the file field's precondition comes before its face. The kind select
+   is what makes "Add your data" go live, so it reads first; the face second;
+   the hint, which explains the inert face, last and full width. This is the
+   one field in the app whose control has a precondition, so the reorder is
+   scoped to it. */
+.material-add .field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.material-add .field-row > .material-add-row { order: 1; }
+.material-add .field-row > .field-face { order: 2; }
+.material-add .field-row > .field-hint { order: 3; flex-basis: 100%; }
+
+/* ── "I already have some initial data" (M49, ISC-529) ──────────────────────
+ *
+ * Under the papers on Material and in place of the reading control at the Early
+ * data step. A quiet control with a sentence under it, in the register the rest
+ * of the surface uses for an observation, because it names a fact about the
+ * researcher rather than an action on the screen. */
+.declare-data {
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: start;
+  margin-top: var(--space-lg);
+  max-width: var(--measure);
+}
+.declare-data > p {
+  margin: 0;
+}

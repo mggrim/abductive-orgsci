@@ -1,0 +1,724 @@
+/**
+ * The token layer (FND-04, FND-05, FND-07, FND-08, FND-11).
+ *
+ * This file is the only stylesheet permitted a raw colour, a bare rem font
+ * size, a radius, a container padding, a measure or a focus value. Everything
+ * else reads a var(). tests/styles-integrity.test.ts enforces exactly that: a
+ * hex outside this file fails, a var(--x) that this file does not declare
+ * fails, and, added after the first pass shipped with the rule holding only
+ * where a test was looking, a hex anywhere under src/ outside src/ui/tokens.ts
+ * fails and every colour in that mirror is checked against the value declared
+ * here.
+ *
+ * The boundary is deliberate and it is not "every length". Genuinely singular
+ * geometry stays literal where it is: grid tracks, flex bases, the 7px rail
+ * dot, the 34px relation swatch. Naming those would have produced a token per
+ * declaration and no shared vocabulary, which is the sprawl this file exists to
+ * end rather than rename. What gets a name is what more than one rule needs to
+ * agree about: ink, line, surface, semantic, encoding, type step, space,
+ * measure, radius, container padding, focus.
+ *
+ * Space was on the wrong side of that boundary for three rounds, and this file
+ * said so in its own words: gaps were "incidental geometry" that could stay
+ * literal. They were not incidental, they were the majority. 367 margin, gap
+ * and padding declarations across twelve stylesheets, 23 of them reading a
+ * var() and 344 of them literals, spending 39 distinct values, against 105
+ * font-size declarations of which 105 read one of five steps. The clusters were
+ * the exact pathology this file diagnoses for type two blocks below and never
+ * applied to space: 0.3 / 0.35 / 0.4 / 0.42 / 0.45rem is 4.8 / 5.6 / 6.4 / 6.7 /
+ * 7.2px over 75 uses, and 0.5 / 0.55 / 0.6 / 0.62 / 0.65rem is 8 / 8.8 / 9.6 /
+ * 9.9 / 10.4px over 78 uses, each cluster 2.4px end to end. Measured at
+ * innerWidth 1467, the gap between vertically stacked siblings took 15 distinct
+ * values on /design/context and 25 across six routes. No eye separates 12 from
+ * 13 from 14, so what the researcher saw was not a rhythm but noise, which is
+ * why the app read looser than ATLAS.ti at a third of its density.
+ *
+ * What the survey found before this file existed: 31 distinct font sizes with
+ * 0.85rem and 0.82rem maintained separately at 13.6px and 13.1px; 79 hex
+ * literals of which 17 did the single job of secondary text; five border greys
+ * of which three are distinguishable at 1px; one red-brown meaning five
+ * different things; and `var(--bg)`, never declared anywhere, silently
+ * unstyling the two proposal fields the researcher is told to edit (FND-08).
+ */
+
+:root {
+  /* ── Type: six steps, body anchored at 0.875rem ────────────────────────────
+   * Five until M32, when R4 added --text-micro below for a register the app
+   * had no step for. The paragraph beginning "Five steps" is the reasoning
+   * that produced the other five and it still holds for them.
+   * 31 sizes went in, eight came out of the first pass, and eight was still
+   * wrong. Measured on the running app, the eight-step scale rendered nine
+   * distinct sizes across the intro and the ontology tab together, seven on
+   * either study tab on its own, and five inside the keyboard sheet in a
+   * 992x669 dialog. The source was already fully tokenised at that point (109
+   * font-size declarations, every one a var), so the fault was never
+   * discipline. It was the scale: four consecutive 1px steps at 11, 12, 13 and
+   * 14, with 49 of the 109 uses on 13px and 14 on 12px and nothing on screen
+   * distinguishing them.
+   *
+   * Five steps, and the whole app renders at most five sizes as a result, so
+   * no pair of screens can exceed five either. That is the property, and it is
+   * held by construction rather than by counting: 11 and 12 folded into 13, and
+   * the 16px lede folded into the 18px title, because in both cases the two
+   * values were doing one job. Weight, ink and space carry the hierarchy the
+   * extra steps were pretending to carry.
+   *
+   * --text-display is the one step no study tab uses. It is the intro hero,
+   * which is the only full-bleed marketing surface in the app; the study tabs
+   * top out at --text-head. The former --text-hero clamp reached 46.4px at
+   * 1440 and was retired with it. */
+  /* M32, R4. The sixth step, and the first one added since the scale collapsed
+   * from eight to five. It is not a fourth 1px neighbour of the four the scale
+   * folded away: 11px against the 13px step is a 15% drop and it carries
+   * 0.06em of tracking, so it reads as a different register rather than as a
+   * slightly smaller caption. It has one job, the one the app had no step for:
+   * a panel's sub-header and a column label, the small capitalised run that
+   * says what a region is without competing with anything inside it, plus the
+   * shortcut hints in the rail. Prose never takes it. */
+  --text-micro: 0.6875rem; /* 11px: panel sub-headers, column labels, key caps */
+  --text-small: 0.8125rem; /* 13px: chrome, captions, legends, counts, badges */
+  --text-body: 0.875rem; /* 14px: the anchor, set on body and inherited */
+  --text-title: 1.125rem; /* 18px: h2, ledes, popover and card titles */
+  --text-head: 1.375rem; /* 22px: h1, one per screen */
+  --text-display: 1.75rem; /* 28px: the intro hero, and nothing else */
+
+  /* ── Leading: six roles, and every one of them a whole number of pixels ────
+   * Leading is space, and it was the half of the space axis that hides. Ten
+   * ratios were live across 35 declarations, with 1.45, 1.5, 1.55 and 1.6 all
+   * doing running prose: the same four-values-for-one-job the type scale and
+   * the ink ramp were both built to end, on the property that decides most of
+   * the vertical rhythm on a text-heavy screen.
+   *
+   * Stated in pixels rather than as ratios, and that is the load-bearing part
+   * rather than a style preference. 1.55 on the body step is 21.7px, so every
+   * text block in the app had a fractional height and every element below one
+   * sat on a fractional y. A declared 12px gap then measured 12.5 and rounded
+   * to 13, which is how /settings still rendered a 13 after all 367 spacing
+   * declarations were on an eight-step scale. Whole pixels in, whole pixels
+   * out: with these, an element's height is a whole number of line boxes plus
+   * scale-step padding plus an integer border, so the rendered interval between
+   * two blocks is the interval the stylesheet declares.
+   *
+   * A px line-height inherits as a length rather than as a factor, which is
+   * usually the argument against writing one. Here it is the point: a heading
+   * and the caption beside it land on the same baseline without either of them
+   * naming a number. */
+  --leading-flush: 1; /* the box is the type: a glyph cell, a mark, a close */
+  --leading-tight: 16px; /* a two-line label inside a control */
+  --leading-body: 21px; /* all running prose, at the small step and the body step */
+  --leading-title: 24px; /* --text-title */
+  --leading-head: 28px; /* --text-head */
+  --leading-display: 32px; /* --text-display */
+
+  /* The type system tokenised size and never tokenised family. Three files hard
+   * coded `ui-monospace, SFMono-Regular, Menlo, monospace` by hand and a fourth
+   * stack arrived by accident: the two bare <code> elements on /settings had no
+   * rule anywhere in this directory, so `bun run dev` and the masked credential
+   * fell to the UA default on the one screen a new researcher must visit before
+   * the tool does anything. Four stacks for one job, which is the same failure
+   * the ink ramp and the type scale were built to end. */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Ink: six steps of one ramp, replacing seventeen greys ────────────────
+   * #666 #97a1ad #8b95a1 #9aa2ab #a7b0ba #7d8894 #6b7480 #6b7684 #5a6674
+   * #55606d #4d5866 #45505d #4a5765 #3b4653 #35404d #35414f and #17212e were
+   * all doing one of three jobs. Six of them differed from a neighbour by under
+   * 3% luminance (FND-07). --ink-faint is #6b7480 rather than the #7d8894 that
+   * carried the study bar and the app bar settings link, because #7d8894 on
+   * white is 3.6:1 and fails WCAG 1.4.3 for body text; #6b7480 is 4.7:1.
+   *
+   * --ink-ghost is the sixth and it is not a sixth grey. Origin is encoded as
+   * depth of this ramp and its faintest step had been a loose #b3bcc7 sitting
+   * outside the ink names, which is how "origin is the ink ramp" stayed a
+   * claim in a comment rather than something the file could be held to. The
+   * three --origin-* below now read ink names, so the claim is the code. */
+  --ink-strong: #17212e; /* headings and the prompts the researcher answers */
+  --ink: #1c1c1c; /* body */
+  --ink-muted: #55606d; /* secondary prose, blurbs, ledes, .muted */
+  --ink-faint: #6b7480; /* metadata, hints, counts, disabled-looking chrome */
+  --ink-ghost: #b3bcc7; /* the faintest thing still meant to be seen */
+  --ink-inverse: #ffffff; /* on any dark or filled surface */
+
+  /* ── Line: three roles replacing five border greys ─────────────────────────
+   * #ddd #eee #f0f0ee #f4f4f2 and #e4e7ea were five values for two visible
+   * weights. --line-faint is the inside of a grid, --line is every border, and
+   * --line-strong is for something floating above the page. */
+  --line-faint: #f0f0ee;
+  --line: #dddddd;
+  --line-strong: #c3ccd6;
+
+  /* ── Surface: four ───────────────────────────────────────────────────────── */
+  --paper: #fafaf8; /* the page */
+  --surface: #ffffff; /* every card, panel, field and popover */
+  --surface-sunken: #f5f7fa; /* inset blocks: feeds, hubs, definition rows */
+  --surface-code: #f4f5f6; /* text quoted verbatim to or from a model */
+
+  /* M32, R4. The two states the app did not have.
+   *
+   * There was no hover surface and no selection surface anywhere in the
+   * directory: `.study-row:hover` borrowed --surface-sunken, which is the
+   * ground of the rail and of every inset block, and nothing at all said "this
+   * is the one you are on". A row that does not change under the pointer and a
+   * row that cannot look chosen are what make an interface read as printed
+   * matter, and that is most of what the owner was reacting to.
+   *
+   * Two steps down one ramp from --surface-sunken, so hover, selected and the
+   * sunken ground are one family and not three greys. Both are under the
+   * chroma ceiling this file holds the chrome to. */
+  --surface-hover: #f2f4f7; /* the row, card or tab under the pointer */
+  --surface-selected: #e9edf3; /* the row, card or tab you are on */
+
+  /* ── Rubric: the three groups of the front page's nine questions (M85,
+   * ISC-709). A co-author asked for the group labels in "a different shade of
+   * grey" so they read as one rubric. One ink for all three, a step darker than
+   * --ink-muted so the label reads apart from the card's body, and per group a
+   * fill and a rule, lightest to darkest in the groups' order, all on the cool
+   * grey ramp the surfaces above use. */
+  --rubric-ink: #36404c;
+  --rubric-theory-fill: #f1f3f6;
+  --rubric-theory-rule: #a7b0bb;
+  --rubric-collection-fill: #e7ebf0;
+  --rubric-collection-rule: #7f8a97;
+  --rubric-analysis-fill: #dce2e9;
+  --rubric-analysis-rule: #59646f;
+
+  /* ── Semantic: five triads, and only two of them are allowed a hue ─────────
+   * Each is ink, line, fill.
+   *
+   * The rule this file now states and keeps: colour means page type. Every
+   * value the interface paints itself with is ink, paper or line, with two
+   * named exceptions, the green of a thing that holds and the red of a thing
+   * that destroys. Those two are conventions the researcher walked in with
+   * rather than anything this tool invented, and no page type comes within
+   * ΔE2000 20 of either.
+   *
+   * What made the rule necessary. The first pass moved origin off hue and then
+   * left the chrome sitting on it: --accent was byte-identical to --page-theory
+   * at #274c77, --warn to --page-puzzle, --ok to --page-observation, and
+   * --notice differed from --page-analytic-residue by 3/255 of green. Measured
+   * on the running app, /biases painted 131 properties in rgb(39, 76, 119),
+   * including all 63 grid marks, the brand, every tab, every focus ring and the
+   * primary button, in the exact hex the ontology uses to mean "theory". Four
+   * of the seven values in the palette this file reserves for data were also
+   * the four the furniture wore. An instrument that says a colour is data and
+   * then spends it on its own chrome has made a more specific promise than a
+   * tool that never claimed anything, and broken it, and it teaches the wrong
+   * lesson 131 times per screen before the researcher opens the ontology.
+   *
+   * So --accent went achromatic. It is graphite, chroma 3.5, and it carries the
+   * brand, the tabs, the links, the primary button, the focus ring and the bias
+   * grid marks. --notice went with it, to the muted ink, because a finding is
+   * an observation and never an action and quiet is what that should look like;
+   * its warmth now lives in the fill and the line, which are near-white and
+   * carry no hue anyone can name. tests/styles-integrity.test.ts holds the
+   * whole rule: every chrome value at chroma ≤ 12, every page type at chroma
+   * ≥ 26, and 20 ΔE between any page type and either reserved hue.
+   *
+   * And then the rule held against page type and failed against meaning. This
+   * file reserved --warn in its own words for "the red of a thing that
+   * destroys" and the app went on painting an open question in it. Measured on
+   * the fixture at innerWidth 1440: five of the eight station dots were
+   * rgb(164, 69, 43), each carrying the accessible name "the tool has an open
+   * question about this", in the identical hex the Delete control wears on
+   * /studies; the ontology drew a dashed rust ring around 2 of 2 pages whose
+   * only offence was being unattached. On a fresh study the whole of the
+   * researcher's model and most of the design rail were drawn in the destroy
+   * hue by a tool whose stated rule is that nothing gates and findings are
+   * observations, never actions. A test existed and it checked one selector,
+   * `.station-findings`, fifty lines from `.rail-dot.flagged`, which is why 824
+   * tests passed over it.
+   *
+   * So the reservation is now written as a closed list rather than as a
+   * sentence, and tests/styles-integrity.test.ts holds every declaration in the
+   * directory to it. --warn and its line and fill are spent on:
+   *
+   *   a control that destroys something         .btn-danger, .linkish.danger
+   *   a failure of the tool itself              .offline-banner, .twinwarn
+   *   input the field cannot accept             .error, .warn, .field-error
+   *   the one severity the checks call blocking .finding-row, .status-chip
+   *   the relation family that means opposition .relkey-family[opposes]
+   *
+   * Nothing else, and in particular nothing advisory. An open question, a
+   * deferral, a page nothing relates to, a redirection in the transcript and a
+   * chunk no layer read are all observations, and they all read --notice. */
+  --accent: #282d31;
+  --accent-line: #ccd2d9;
+  --accent-fill: #eef0f3;
+
+  --warn: #a4452b;
+  --warn-line: #e3c8bf;
+  --warn-fill: #fbf2ef;
+
+  --ok: #2c6e49;
+  /* Was #bcd8c6, chroma 14.0, which is the only value in the file that broke
+   * the ceiling this same block states. A tint of a reserved hue is still a
+   * tint, and a green line louder than every page type's own restraint budget
+   * was a small lie in a file whose whole authority is that it does not tell
+   * them. #c3d6c9 is chroma 9.8 and the same line to any eye. */
+  --ok-line: #c3d6c9;
+  --ok-fill: #dcecdf;
+
+  --notice: var(--ink-muted);
+  --notice-line: #e0dcd2;
+  --notice-fill: #faf8f3;
+
+  /* Inert: a control that is present and not live.
+   *
+   * The fifth triad, and the one this layer skipped for five rounds while
+   * writing down that it had not. `input:disabled` had a designed pair two
+   * hundred lines into base.css, background --surface-sunken and colour
+   * --ink-faint, so the state was known; `button:disabled` got
+   * `opacity: 0.5` and nothing else. Alpha is not a state, it is the absence
+   * of one: it dims fill, border and label by the same factor, so a filled
+   * primary composites to a pale slab and its white label lands at 3.00:1 on
+   * the paper behind it. Measured at 1440 on the running app: seven disabled
+   * controls across six of the ten routes, every label 14px/400, contrast
+   * 3.00:1 on "Create study" and 3.34:1 on the other six. WCAG exempts a
+   * disabled control from 1.4.3, which is why nothing flagged it, and the
+   * exemption is about legal conformance rather than about whether a
+   * researcher can read the word "Connect".
+   *
+   * It also collided with the first house rule. A greyed unexplained primary
+   * is the visual idiom of a gate, and the app was deploying it on the first
+   * action of the first two screens anyone sees, in a tool whose stated
+   * position is that nothing gates and that declining is first class. The
+   * worst instance was "No changes" on the Context station, a dead slab
+   * sitting directly above the sentence "Setting a station aside is recorded,
+   * not counted against you".
+   *
+   * So: one triad, read by every inert control, buttons and fields alike,
+   * carrying full-contrast type on a surface that is visibly not the live one.
+   * All three are aliases rather than new values, because the state needed a
+   * name and not a colour. --inert is --ink-muted at 5.96:1 on --inert-fill,
+   * where the --ink-faint the fields were using is 4.41:1 and fails the bar
+   * the rest of the app is held to. */
+  --inert: var(--ink-muted);
+  --inert-line: var(--line-strong);
+  --inert-fill: var(--surface-sunken);
+
+  /* ── Encoding: the only saturated colour in the app ────────────────────────
+   * PAGE_TYPE_COLOUR and ORIGIN_COLOUR shared three hexes, so a navy swatch
+   * meant "theory" in the page list and "your prior" in the trajectory legend,
+   * and attribution is the product's central claim (FND-04).
+   *
+   * Two dimensions, two channels that cannot collide. Page type takes hue,
+   * because it has seven values and no other free channel. Origin takes depth
+   * of ink, because the graph already carries it in fill-opacity and stroke and
+   * because origin is ordered in a way page type is not: the researcher's own,
+   * then the data's, then the model's.
+   *
+   * The seven moved at the third pass. Rust, green, gold and navy were the four
+   * the chrome was also wearing, and rival at #b07d2b sat 10.5 ΔE from
+   * analytic-residue at #8a6d1f, which is closer than two page types a
+   * researcher has to tell apart on a graph should ever be. The set below is
+   * mutually ≥ 21 ΔE, ≥ 22 from the two reserved chrome hues, and every one of
+   * them is chroma ≥ 27 against a chrome that never exceeds 10, so a coloured
+   * mark cannot be furniture and a grey mark cannot be a page type.
+   *
+   * src/ui/tokens.ts mirrors these for the SVG layers that cannot read CSS
+   * custom properties through an attribute. */
+  --page-puzzle: #85306b;
+  --page-theory: #25477b;
+  --page-observation: #197e8d;
+  --page-analytic-residue: #6a4f12;
+  --page-candidate-resolution: #7c73bd;
+  --page-rival: #bd7083;
+  --page-scope-condition: #83872f;
+
+  /* Origin is how much of a disc is filled, and it is not a colour at all.
+   *
+   * It was an ink ramp here, --origin-yours / --origin-data / --origin-model
+   * aliased to --ink-strong / --ink-faint / --ink-ghost, and exactly one
+   * component in the app read it. The two figures a researcher looks at each
+   * invented their own treatment instead: the intro hero drew model-proposed
+   * hollow and dashed, OntologyGraph drew it at fill-opacity 0.45 with no dash
+   * and spent dash on "nothing joins this page yet", and the SVG export drew it
+   * a third way and did not draw unattachedness at all. So a dashed rim meant
+   * model-proposed on the screen that teaches the encoding and unattached on
+   * the screen that uses it, and on the fixture that read a researcher's own
+   * prior claim back to them as the model's.
+   *
+   * The ramp went with it. Two channels for one dimension is not redundancy
+   * here, it is a lesson the graph does not repeat: the graph spends hue on
+   * page type, so an intro that teaches origin in ink teaches a channel that
+   * stops existing at the second click. Fill share is what every surface can
+   * carry, so fill share is the whole of it, ordered the way origin is ordered.
+   *
+   * The rim is always the mark's own colour at full strength, which is what
+   * keeps a hollow disc a page of its type. src/ui/components/PageMark.tsx
+   * mirrors these
+   * five numbers and every surface that draws a disc reads them from there. */
+  --origin-fill-yours: 1;
+  --origin-fill-data: 0.45;
+  --origin-fill-model: 0;
+  --origin-rim-yours: 1.5;
+  --origin-rim-data: 1.5;
+  --origin-rim-model: 2;
+
+  /* M29, the fourth origin. Solid like "yours", because a claim you took from
+   * a paper is one you are asserting, plus a ring inside the fill saying whose
+   * it was. Fill share is spent after three values: a fourth step lands between
+   * two existing ones and is not a distinction anybody can make at r=5.5 in the
+   * trajectory. The ring is stroked in the ground colour for the reason the
+   * doubt bar's halo is, since anything drawn in the mark's own colour on a
+   * solid fill of that colour disappears. Radius and weight are shares of the
+   * disc so the ring sits inside the fill at every size.
+   * src/ui/components/PageMark.tsx mirrors all four. */
+  --origin-fill-literature: 1;
+  --origin-rim-literature: 1.5;
+  --origin-inner-ring-radius: 0.5;
+  --origin-inner-ring-max: 3.5;
+
+  /* The only dash on a node in the app, and the only thing it means: nothing
+   * relates to this page yet. It was "2 3" in the graph, "4 2" in the export
+   * and "4 3" on the intro, for two different meanings. */
+  --adrift-dash: 4 3;
+
+  /* The bar across a disc whose origin the ledger contradicts, and the extra
+   * weight of the ground-coloured halo under it. Origin is the fill share, so
+   * on a page the ledger contradicts it is the fill share that is not sound and
+   * the mark has to say so: a caveat that lives only in a card behind a click
+   * leaves the disc itself asserting the claim. The halo is what makes the bar
+   * survive a solid fill of the mark's own colour, which is the contrast trap
+   * the first dashed-rim fix fell into. src/ui/components/PageMark.tsx mirrors
+   * both numbers. */
+  --doubt-bar-max: 4;
+  --doubt-halo: 1.5;
+
+  /* The bias grid's two column families, and the colour of a square nobody has
+   * marked. --mark-off replaces #c9ced4 on the default mark and #b0b7bf on the
+   * blank one: the legend swatch and the cell it explains were two different
+   * greys, which is the failure mode a legend exists to avoid. Trigger kind on
+   * that grid is carried by glyph shape, never by hue, because the page gets
+   * printed and checked on paper. */
+  --family-graph-fill: #f6f4ee;
+  --family-conduct-fill: #f2f5f8;
+  --mark-off: #b7bec7;
+
+  /* ── The hero's dark ground ────────────────────────────────────────────────
+   * The intro hero is the only dark surface in the app and it carried fourteen
+   * hexes of its own, five of which were light blues doing three jobs. Nine
+   * names, so nothing retypes them and the App Shell builder can restyle the
+   * hero from one place.
+   *
+   * The eleven went achromatic with the rest of the chrome, and this one was
+   * not optional. --hero-ground-end was #24405f, 4.9 ΔE from the navy the
+   * ontology uses to mean "theory", which is the same colour to any eye. The
+   * hero is the screen that prints the origin legend and teaches the palette,
+   * so a hue on its ground is the original defect standing on the exact screen
+   * built to prevent it. Ink and paper on the front door; the colour starts
+   * when the data does. Nothing here changed in role, only in cast: the same
+   * ramp, the same three grounds, the same contrast (hero ink on the mid ground
+   * is 13.0:1, the inverse focus ring 10.0:1). */
+  --hero-ground-top: #14181d;
+  --hero-ground-mid: #23282f;
+  --hero-ground-end: #333a42;
+  --hero-ink: #eef0f2;
+  --hero-ink-muted: #ccd1d6;
+  --hero-ink-faint: #9ba3ac;
+  --hero-edge: #7d858f;
+  --hero-button: #eceef0;
+  --hero-button-ink: #1a1e23;
+  --hero-field: rgba(255, 255, 255, 0.08);
+  --hero-field-line: rgba(255, 255, 255, 0.22);
+  --hero-glow: #454e58; /* the radial behind the hero figure */
+
+  /* Origin on the dark ground used to need three more tokens of its own,
+   * --origin-yours-inverse / --origin-data-inverse / --origin-model-inverse,
+   * an inverted ink ramp aliasing the three above. They are gone with the ramp.
+   * The hero draws the same disc every other surface draws, in --hero-ink at
+   * the three fill shares, so the figure on the teaching screen and the figure
+   * on the working screen are now the same mark with a different colour under
+   * it, which is the only difference the two surfaces should have. */
+
+  /* ── Elevation: two ────────────────────────────────────────────────────────
+   * Something pinned to the page, and something floating over it. */
+  --shadow-raised: 0 1px 6px rgba(23, 33, 46, 0.12);
+  --shadow-pop: 0 8px 28px rgba(20, 32, 48, 0.16);
+
+  /* ── Measure: three ────────────────────────────────────────────────────────
+   * 56ch 60ch 62ch 68ch 70ch 74ch 76ch and 78ch were eight caps for three
+   * jobs, and five surfaces had no cap at all, which is why a textarea ran 130
+   * characters per line at 1440. Prose respects one of these at every width.
+   *
+   * The units are em, not ch, and that is the correction rather than a
+   * preference. `ch` is the advance of the digit zero, which in system-ui is
+   * about 1.37 times the average advance of English prose, so the first pass
+   * wrote 78ch meaning 78 characters and rendered 107 of them: /settings ran
+   * 107, /biases 110, /coherence 109, all of them "capped" and all of them over
+   * the 80-character bar. Measured on this app's own prose at 14px, the average
+   * advance is 0.459em, so the caps below are the character counts they claim,
+   * divided by that. They are stated in em rather than rem so a block that sets
+   * its own size still gets its own count rather than a fixed pixel width. */
+  --measure-tight: 24em; /* ~52 characters: a prompt or blurb beside a field */
+  --measure: 28em; /* ~61 characters: running prose, the default */
+  --measure-wide: 32em; /* ~70 characters: reference text, and form controls */
+  /* ~74 characters: the widest run this app allows, for a list of findings.
+   *
+   * The fourth step, and it is here because coherence.css asked for it in
+   * writing. That surface measured --measure-wide capping its claim at 448px
+   * inside a 484px band, wrapping seven claims to 3, 3, 5, 4, 3, 4 and 4 lines
+   * and every falsifier to two, spending 52 characters of an 80-character bar
+   * while the list ran 1643px of scroll. 36em was tried and rendered its lede,
+   * convention and falsifier at 79, 80 and 80 against that bar, which is
+   * passing with nothing to spare; 34em renders them at 75, 76 and 76.
+   *
+   * It shipped as a literal written out six times in coherence.css, under a
+   * comment saying so and naming this line as the fix, because that wave gave
+   * tokens.css to a different builder and the alternative was weakening the
+   * rule that every var() in the directory resolves here. The rule was right
+   * and the partition was not: nobody owns a file. */
+  --measure-full: 34em;
+
+  /* ── Space: eight steps, and every margin, gap and padding reads one ───────
+   * The scale type got, applied to the axis that never had one.
+   *
+   * The rule that produced these eight is the rule the type scale failed on
+   * first: a step nobody can see is not a step. Type went from eight to five
+   * because 11, 12, 13 and 14 were four consecutive 1px steps and nothing on
+   * screen distinguished them. Space has more room to work in, because 2px
+   * against 4px is a doubling where 12px against 13px is 8%, so the ladder is
+   * geometric rather than linear and no two neighbours are closer than 1.33
+   * apart. 2, 4, 8, 12, 16, 24, 32, 48. The 39 literals map onto it by nearest
+   * step on a log scale, which is what folded 5.6, 6.4, 6.7, 7.2, 8, 8.8, 9.6
+   * and 9.9 into one value the eye can actually lock to.
+   *
+   * --space-hair is the one step that is not really a gap. It is the distance
+   * between two things that belong to each other: a label and the count beside
+   * it, the marks inside one row of the bias grid. Below it the only legal
+   * value is 0.
+   *
+   * The container paddings below and --shell-gutter read this scale rather than
+   * holding their own numbers, so there is one ladder in the file and not two
+   * that drift.
+   *
+   * Held by tests/styles-integrity.test.ts, which fails on any margin, gap or
+   * padding length outside this file. The old assertion set ran 900 lines and
+   * the words gap, margin and space appeared in it only inside comments, which
+   * is how 817 tests passed over 39 values. */
+  --space-hair: 0.125rem; /* 2px: inside one object */
+  --space-xs: 0.25rem; /* 4px: between parts of one control */
+  --space-sm: 0.5rem; /* 8px: between siblings in a tight list */
+  --space-md: 0.75rem; /* 12px: the default gap */
+  --space-lg: 1rem; /* 16px: between blocks */
+  --space-xl: 1.5rem; /* 24px: between sections */
+  --space-2xl: 2rem; /* 32px: between columns */
+  --space-3xl: 3rem; /* 48px: the bottom of a page, the inside of the hero */
+
+  /* ── Radius: six ─────────────────────────────────────────────────────────── */
+  --radius-sm: 4px; /* swatches, marks, inline chips */
+  --radius-control: 6px; /* every input, select, textarea and button */
+  --radius-container: 10px; /* every card-like box; 8px and 10px were both containers */
+  --radius-pill: 999px;
+  --radius-bubble: 18px; /* a chat bubble, as Messages rounds one (M66) */
+  --radius-composer: 1.5rem; /* the chat composer: a pill at one line, a rounded box at eight */
+
+  /* ── The disclosure marker: one chevron for every fold in the app ──────────
+   * A shape rather than a colour, and it is here for the reason everything
+   * else here is: it is what more than one rule has to agree about. Six
+   * stylesheets style a <summary> and the marker belonged to none of them, so
+   * whether a fold looked like a fold was decided by whichever display value
+   * its own layout happened to need. Chrome drops ::marker the moment a summary
+   * gets a display of its own, which is how the five folds on /material lost
+   * theirs while the one on /exports kept its triangle.
+   *
+   * Drawn as a mask rather than as an <svg> in the markup or a glyph in
+   * content, for three reasons. It takes currentColor, so it inherits the ink
+   * of whatever summary it sits on and can be recoloured on hover in one line.
+   * It costs no font size, so it cannot add a sixth step to a five-step scale
+   * the way a "▸" in `content` would. And no surface has to render an element
+   * for it, so a fold cannot be built without one.
+   *
+   * The em is deliberate: stated here once, resolved against the font of each
+   * summary that uses it, because a custom property computes at the point of
+   * use. A 13px passage row and an 18px card title get a marker in proportion. */
+  --marker-size: 0.7em;
+  --marker-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3 11 8 6 13' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+  /* ── Container padding: three ──────────────────────────────────────────────
+   * Sixteen containers carried sixteen distinct padding pairs spanning seven
+   * values, and nothing distinguished 8px from 10px on the same screen
+   * (FND-11).
+   *
+   * These were three more literals until the space scale existed: 9.6/13.6,
+   * 13.6/16 and 17.6/20, none of which was a step of anything. They are pairs
+   * of scale steps now, which is what makes --column-read below arithmetic
+   * rather than an approximation. */
+  --pad-tight: var(--space-sm) var(--space-md);
+  --pad: var(--space-md) var(--space-lg);
+  --pad-roomy: var(--space-lg) var(--space-xl);
+
+  /* ── Focus: one triple ─────────────────────────────────────────────────────
+   * Four :focus-visible rules existed in 955 lines and none of them was global,
+   * so the send button, every decline, every rail station, every page chip and
+   * every export button fell back to the UA outline, and the intro Start button
+   * on its dark gradient had no focus style at all (FND-03, WCAG 2.4.7). */
+  --focus-width: 2px;
+  --focus-colour: var(--accent);
+  --focus-colour-inverse: #cfd5db; /* on .intro-hero and .offline-banner */
+  --focus-offset: 2px;
+  --focus-offset-inset: -2px; /* grid cells, where an outset ring is clipped */
+
+  /* ── Frame: one width authority, and the rule for which wraps which ────────
+   * There were six with no rule about nesting: --column-max, --column-read,
+   * --shell-max-read, --rail-max, --measure and --measure-wide. The app bar and
+   * the study tab strip live inside .shell and .shell picked its own width off
+   * :has(), so the persistent chrome inherited whichever width the *view* had
+   * chosen. Measured at innerWidth 1467, the brand and the six study tabs
+   * rendered at x=32 on Design, x=226 on Ontology, Biases, Material and
+   * Exports, x=398 on Coherence and x=196 on the intro: three x-origins inside
+   * one study and four across the app, and clicking Design then Coherence slid
+   * the whole navigation 366px right. A researcher builds muscle memory over
+   * the six hundred hours a study takes, and the one element in an instrument
+   * that must never move was moving on every tab change.
+   *
+   * Three levels now, and they nest strictly. Outer wraps inner, never the
+   * reverse, and nothing inside a level may set the level above it:
+   *
+   *   --frame-max    the page. The chrome sits on it and it is identical on
+   *                  every route, because no content can reach it.
+   *   --column-read  a column of prose and decisions inside the frame. A
+   *                  surface made of these flows them into as many tracks as
+   *                  the frame holds rather than stranding one against the
+   *                  left edge.
+   *   --measure-*    the cap on a run of prose inside any column.
+   *
+   * --shell-max, --shell-max-wide, --shell-max-read, --column-max and
+   * --rail-max are gone with the ambiguity they were. A surface takes the whole
+   * frame unless it says otherwise, and what it says is one of the two names
+   * below. */
+  /* M32, R1. The frame stopped being the page and became the reading surfaces.
+   * `.shell` is a full-viewport two-track grid now, the rail beside a content
+   * cell that owns its own scroll, so nothing centres a 1120px article column
+   * on a 1440px window any more. --frame-max survives and its job narrowed to
+   * what it was always right about: a run of reading. The introduction takes
+   * it and the record takes it; the study frame does not. That is the whole of
+   * why Settings ended in a hard horizontal edge with raw white below it. */
+  --frame-max: 1120px;
+  --shell-gutter: var(--space-lg);
+  /* How far down a study route the sticky chrome reaches (M46).
+   *
+   * The study bar is one sticky box holding three rows, and it measured 133px in
+   * real Chrome on the shipped example at both 1480 and 1100: 56px of header, 36px
+   * of the open-question line, 40px of the tab strip. Anything that has to come to
+   * rest below it clears this rather than guessing, and two things do: Your model's
+   * side pane sticks at it, and a passage a link lands on keeps it as scroll
+   * margin. 144px is the next whole rem above the tallest the bar gets.
+   *
+   * Singular geometry, the same class as --frame-max above and the panel grammar's
+   * own `calc(100dvh - 11rem)`: a measured height of a piece of chrome, not a step
+   * of any scale. It lives here because two surface files read it and a number
+   * written twice is a number that drifts. */
+  --study-chrome: 9rem;
+  /* M32, R2. The navigation rail, and the width it keeps when it is folded to
+   * its marks. 224px holds a study title at the body step without truncating
+   * the common case; 56px holds a 24px glyph with the container padding either
+   * side and nothing else, which is what makes the collapsed state a rail
+   * rather than a narrow list. Declared here rather than in rail.css because
+   * `.shell`'s grid template reads them and the rail itself must not: a rail
+   * that set its own width would be the defect FND-12 closed, one level down.
+   */
+  --rail-w: 224px;
+  /* M53, ISC-543. How tall the walkthrough's banner photograph stands above its
+   * screen. intro.css reads it twice: the banner's own height, and the panel's
+   * offset, which is this less the screen's inset and one --space-3xl of overlap.
+   * 120 since ISC-593 (owner, 2026-09-30): the two loops sat too low under a
+   * 140px banner, and the lede now starts 96px into the screen. */
+  --walk-banner-h: 120px;
+  --rail-w-collapsed: 56px;
+  /* `--framing-height` and `--framing-bar-h` were here (M45) and went with the
+   * dock (M53, ISC-540). They answered how tall a footer bar stands when it is
+   * open and how tall its one collapsed line is, and the theoretical motivation is
+   * a tab now: it is as tall as its three questions and the window scrolls it.
+   */
+  /* A column the width of its own measure plus a container's padding. Every
+   * card on /settings and /coherence was 1016px holding 448px of text, so each
+   * one carried an empty right half; a card 44% full reads as a rendering
+   * failure whatever the words in it say. 31rem is exactly --measure-wide at
+   * the body size, 448px, plus --pad-roomy on both sides, 24px each once the
+   * paddings moved onto the space scale, which is what makes the text reach the
+   * edge. It is a track minimum rather than a hard cap: the reading surfaces
+   * lay out `repeat(auto-fill, minmax(--column-read, 1fr))`, so at 1467 they
+   * are two columns of 592 rather than one of 496 with 720 dead beside it. */
+  --column-read: 31rem;
+
+  /* Motion (M39, ISC-504).
+   *
+   * There was no duration, no easing and no delay anywhere in this file, because
+   * until now nothing in the app moved. Three transitions arrive with ISC-504
+   * and each one follows an element the researcher pressed to where it landed,
+   * so what the scale has to express is exactly two distances: a thing changing
+   * state where it stands, and a thing travelling across the screen.
+   *
+   * Two steps rather than five, for the reason the type scale is five rather
+   * than eight: a scale with more steps than the surface has distinctions is a
+   * scale whose steps get chosen by feel. If a third is ever needed, it needs an
+   * argument here first.
+   *
+   * The easing is one curve. It decelerates, which is what an element arriving
+   * somewhere does, and nothing in the app has a reason to accelerate away. */
+  /* The left pane's share of Design's frame (M39, ISC-503).
+   *
+   * Declared here because every `var()` in the directory must resolve to a
+   * property this file declares, and because the default belongs with the other
+   * defaults rather than inside a component. It is the one token in the file
+   * that a component overrides inline: Workbench writes the researcher's own
+   * dragged fraction onto `.workbench-body`, read back from localStorage. This
+   * value is what a first visit gets, and what a browser that will not store
+   * anything gets every time. */
+  --design-left: 0.58fr;
+  /* The complement, so the share the separator reports is the share the grid
+     gives. Written as a pair by Workbench from one dragged fraction. */
+  --design-right: 0.42fr;
+
+  /* Where the sticky summary pane starts and how tall it may be (M47; M59).
+   *
+   * Both are written inline on `.workbench-body` by Workbench, from the study
+   * bar's measured height and what the shell's scroller has left under it. They
+   * are declared here for the reason the pair above is: every `var()` in this
+   * directory resolves to a property this file declares, and the value here is
+   * what a render before the first measurement gets.
+   *
+   * Zero and `80vh` are that render deliberately. The pane's rule falls back to
+   * the arrangement it had before it was sticky, which is a pane that reads
+   * correctly and is merely short, rather than a pane pinned to nothing. */
+  --summary-top: 0px;
+  --summary-h: 80vh;
+
+  /* The concepts tab's height under the study bar (M81, the lead's ruling).
+   * Written inline on `.conceptsview` from the bar's measured height and the
+   * scroller's, for the reason the pair above is; this value is the panel
+   * grammar's own arithmetic, which a render before the first measurement gets. */
+  --concepts-room: calc(100dvh - 11rem);
+
+  --motion-fast: 120ms; /* a control or a mark changing state in place */
+  --motion-move: 220ms; /* an element travelling to where it lands */
+  --motion-ease: cubic-bezier(0.2, 0, 0.2, 1);
+
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+
+/* Above 1200px nothing in the app changed: scrollHeight was byte-identical at
+ * 1024 and 1440, the workbench left 435px of dead gutter, and the only media
+ * queries in the sheet were the three narrow ones. Widening the frame and the
+ * gutter here rather than in a layout rule means every surface picks it up at
+ * once, and the measure tokens still cap the prose, so the extra width goes to
+ * the interface rather than to 130-character lines.
+ *
+ * The frame steps with the viewport and never with the route, which is the
+ * whole point of it: at any one width every route puts the brand, the six study
+ * tabs and the settings link on the same pixel. */
+@media (min-width: 1200px) {
+  :root {
+    --frame-max: 1280px;
+    --shell-gutter: var(--space-2xl);
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --frame-max: 1440px;
+    --shell-gutter: var(--space-3xl);
+  }
+}

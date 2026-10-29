@@ -1,0 +1,1 @@
+{"id":"chatcmpl-267","object":"chat.completion","created":1790591962,"model":"llama3.2:1b","system_fingerprint":"fp_ollama","choices":[{"index":0,"message":{"role":"assistant","content":"Yes."},"finish_reason":"stop"}],"usage":{"prompt_tokens":39,"completion_tokens":3,"total_tokens":42}}

@@ -1,0 +1,351 @@
+/**
+ * The panel grammar (SHL surface, M32 R5).
+ *
+ * The single largest cause of the owner's complaint was that prose was sizing
+ * layout. `--measure: 28em` is 392px and `--column-read: 31rem` is 496px, and
+ * both were being spent on *containers*: at 1449 inside a 1120px frame,
+ * Material put one 450px prose column on the left and left roughly 650px of
+ * blank paper to its right, and Checks did the same. Applications spend
+ * horizontal space on structure. Documents spend it on margin.
+ *
+ * So a layout container never takes a measure again. It takes one of the three
+ * regions below, and the prose *inside* it keeps whatever measure it always
+ * had:
+ *
+ *   .panel-list  320 to 360px  papers, findings, exports, claims
+ *   .panel-main  minmax(0, 1fr)  the thing being edited or read
+ *   .panel-side  320px, foldable  the record, the receipt, provenance
+ *
+ * Each scrolls on its own, sits on --surface with a 1px --line border and
+ * --radius-container, and carries a sticky sub-header. Exports was already 80%
+ * of this and is the reference implementation: the file list on the left, the
+ * receipt on the right.
+ *
+ * Independent scroll is the property that makes the three regions panes rather
+ * than columns, and it is why they are declared here rather than as another
+ * grid in each surface file. Design's two columns were independent *flows*: the
+ * left one ended and left roughly 900px of dead white while the right kept
+ * going. A pane cannot do that, because it is as tall as the frame and its
+ * content scrolls inside it.
+ */
+
+.panel-frame {
+  display: grid;
+  gap: var(--space-lg);
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* One track below 1000px, and the whole grammar is inert there: three stacked
+ * panes on a narrow window is three scroll containers the researcher cannot see
+ * the bottom of. Above it, the tracks the region classes name.
+ *
+ * 1000 rather than the 1100 the rest of the app uses, and the difference is the
+ * rail. Every other breakpoint in this directory is about how many tracks of
+ * prose the frame holds, and 1100 is where two of them fit. This one is about
+ * whether a 320px pane and a `1fr` pane fit beside each other, and the answer
+ * depends on the cell rather than the window: at a 1024px viewport the rail is
+ * folded to 56px by default, so the content cell is 968px and the body's own
+ * gutters leave 936, which holds a 320px list, a 16px gap and a 600px main with
+ * room to spare. Held at 1100 the grammar would have been inert at exactly the
+ * width the build was told to work at. */
+@media (min-width: 1000px) {
+  .panel-frame {
+    grid-template-columns: minmax(0, 1fr);
+    /* What makes a pane a pane: the frame stops at the window, so anything
+     * longer scrolls inside its own region rather than growing the page. Short
+     * content still gets a short pane, which is why this is a max and not a
+     * height: two half-empty full-height boxes would be the dead-white defect
+     * again, drawn with a border this time.
+     *
+     * The number is singular geometry, which tokens.css says stays literal: it
+     * is the chrome above a study route's panes, 56px of study header plus 41px
+     * of tab strip plus 24px of body padding above and 48px below, rounded up
+     * to the next whole rem. */
+    max-height: calc(100dvh - 11rem);
+    /* And the row has to be allowed to be smaller than what is in it, or the
+     * cap above is inert. M32c, fix 1, measured by the critic in real Chrome:
+     * `.panel-frame` capped at 581 CSS px exactly as intended while
+     * `.panel-main` rendered 2097 on Material, blew straight through it and
+     * painted out of the bottom of the viewport. Three of the four routes were
+     * still one long scroll with borders drawn on it.
+     *
+     * The reason is the implicit row. A grid with no `grid-template-rows` gets
+     * an `auto` track, and an `auto` track is at least as tall as its content
+     * whatever the container's max-height says, so the panes were sized by
+     * their contents and the cap only ever clipped nothing. `min-height: 0` on
+     * the frame does not reach this: it is about the frame as a flex or grid
+     * *item*, not about the track inside it.
+     *
+     * `minmax(0, 1fr)` is the pair of properties this needs. The `0` minimum
+     * lets the track be shorter than its content, and the `1fr` maximum makes
+     * it take the height the frame actually has. Short content still gets a
+     * short frame, because the frame's own height is `auto` bounded by a max
+     * rather than a fixed height, so an `fr` track in it resolves to the
+     * content size until the cap bites. The half-empty full-height panes that
+     * argument was worried about do not come back. */
+    grid-template-rows: minmax(0, 1fr);
+  }
+  /* list + main */
+  .panel-frame[data-panels="list-main"] {
+    grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+  }
+  /* main alone. Material before the researcher says they have data (M49,
+     ISC-529): the papers are the only pane, so they take the track rather than
+     sitting in a 360px column beside nothing. */
+  .panel-frame[data-panels="main"] {
+    grid-template-columns: minmax(0, 1fr);
+    /* Seven rem less window than the frame above takes, because this variant is
+     * the one route that keeps a row UNDER the frame: "I already have some
+     * initial data" sits below the papers, and at the shared cap the frame took
+     * the window and left the control under the fold, behind the framing dock.
+     * The walk of 2026-09-26 measured it at y 820 in an 859px viewport.
+     *
+     * The seven is the control's row: a 36px button, a 4px gap, a two-line
+     * sentence and the 16px above the block, 101px measured, held at 112 so a
+     * third line at a narrow window does not push it back under. Singular
+     * geometry, stated here rather than tokenised, the same way the 11rem the
+     * rule above subtracts is. */
+    max-height: calc(100dvh - 18rem);
+  }
+  /* main + side */
+  .panel-frame[data-panels="main-side"] {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+  /* list + main + side */
+  .panel-frame[data-panels="list-main-side"] {
+    grid-template-columns: minmax(320px, 360px) minmax(0, 1fr) 320px;
+  }
+}
+
+/* The three regions are one box with three widths, so the box is declared once
+ * and the widths are the grid's. A pane is a surface: white, a line, a radius,
+ * and its own scroll. */
+.panel-list,
+.panel-main,
+.panel-side {
+  /* The containing block for the help chip below. M32b, fix 2. */
+  position: relative;
+  /* A column rather than a two-row grid, because the sub-header is optional: a
+   * pane whose content already carries its own heading takes a head with only
+   * the help control in it, and a pane with no head at all should still hand
+   * its whole height to the body. A grid with a named header row gives the
+   * body the wrong track in both cases. */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+}
+
+/* The sub-header. Sticky inside its own pane, which is the one place sticky is
+ * safe by the rule styles-integrity states: it is alone at the top of a box
+ * that scrolls, and nothing shares that box above it. --surface-sunken so the
+ * header reads as the pane's chrome rather than as its first row of content. */
+.panel-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 32px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--line);
+  /* The pane does not clip. `overflow: hidden` on the pane would have rounded
+   * this header's corners for free and taken the help popover with it, since
+   * the popover is absolutely positioned inside this box. So the header rounds
+   * its own two corners and the pane stays unclipped. */
+  border-radius: var(--radius-container) var(--radius-container) 0 0;
+}
+/* The register R4 added: what a region is, said once, without competing with
+ * anything inside it. */
+.panel-title {
+  margin: 0;
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-faint);
+  line-height: var(--leading-tight);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The pane's own scroll. `min-height: 0` on the row is what makes it scroll
+ * rather than push the pane past the frame, and it is the declaration a grid
+ * child needs and never gets by default. */
+.panel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: clip;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-lg);
+  display: grid;
+  gap: var(--space-lg);
+  align-content: start;
+}
+
+/* ── Prose inside a pane takes the pane's width (M32c, fix 2) ────────────────
+ *
+ * Change 5 half-landed. The layout stopped being sized by prose, and then the
+ * prose went on being sized for a layout that no longer exists: `.field-hint`
+ * is capped at --measure-tight and `.studyview-lede` at --measure, both written
+ * when a surface was one column down the middle of a 1120px frame. Inside a
+ * pane two to three times those widths every hint is a two-line rag with a hard
+ * right void beside it, which is the same defect the panel grammar was built to
+ * remove, one level in: "Add your transcripts, fieldnotes, memos and archives.
+ * These / are what your claims will cite."
+ *
+ * --measure-wide rather than no cap at all. A hint running the full width of a
+ * 700px pane is 95 characters to the line, and the 80-character bar is what the
+ * whole measure family exists to hold; --measure-wide is about 70. So this
+ * widens the two tight caps to the widest one the app allows and stops there.
+ * `min(…, 100%)` because a pane can be narrower than the cap at 1000px, and a
+ * max-width that exceeds its container is a number that means nothing.
+ *
+ * Here rather than in base.css, which is the file that holds roles and no
+ * surface names: this rule is about being inside a pane, and the pane is this
+ * file's idea. Written as two class selectors rather than with `:where()`,
+ * because `:where()` contributes no specificity and both rules it has to beat
+ * are two classes; this ties them at 0-2-0 and wins on source order, which
+ * panels.css has over base.css and design.css by the cascade declaration. */
+.panel-body .field-hint,
+.panel-body .studyview-lede {
+  max-width: min(var(--measure-wide), 100%);
+}
+
+/* ── The page's Help control (M62, ISC-600) ─────────────────────────────────
+ * One "?" at the top right of the study header, the Projects head and the
+ * Model access head, replacing M32's route-help chip. The trigger is a native
+ * button; the panel is a non-modal dialog anchored under it, opening leftward
+ * because the trigger sits at the right edge, and it scrolls on its own when a
+ * page's help is longer than the window. --shadow-raised, as every floating
+ * panel in the app carries. */
+.page-help {
+  position: relative;
+  flex: 0 0 auto;
+}
+.page-help-trigger {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  font-weight: 600;
+  line-height: var(--leading-flush);
+  cursor: pointer;
+}
+.page-help-trigger:hover,
+.page-help-trigger[aria-expanded="true"] {
+  background: var(--surface-hover);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.page-help-panel {
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  z-index: 40;
+  width: min(28rem, calc(100vw - 2 * var(--space-lg)));
+  max-height: min(70vh, 40rem);
+  overflow-y: auto;
+  padding: var(--pad-roomy);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-raised);
+  display: grid;
+  gap: var(--space-sm);
+  text-align: left;
+  color: var(--ink);
+  font-size: var(--text-body);
+  font-weight: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+}
+.page-help-panel:focus {
+  outline: none;
+}
+.page-help-panel:focus-visible {
+  outline: 2px solid var(--line-strong);
+  outline-offset: 2px;
+}
+.page-help-eyebrow {
+  margin: 0;
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+.page-help-title {
+  margin: 0;
+  font-size: var(--text-head);
+  line-height: var(--leading-head);
+}
+.page-help-purpose {
+  margin: 0;
+  line-height: var(--leading-body);
+}
+.page-help-subhead {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+.page-help-parts {
+  margin: 0;
+  display: grid;
+  gap: var(--space-md);
+}
+.page-help-part dt {
+  font-weight: 600;
+  font-size: var(--text-small);
+}
+.page-help-part dd {
+  margin: var(--space-xs) 0 0;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.page-help-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+/* The heading rows that carry it outside the study header. */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  /* The h1's own margins (base.css), which the row now carries for it. */
+  margin: var(--space-sm) 0 var(--space-lg);
+}
+.page-head > h1 {
+  margin: 0;
+}
+.page-head > .page-help,
+.studies-head > .page-help {
+  margin-left: auto;
+}
+
+/* M32, critic round three: inside a pane, the pane is the measure. The
+   reading caps in base.css exist for a page-wide column; a pane already
+   bounds its own width, so a second cap leaves a void beside every
+   paragraph. The export row keeps its own tracks in exports.css. */
+.panel-main :where(p, li, dd, .export-note, .row-body) { max-width: none; }

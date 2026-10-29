@@ -1,0 +1,1025 @@
+/**
+ * The shell and the two bars (SHL surface).
+ *
+ * Everything on every route: the page frame, the app bar, the study bar, the
+ * offline banner and the heading block a study view opens with. Owned by the
+ * App Shell and Entry builder. Nothing here knows what a station is.
+ */
+
+/* `overflow-x: clip` was declared 800 lines below this rule until the merge
+ * (FND-10). No element's box is wider than the viewport by more than a
+ * rounding pixel, but scrollable overflow from inside the workbench still
+ * leaked out and put a horizontal scrollbar on every route at 390px. `clip`
+ * contains it without creating a scroll container, which `hidden` would.
+ *
+ * The gutter is a token because it steps up above 1200px and above 1600px, and
+ * before this wave there was no media query above 1100px anywhere in the sheet:
+ * scrollHeight was byte-identical at 1024 and 1440. */
+/* One width, every route, and no :has() anywhere near it.
+ *
+ * This rule used to have three siblings: `.shell:has(.workbench)` at 1500px,
+ * `.shell:has(.studyview.reading), .shell:has(.auth-panel)` at 46rem, and
+ * `.shell-intro` at 1140px. The bars are children of .shell, so all four of
+ * them were setting the position of the brand, the six study tabs and the
+ * settings link from whatever the *view* below happened to be. Measured at
+ * innerWidth 1467: brand at x=32 on Design, x=226 on Ontology, Biases,
+ * Material and Exports, x=398 on Coherence, x=196 on the intro, and the
+ * settings link at 1347 / 1153 / 981 / 1183. Design to Coherence slid the
+ * whole navigation 366px right.
+ *
+ * The frame cannot be reached from inside now: a surface that wants to be
+ * narrower narrows itself, which is what .studyview.reading does below. */
+/* M32, R1. The centred article column is gone.
+ *
+ * `.shell` was `max-width: var(--frame-max); margin: 0 auto`, which is the
+ * silhouette of a document and not of an application: at 1449 inside a 1120px
+ * frame, Material put a 450px prose column on the left and left 650px of blank
+ * paper beside it, and /settings ended in a hard horizontal edge with raw
+ * white below it. It is a full-viewport two-track grid now. The rail is the
+ * first track, the content cell is the second, and the content cell owns the
+ * scroll rather than the document, which is what lets the study header stick
+ * and the next-step bar sit at the foot of the window instead of at the foot
+ * of a 4,000px page.
+ *
+ * `min-height: 100dvh` became `height: 100dvh` for the same reason: a frame
+ * that can grow past the window has no bottom for anything to stick to. The
+ * padding, the gutter and the page-bottom interval moved to `.shell-content`
+ * below, which is the box that now has an inside.
+ *
+ * No width here at all. --frame-max is not gone; it moved to the two reading
+ * surfaces that were always what it was right about, and `.intro` and the
+ * record read it themselves.
+ *
+ * M41 gave the grid a second row for the framing dock, and M53 takes it back
+ * (ISC-540). The owner: "Move Theoretical Motivation to its own tab in front of
+ * Design." The second track and the `grid-row` declarations that filled it are
+ * gone with the dock, so the frame is one row again: the rail in the first column
+ * and the content cell in the second. `minmax(0, 1fr)` stays as the row, because
+ * the `0` floor is what keeps the content cell from growing past a window that is
+ * `overflow: hidden` at `100dvh` and taking the sticky study header with it. */
+.shell {
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  /* The backstop for the same defect: anything absolutely positioned anywhere in
+     the app is contained by the frame and clipped by it, so no hidden label can
+     make the document taller than the window again. */
+  position: relative;
+}
+/* Collapsed by declaration rather than by breakpoint, because the toggle and
+ * the breakpoint have to agree: AppShell folds the rail below 1180px and opens
+ * it again above, and the researcher can fold it at any width. One attribute,
+ * read here. */
+.shell[data-rail="collapsed"] {
+  grid-template-columns: var(--rail-w-collapsed) minmax(0, 1fr);
+}
+
+/* The cell that scrolls, and the only one. Two tracks in a column: the sticky
+ * study header, and the route body under it.
+ *
+ * `overflow-y: auto` is what makes every `position: sticky` on this side of the
+ * app work, and it is also what stops the rail scrolling with the page. The
+ * horizontal `clip` is the rule that used to sit on `.shell`: no element's box
+ * is wider than its cell by more than a rounding pixel, but scrollable overflow
+ * from inside the workbench still leaked out and put a horizontal scrollbar on
+ * every route at 390px. */
+.shell-content {
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: clip;
+  /* The containing block for anything positioned inside it (walk of 2026-09-12).
+   * `.visually-hidden` is `position: absolute`, and with no positioned ancestor
+   * its labels were placed against the document at the coordinates their fields
+   * would have had on an unscrolled page: two of them at 1302 and 1623 on a 713
+   * window. Absolutely positioned boxes are not clipped by an ancestor whose
+   * overflow they are not contained by, so the document itself became 1623 tall
+   * and a wheel over the rail scrolled the whole app 910px into blank paper. Made
+   * the containing block, this cell owns them, and they scroll with the fields
+   * they label. */
+  position: relative;
+  /* A column rather than a two-row grid, and the reason is what is in it: the
+   * offline banner renders nothing most of the time, the keyboard layer is a
+   * fragment that renders between zero and three elements depending on what is
+   * open, and then the study bar and the route body. Auto-placement would hand
+   * the `1fr` row to whichever of those happened to be second. A flex column
+   * stacks whatever arrives, in order, and the body is the one that grows. */
+  display: flex;
+  flex-direction: column;
+}
+/* Where a page stops, and the one rule in the app that says so. The interval
+ * was on `.shell` until M32 and moved with the padding when the frame stopped
+ * being the box with an inside. */
+.shell-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-xl) var(--shell-gutter) var(--space-3xl);
+}
+/* The two reading surfaces, and the whole of what --frame-max is for now: a
+ * run of reading does not want a 1440px line whatever the window is doing. A
+ * surface that holds an instrument, a grid or a table takes the cell. */
+.shell-body > .intro,
+.shell-body > .auth-panel {
+  max-width: var(--frame-max);
+  margin: 0 auto;
+}
+
+/* The framing dock's frame rules were here (M41 to M52), and went with the dock
+ * (M53, ISC-540).
+ *
+ * `.framing` in row 2 of the shell grid with its `max-height: var(--framing-height)`
+ * ceiling, `.framing > summary` and its heading, `.framing-dock-preview` with the
+ * rule that hid it while the dock was open, the chip's place at the end of the bar,
+ * and `.framing-body` with the second ceiling that made the box under the bar the
+ * scroller. Six selectors, and every one of them was about a bar at the foot of a
+ * window: how tall it may stand, what its one collapsed line may say, and where its
+ * body has to scroll so the bar stays put.
+ *
+ * The page that replaced it is `.motivation` in design.css, beside the rules for
+ * the three fields and the puzzle block, which never left that file.
+ */
+
+/* M32, R2. The app bar became the rail, and its rules went with it.
+ *
+ * What stood here was `.appbar`, a flex row holding a wordmark, one text link
+ * and a right-aligned settings link over a 1px bottom border. That is a
+ * website masthead: no persistent study switcher, no list of studies, no
+ * command surface, no place for global state. rail.css holds the same three
+ * items and the two the rail adds, laid down the left edge, which is the
+ * single largest signal in the critique that this is an application.
+ *
+ * The bold-width reservation stayed behind, because half of it is still
+ * needed. In a vertical rail each item is a row of its own and a weight change
+ * moves nothing to its right, so `.navrail` does not need it; the five study
+ * tabs are still a horizontal strip and still do. Same mechanism, one caller.
+ *
+ * With the frame pinned, the residual movement in the navigation was the
+ * current item's own weight: 600 makes a link 2 to 4px wider than its resting
+ * state, which shifts everything to its right. Measured across routes, Ontology
+ * sat at x=187 with Design current and x=185 with Coherence current, and
+ * Material at 398 / 400 / 401. Every tab is sized to its own bold width off
+ * `data-label`, with the visible text laid in a row above a zero-height copy of
+ * it, so the weight changes and the box does not. */
+.studybar-tabs a::after {
+  content: attr(data-label);
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+/* Not dismissible, and coloured like a warning rather than a notice: the
+ * failure it reports is the app serving fixtures as interview turns.
+ *
+ * It carried four hexes of its own (#7c2d12 ground, #fff7ed text, #431407 rule,
+ * #fed7aa link) that nothing else in the app shared, which is four of the 79
+ * literals FND-07 counted. It reads the warn triad now. The ground is a shade
+ * lighter than it was and the bottom rule is gone, since a darker line under a
+ * filled bar was separating it from a page it already sits above. White on
+ * --warn is 7.1:1. */
+.offline-banner {
+  background: var(--warn);
+  color: var(--ink-inverse);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+}
+.offline-banner .linkish {
+  color: var(--ink-inverse);
+}
+
+/* ── Two tiers ───────────────────────────────────────────────────────────────
+ * The rail is always the same things. The study bar exists only inside a
+ * study. That difference is what makes the level readable before any label is
+ * read, which one flat bar of four peers could not do.
+ *
+ * M32, R3. It is sticky inside the content cell now, 56px in its first row,
+ * and it carries the route's own h1 rather than leaving it 46px below in the
+ * page body. Sticky is safe here for the reason `styles-integrity` states for
+ * everywhere it is not: this element is alone at the top of the one box that
+ * scrolls, so nothing shares its scroll container above it.
+ *
+ * `--paper` rather than `transparent`, because a transparent sticky bar shows
+ * the page sliding under its own text.
+ *
+ * The layer, and why it is 3 (D4, M43).
+ *
+ * It was 2, and so is `.panel-help`, the round `?` anchored to a pane's own
+ * top-right corner in panels.css. A tie goes to whatever paints last, which is
+ * the chip, and the chip is positioned inside a pane that scrolls up under this
+ * bar. The walk of 2026-09-13 read the result off the Material tab: with the
+ * framing dock open the content cell had 256px of scroll, and at 120px of it the
+ * chip sat at (579, 18) over an h1 at (581, 16), so the page heading rendered
+ * "M(?)terial" and `elementFromPoint` at the chip's centre returned the chip.
+ *
+ * A sticky bar is the top layer of the box it is stuck to, so it takes the layer
+ * above every piece of pane chrome rather than tying with one. 3 rather than a
+ * larger number because that is one step above `.panel-help`, and everything
+ * genuinely over this bar is a dialog, a popover or the palette, all of which
+ * sit at 30 and above. */
+.studybar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: 0 var(--shell-gutter);
+}
+/* One row, 56px, and the height is declared rather than inherited from what
+ * happens to be in it: this strip is the most-seen 100px of the product and it
+ * must not change height when a study has no research question. */
+.studybar-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 56px;
+}
+/* The study name, as text. The picker it used to be is in the rail now (R2),
+ * where a switcher belongs; what stays here is the identity of the thing the
+ * five tabs are views of, which the rail cannot carry while it is collapsed.
+ */
+.studybar-name {
+  font-size: var(--text-title);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+/* The route's own h1, demoted from --text-head and moved off the page body
+ * (R3). A 22px "Material" floating over an empty page was the most
+ * document-like thing on screen. The rule to its left is the separator, so no
+ * glyph had to be invented and no string added. */
+.studybar h1 {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 600;
+  color: var(--ink);
+  padding-left: var(--space-md);
+  border-left: 1px solid var(--line);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+/* The one string in the app with no cap of any kind. It is a single truncated
+ * line, so it never wrapped and never looked wrong, but it grew with the
+ * window: 748px and 122 characters at 1024, 1167px and 190 at 1440, still
+ * widening at 1920. A measure is about how far the eye travels, not about
+ * whether the text happens to wrap, so it takes one like every other run of
+ * prose and truncates earlier instead of running on. */
+.studybar-rq {
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: var(--measure);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The action cluster, right-aligned. The spacer is a flex child rather than
+ * `margin-left: auto` on the cluster because the research question shrinks
+ * before the gap does. */
+.studybar-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.studybar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 0 0 auto;
+}
+/* The chord chip (R12). The keyboard model has existed since FND-02 and
+ * nothing on any screen said so, which is the cheapest "this is an
+ * application" signal there is. It prints the binding through the same `Caps`
+ * component the sheet and the palette print it with, so no key name is written
+ * down twice, and pressing it dispatches the keystroke the layer is already
+ * listening for. */
+.studybar-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-faint);
+  font-size: var(--text-micro);
+  line-height: var(--leading-tight);
+}
+.studybar-kbd-word {
+  /* M53, ISC-545. The one word on the chip, so it says what the keys beside it do. */
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+}
+.studybar-kbd:hover {
+  background: var(--surface-hover);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+/* ── The five tabs, as segmented controls (R3) ───────────────────────────────
+ * They were text with a 2px underline under the current one, which is the
+ * idiom of a site's section nav. Segmented controls are what an application
+ * uses: a 32px track, one filled cell, and a hover surface on the rest, so the
+ * strip reads as a switch rather than as a row of links. The order is
+ * unchanged and cannot change: Design, Material, Your model, Checks, Exports.
+ */
+.studybar-tabs {
+  display: flex;
+  gap: var(--space-hair);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-sm);
+}
+/* The line under the strip (M49, ISC-528; M62, ISC-607; since M69, ISC-640, the
+ * line for any tab on hover and focus: how to open a greyed tab, or when to come
+ * to an open one, with no native tooltip drawn over it). In the chrome's own
+ * register, and gone when the pointer or the focus leaves the tab. */
+/* Reserved room for two lines of the notice, so hovering a tab moves nothing
+ * below the strip (the owner, 2026-10-02: the tooltip sat over the line; the
+ * line must not shove the page either). */
+.studybar-notice-room {
+  min-height: calc(2 * var(--leading-body) + var(--space-sm));
+}
+.studybar-notice {
+  margin: 0;
+  padding-bottom: var(--space-sm);
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+/* Still an inline-grid, and still carrying `data-label`, for the bold-width
+ * reservation above: the active cell is 600 and the rest are 400, and without
+ * this the strip would shuffle 2 to 4px on every tab change. */
+.studybar-tabs a {
+  font-size: var(--text-small);
+  color: var(--ink-muted);
+  text-decoration: none;
+  display: inline-grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 32px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-control);
+  border: 1px solid transparent;
+}
+.studybar-tabs a:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+.studybar-tabs a[data-current="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink-inverse);
+  font-weight: 600;
+}
+.studybar-tabs a[data-current="true"]:hover {
+  background: var(--accent);
+  color: var(--ink-inverse);
+}
+/* M78b, ISC-681: a small dot on Starting point while it holds an edit that
+ * Save answer hasn't written. Out of the grid's flow, so the bold-width
+ * reservation above still sizes the tab. */
+.studybar-tabs a[data-unsaved="true"] {
+  position: relative;
+}
+.studytab-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1.5px var(--surface);
+}
+.studybar-tabs a[data-current="true"] .studytab-dot {
+  background: var(--ink-inverse);
+  box-shadow: 0 0 0 1.5px var(--accent);
+}
+/* ISC-607: a tab not yet earned is greyed, visible and labelled, in the
+ * disabled ink every inert control wears (base.css), and it doesn't light up
+ * under the pointer, because it doesn't open. Its line shows under the strip. */
+.studybar-tabs a[aria-disabled="true"],
+.studybar-tabs a[aria-disabled="true"]:hover {
+  /* The inert fill every disabled control wears (base.css), and the faint ink,
+     since --inert is the muted ink the open tabs already use. */
+  color: var(--ink-faint);
+  background: var(--inert-fill);
+  cursor: default;
+}
+.studybar-tabs a[aria-disabled="true"][data-current="true"] {
+  border-color: var(--inert-line);
+}
+/* The page a link to a greyed tab lands on: the one line, where the page's
+ * content would be. */
+.closed-tab {
+  padding: var(--space-xl) 0;
+}
+.closed-tab-line {
+  margin: 0;
+  max-width: var(--measure);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+
+/* No padding-bottom here, and the argument is the one this sheet already made
+ * 80 lines down for `.studies`: `.shell` sets `padding-bottom: var(--space-3xl)`
+ * on every route, so a surface that sets it again is spending 96px under the
+ * last line of the page rather than 48.
+ *
+ * That argument had been applied to one of the eight routes. Measured on the
+ * running app at /exports, main's own box ended 48px above the document and
+ * carried another 48px of padding inside it, so the last content sat 96px up;
+ * on /studies and /design, which do not restate it, the same content sat 48px
+ * up. Four routes long, two routes short, and the difference read as the pages
+ * not agreeing about where a page ends. The interval belongs to the frame, and
+ * the frame already has it.
+ *
+ * The same declaration went from `.matrixpage` in biases.css and `.intro` in
+ * intro.css for the same reason, which leaves `.shell` as the only rule in the
+ * app that says where a page stops. */
+/* The reading surfaces, for a route with no instrument on it: /settings and
+ * /coherence are prose, a decision and a reason field. Both were laying every
+ * card out at the full 1016px of the shell around 448px of text. A surface that
+ * holds a grid, a graph or a table does not take this class, which is why it is
+ * opt-in rather than a rule on .studyview.
+ *
+ * The first fix for that was to narrow the *shell*, which fixed the card and
+ * broke the frame: it is what put the brand at x=398 on /coherence and x=226 on
+ * /ontology. So the surface fills the frame instead, in as many --column-read
+ * tracks as the frame holds. The heading and the lede span every track, so the
+ * left edge of the first thing on the page is the left edge of the app bar
+ * above it, on this route and on every other one. Below 1100px it is a single
+ * block flow and this whole rule is inert. */
+.studyview.reading,
+.auth-panel {
+  min-width: 0;
+}
+@media (min-width: 1100px) {
+  .studyview.reading,
+  .auth-panel {
+    columns: var(--column-read);
+    column-gap: var(--space-2xl);
+  }
+  /* Multi-column rather than a two-track grid, and the difference is visible.
+   * A grid puts each child in a row of its own, so the row is as tall as the
+   * taller of the two cells and the shorter one gets a hole: the "Check the
+   * design" button on /coherence sat alone in a 660px-tall cell beside the
+   * first finding group. Column flow has no rows, so the blocks pack. */
+  .studyview.reading > *,
+  .auth-panel > * {
+    break-inside: avoid;
+  }
+  /* Only the title spans. The lede spanned too at first and bought nothing: it
+   * is capped at a measure, so it filled the left half of a full-width row and
+   * pushed the whole second column down past 480px of nothing. */
+  .studyview.reading > h1,
+  .auth-panel > h1,
+  /* M62, ISC-600: the heading row that carries the Help control spans too, so
+     the "?" sits at the page's top right and its panel is not cut off by a
+     column box. */
+  .auth-panel > .page-head {
+    column-span: all;
+  }
+}
+/* `.studyview h1` stood here with a margin, and it is gone with the headings it
+ * dressed: M32's R3 moved every study route's h1 into the sticky study bar,
+ * which sets its own. The tracking it used to carry had already moved to the
+ * `h1` element rule in base.css, and that is still where it is declared. */
+.studyview-lede {
+  max-width: var(--measure);
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+  margin: 0 0 var(--space-xl);
+}
+
+/* The card that makes a study is one field and one button, so it takes a column
+ * rather than the frame. Capping the field at a measure without capping the
+ * card would have moved the defect rather than fixed it: a 448px control inside
+ * a 1216px box is 38% full, and this sheet's own rule puts the failure line at
+ * 44%. The card is the width of what it holds. It sits in the aside now, which
+ * is narrower than this cap, so the cap is inert above 1100px and is what keeps
+ * the form from spanning the frame below it. */
+.study-new {
+  max-width: var(--column-read);
+}
+
+/* ── /studies ────────────────────────────────────────────────────────────────
+ *
+ * The home surface for anyone who has been here before, and it used to be two
+ * cards in a two-track grid holding four lines between them. Measured at 1440:
+ * main ended at 416px of an 806px window, each row said "Stage: Design Brief ·
+ * created 5 August 2026" and nothing else, and the heaviest object in it was
+ * the red-bordered Delete button 16px from a 14px/400 study title.
+ *
+ * It is a table now, because the thing a researcher does here is compare: which
+ * study has something waiting, which one has an ontology, which one stalled.
+ * Six numbers per study that line up down the page cost one scan; six numbers
+ * scattered inside two cards cost six. The columns are explained once, in the
+ * aside, which is also where the create form went: the form is what a first
+ * visit needs and the list is what every later visit needs, and the list was
+ * below the form on all of them.
+ */
+/* Two blocks, one interval. It carried `padding-bottom: var(--space-3xl)` on
+ * top of the identical padding .shell already sets, which is 48px of nothing
+ * under the page and the difference between this route fitting an 806px window
+ * and not. */
+.studies {
+  display: grid;
+  gap: var(--space-xl);
+  align-content: start;
+}
+.studies-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+.studies-head > h1 {
+  margin: 0;
+}
+.studies-summary {
+  margin: 0;
+  color: var(--ink-muted);
+}
+/* M71. "Deleted <title>." on a line of its own under the heading. A paragraph
+ * carries the reading cap from base.css, and a capped item fits its clamped
+ * width on the heading's line (the walk measured it beside the Help control),
+ * so the cap comes off here and the 100% basis makes the wrap. */
+.studies-deleted {
+  margin: 0;
+  flex-basis: 100%;
+  max-width: none;
+  color: var(--ink);
+}
+
+.studies-layout {
+  display: grid;
+  align-items: start;
+  gap: var(--space-2xl);
+}
+/* One track until the frame can hold both without squeezing the table's eight
+ * columns. --measure-tight rather than a width of its own: the aside is a form
+ * and five definitions, which is prose, and the narrowest of the three prose
+ * measures is what prose in a side column takes. */
+@media (min-width: 1100px) {
+  .studies-layout {
+    grid-template-columns: minmax(0, 1fr) var(--measure-tight);
+  }
+}
+.studies-main {
+  min-width: 0;
+}
+/* The wrapper scrolls, the document does not. Eight columns fit inside the
+ * frame from 1024 up; below that the table keeps every column and takes a
+ * scrollbar of its own rather than dropping a fact or pushing the page
+ * sideways, which is what `overflow-x: clip` on .shell would otherwise hide. */
+.studies-tablewrap {
+  overflow-x: auto;
+}
+.studies-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+/* The horizontal pad is one step below the vertical one, and that is the
+ * difference between a table that fits and a table that scrolls at 1440.
+ * Measured: eight columns summed to 1172px inside an 848px track on the first
+ * cut and 873px after the research question was capped; at --space-md a side
+ * the eight gutters alone are 192px of the 848. A table that scrolls sideways
+ * has given up on the comparison it exists to make. */
+.studies-table thead th {
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+/* M73: the one heading that wraps. Its column already wraps the date it holds,
+ * and the line it gives back is what keeps the table inside its pane at 1398px
+ * now that the third heading reads "Statements". */
+.studies-table thead th.study-when-head {
+  white-space: normal;
+}
+.studies-table tbody td {
+  padding: var(--space-md) var(--space-sm);
+  border-bottom: 1px solid var(--line-faint);
+  vertical-align: top;
+}
+.studies-table tbody th {
+  padding: var(--space-md) var(--space-sm);
+  border-bottom: 1px solid var(--line-faint);
+  vertical-align: top;
+  font-weight: 400;
+  text-align: left;
+}
+.studies-table .study-num {
+  text-align: right;
+}
+
+/* Eight columns is enough that the eye can lose its line between the title and
+ * the date. The hover band is the cheapest correction and it costs nothing when
+ * the pointer is elsewhere. */
+.study-row:hover > * {
+  background: var(--surface-sunken);
+}
+
+/* The row's own object. The title is the largest thing in it, which is the
+ * whole of the fix: the destructive control was heavier than the study on the
+ * screen whose job is to open studies. */
+.study-cell {
+  display: grid;
+  gap: var(--space-hair);
+  min-width: 0;
+}
+/* `justify-self: start` because a grid item stretches by default and a chip
+ * stretched to the width of the column is a banner. Nowrap because a chip that
+ * breaks mid-phrase reads as a rendering fault. */
+.study-cell > .status-chip {
+  justify-self: start;
+  white-space: nowrap;
+}
+.study-title {
+  font-size: var(--text-title);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+  text-decoration: none;
+}
+.study-title:hover {
+  text-decoration: underline;
+}
+/* The question the study is for, which the list never showed. One line: it is
+ * here so the reader can tell two studies apart, not so they can read it. */
+/* `min-width: 0` is the whole of why the table fits. A nowrap run's automatic
+ * minimum size is its entire string, so as a grid item the question set the
+ * column's minimum: at --measure-tight capped it was 336px and the eight
+ * columns summed to 873px inside an 848px track. At zero it contributes
+ * nothing, takes whatever the column is given, and truncates. */
+.study-rq {
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  line-height: var(--leading-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* M73: the concepts and relations, under the question, in the question's type
+ * and a step stronger, since it is a count and not a line to read past. */
+.study-ontology {
+  min-width: 0;
+  font-size: var(--text-small);
+  color: var(--ink);
+  line-height: var(--leading-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Every number is the route to the view it is about. A count with no way out of
+ * it is a dead end, and a row of navigation links beside a row of counts is the
+ * same information written twice. */
+.study-metric {
+  display: inline-grid;
+  gap: var(--space-hair);
+  justify-items: end;
+  color: var(--ink);
+  text-decoration: none;
+}
+.study-metric:hover {
+  text-decoration: underline;
+}
+.study-metric-n {
+  font-size: var(--text-title);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-strong);
+}
+/* Staged pages are the one count that is a claim on the researcher's attention
+ * rather than a description of the study, so it reads the notice ink when it is
+ * not zero. Not --warn: nothing here is a failure and nothing here gates. */
+.study-metric-n[data-live="true"] {
+  color: var(--accent);
+  font-weight: 650;
+}
+.study-metric-note {
+  font-size: var(--text-small);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* The gauge: the eight stations in the rail's own three resting states, so the
+ * mark means the same thing here as it does inside the study. Cells rather than
+ * a bar, because the count is eight and a proportion would lose which. */
+.study-gauge {
+  display: flex;
+  gap: var(--space-hair);
+  justify-self: start;
+}
+.study-gauge-cell {
+  width: var(--space-sm);
+  height: var(--space-lg);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+.study-gauge-cell[data-state="stated"] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+
+.study-when {
+  color: var(--ink-muted);
+}
+
+/* M71, ISC-651. A quiet button at rest (.btn-quiet carries the fill and the
+ * colour), so the control is found without hunting. It was faint bare text in
+ * an eighth column, and the owner looked for a delete and did not see it. It
+ * sits under the research question now, at the start of the cell, small and on
+ * one line, so the row's facts still outweigh it. */
+.study-remove {
+  justify-self: start;
+  margin-top: var(--space-xs);
+  padding: var(--space-hair) var(--space-sm);
+  font-size: var(--text-small);
+  white-space: nowrap;
+}
+/* The band is neutral and the red is on the button inside it. FND-04 reserves
+ * --warn for a closed list of selectors and .btn-danger is on it; a second
+ * surface painting itself the destroy hue around a control that already carries
+ * it is the spread that reservation exists to stop. */
+.study-confirm > td {
+  padding: var(--space-md);
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--line-strong);
+}
+.study-confirm-text {
+  margin: 0;
+  max-width: var(--measure);
+  color: var(--ink);
+  line-height: var(--leading-body);
+}
+
+/* The aside: what to do first, what the columns mean, and what removing does
+ * not do. A gauge with no key is a mark the reader guesses at. */
+.studies-aside {
+  display: grid;
+  gap: var(--space-xl);
+  min-width: 0;
+}
+/* Stacked under the table there is a whole frame to lay these three blocks
+ * across, and one column of them left 300px of white to the right of the key at
+ * 1024. Same three blocks, as many tracks as the frame holds. */
+@media (max-width: 1099px) {
+  .studies-aside {
+    grid-template-columns: repeat(auto-fit, minmax(var(--measure-tight), 1fr));
+  }
+}
+.studies-key {
+  margin: 0;
+  display: grid;
+  gap: var(--space-hair);
+}
+.studies-key > dt {
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: var(--space-sm);
+}
+.studies-key > dd {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: var(--leading-body);
+}
+.studies-note {
+  margin: 0;
+  line-height: var(--leading-body);
+}
+
+/* Narrow viewports: the research question is context, not navigation, so it is
+ * the first thing to go rather than the thing that forces a horizontal
+ * scrollbar onto every route. */
+/* Narrow viewports: the research question is context, not navigation, so it is
+ * the first thing to go rather than the thing that forces a horizontal
+ * scrollbar onto every route.
+ *
+ * M32: the tabs' gap override went with the underline. It opened the strip to
+ * 16px so five text links did not run together; they are segmented controls
+ * now, each with its own ground and its own border, and a 16px gutter between
+ * five pills is five separate buttons rather than one switch. */
+@media (max-width: 700px) {
+  .studybar-rq {
+    display: none;
+  }
+}
+
+/* ── Bringing a study in (M36) ───────────────────────────────────────────────
+ *
+ * The picker's own block, in the aside beside the create form and in the
+ * hero's second row. Nothing here sets a colour: the field primitives already
+ * carry the light palette, and the one place the palette is wrong is the hero,
+ * which restates the inks itself in intro.css.
+ */
+.bringin {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+/* ── The record (M38, ISC-494) ────────────────────────────────────────────────
+ *
+ * The header's open-question line (ISC-492) went at M84 (ISC-706), and its two
+ * rules with it. The record's control stays in the chrome.
+ */
+/* The record's control. Quiet, and beside the chord chip rather than in front
+ * of it: the record is evidence about the session rather than part of doing the
+ * work, which is the same argument that had it collapsed when it lived on the
+ * Design page. What changed at M38 is where it is reachable from, not how loud
+ * it is. */
+.studybar-record {
+  font-size: var(--text-small);
+  flex: 0 0 auto;
+}
+
+/* The record itself, as a panel over the tab you are on (ISC-494).
+ *
+ * A native <dialog>, sized and grounded like the shortcut sheet, because they
+ * are the same kind of object: something that covers the work for as long as
+ * you are reading it and gives the page back untouched. Wider than the sheet,
+ * because the timeline inside it is a table of events rather than a list of
+ * chords, and it is the first thing shown.
+ */
+.recordpanel {
+  width: min(78rem, calc(100vw - 3rem));
+  max-height: min(52rem, calc(100vh - 4rem));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+  overflow: auto;
+}
+/* color-mix rather than a raw rgba, so tokens.css stays the only stylesheet
+ * holding a colour. The same mix the sheet and the palette use. */
+.recordpanel::backdrop {
+  background: color-mix(in srgb, var(--hero-ground-top) 55%, transparent);
+}
+.recordpanel-body {
+  padding: var(--pad-roomy);
+}
+.recordpanel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+.recordpanel-head h2 {
+  margin: 0;
+}
+/* The section inside it was written to sit at the foot of a page: a top margin,
+ * a rule above it and padding under that rule are how it separated itself from
+ * the work above. Inside the panel the panel's own header does that job, so the
+ * three of them are a void under the heading. Zeroed here rather than in
+ * instrumentation.css because it is the panel that changes the context, and
+ * `[data-hosted]` is what the section stamps when it is rendered inside one. */
+.recordpanel .instrumentation[data-hosted="true"] {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* M54. The bridge card's commands: one line each, the command in code type on
+ * the sunken code surface with its own Copy button at the end, and the gloss
+ * under it. A long command wraps inside its box rather than widening the card,
+ * because the download line is ninety characters on a column half that. */
+.bridge-step {
+  margin-top: var(--space-md);
+}
+
+/* M56. The two lanes, Claude Code and Codex, as one radio group of pill
+ * buttons: the Your model switch's look, achromatic, the chosen one on the
+ * selected ground with the strong line. Nothing is disabled; a lane that is
+ * not installed can be chosen and the card shows its install line. */
+.lane-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: var(--space-sm) 0 var(--space-md);
+}
+.lane-switch-option {
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.lane-switch-option:hover {
+  background: var(--surface-hover);
+}
+.lane-switch-option[aria-checked="true"] {
+  background: var(--surface-selected);
+  border-color: var(--line-strong);
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+/* M60: Option B's address field and model list, stacked like the local fields. */
+.api-base,
+.api-model {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: 28rem;
+  margin: var(--space-sm) 0;
+}
+/* M60: the local lane. The model list reuses the lane switch's pills; the two
+   optional fields stack under it, each label above its input. */
+.local-connected {
+  margin: 0 0 var(--space-md);
+}
+.local-models {
+  margin-top: var(--space-xs);
+}
+/* ISC-591: the Claude and Codex lanes' models, the same pills under the connected line. */
+.cli-models {
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+.local-start {
+  margin: var(--space-xs) 0 var(--space-md);
+  padding-left: var(--space-lg);
+}
+.local-start > li {
+  margin: var(--space-xs) 0;
+}
+.local-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+.local-fields > label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  max-width: 28rem;
+}
+.local-fields > label > input {
+  width: 100%;
+}
+.bridge-command {
+  margin: var(--space-md) 0;
+}
+.bridge-command-line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+.bridge-command-line > code {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  background: var(--surface-code);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-xs) var(--space-sm);
+}
+.bridge-command-line > button {
+  flex: none;
+}
+.bridge-command > p {
+  margin: var(--space-xs) 0 0;
+}
+.bridge-waiting > button {
+  margin-left: var(--space-sm);
+}
+
+/* M55. The Mac app's download sits above the terminal path: the button, then
+ * the one sentence saying what the app is, spaced like a command row. */
+.bridge-app {
+  margin: var(--space-md) 0;
+}
+.bridge-app > p {
+  margin: var(--space-xs) 0 0;
+}
+
+/* M75, ISC-667: the one line shown when the machine-bias scan's model call failed. */
+.machine-scan-note {
+  margin: 0 0 var(--space-sm);
+}
