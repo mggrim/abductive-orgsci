@@ -1861,6 +1861,64 @@ export interface SuggestionDroppedEvent extends EventEnvelope {
   readonly source: ConceptSource;
 }
 
+// ---------------------------------------------------------------------------
+// M95: the help chat (ISC-771 .. ISC-781)
+// ---------------------------------------------------------------------------
+
+/**
+ * The researcher's profile as the help chat read it when they asked (M95,
+ * ISC-773). A snapshot, so History says which researcher the answer was
+ * fitted to even after they edit the card. Every field is optional, and the
+ * whole object is absent when they left the card empty.
+ */
+export interface HelpAbout {
+  readonly stage?: string;
+  readonly field?: string;
+  readonly experience?: string;
+  readonly wants?: string;
+}
+
+/**
+ * The researcher asked the help chat a question, or pressed I'm stuck (M95,
+ * ISC-774). Written by the researcher, before the model is called, so a request
+ * whose answer failed is still on the record. Help events are a side channel:
+ * the interview, the suggester, the study context and the Report read none of
+ * them (ISC-777).
+ */
+export interface HelpAskedEvent extends EventEnvelope {
+  readonly type: "help-asked";
+  /** The page the Help panel was open on: a study tab id. */
+  readonly page: string;
+  /** On Design, the step the researcher was at. */
+  readonly station?: string;
+  /** The researcher's words, or the I'm stuck button's. */
+  readonly text: string;
+  /** The request came from the I'm stuck button. */
+  readonly stuck?: true;
+  readonly about?: HelpAbout;
+}
+
+/**
+ * The help chat's answer to one `help-asked` (M95, ISC-775). Written from the
+ * model's reply, so the envelope carries the model and its version.
+ */
+export interface HelpAnsweredEvent extends EventEnvelope {
+  readonly type: "help-answered";
+  /** The `help-asked` event this answers. */
+  readonly asked: string;
+  readonly text: string;
+  /** The first reply, when the voice gate or the retry changed it. */
+  readonly rawText?: string;
+  /** The researcher pressed Stop part way, and this is the part they saw. */
+  readonly cutShort?: true;
+  /**
+   * Phrases in the answer that read as supplying the researcher's own answer
+   * (`guidanceAnswerViolations`), so an auditor can find the answers that
+   * broke the coach-don't-write rule (ISC-776). Absent when there were none.
+   */
+  readonly answerLeaks?: readonly string[];
+}
+
 export type LedgerEvent =
   | BoundEvent
   | BriefDraftEvent
@@ -1921,7 +1979,9 @@ export type LedgerEvent =
   | SurfacingEvent
   | ReadingAcceptedEvent
   | DraftDeclinedEvent
-  | PropertyRejectedEvent;
+  | PropertyRejectedEvent
+  | HelpAskedEvent
+  | HelpAnsweredEvent;
 
 export type LedgerEventType = LedgerEvent["type"];
 
@@ -1986,6 +2046,8 @@ const EVENT_TYPES: readonly LedgerEventType[] = [
   "reading-accepted",
   "draft-declined",
   "property-rejected",
+  "help-asked",
+  "help-answered",
 ];
 
 const VERDICTS: readonly Verdict[] = ["accept", "revise", "reject", "defer", "ignored"];
@@ -2485,6 +2547,25 @@ export function validateEvent(candidate: unknown): string[] {
     case "property-rejected":
       errors.push(...validateConceptEvent(e));
       break;
+    /* M95, ISC-774, ISC-775: the help chat. */
+    case "help-asked":
+      if (e.actor !== "human") errors.push("help-asked is the researcher's request and takes the researcher as its actor");
+      if (!isNonEmptyString(e.page)) errors.push("help-asked.page must name the page that the Help panel was open on");
+      if (e.station !== undefined && !isNonEmptyString(e.station)) errors.push("help-asked.station must name a step when present");
+      if (!isNonEmptyString(e.text)) errors.push("help-asked.text must be non-empty");
+      if (e.stuck !== undefined && e.stuck !== true) errors.push("help-asked.stuck is true when present");
+      if (e.about !== undefined) errors.push(...helpAboutErrors(e.about));
+      break;
+    case "help-answered":
+      if (!isPersonaActor(String(e.actor))) errors.push("help-answered is Abductive's answer and takes Abductive as its actor");
+      if (!isNonEmptyString(e.asked)) errors.push("help-answered.asked must name the help-asked event it answers");
+      if (!isNonEmptyString(e.text)) errors.push("help-answered.text must be non-empty");
+      if (e.rawText !== undefined && typeof e.rawText !== "string") errors.push("help-answered.rawText must be a string when present");
+      if (e.cutShort !== undefined && e.cutShort !== true) errors.push("help-answered.cutShort is true when present");
+      if (e.answerLeaks !== undefined && !(Array.isArray(e.answerLeaks) && e.answerLeaks.every(isNonEmptyString))) {
+        errors.push("help-answered.answerLeaks must list phrases when present");
+      }
+      break;
     /* M93, ISC-756, ISC-760: the press of Surface concepts and relationships. */
     case "surfacing":
       if (!isNonEmptyString(e.station)) errors.push("surfacing.station must name a step or the framing");
@@ -2829,7 +2910,7 @@ function validateConceptEvent(e: Record<string, unknown>): string[] {
             const ask = a as Record<string, unknown> | null;
             const ref = (ask?.ref ?? null) as Record<string, unknown> | null;
             if (ask === null || !isNonEmptyString(ask.question)) errors.push(`readiness-report.asks[${i}].question must be non-empty`);
-            if (ref === null || !["row", "concept", "relation"].includes(ref.kind as string)) errors.push(`readiness-report.asks[${i}].ref must name a row or a card`);
+            if (ref === null || !["row", "concept", "relation"].includes(ref.kind as string)) errors.push(`readiness-report.asks[${i}].ref must name a row, a concept or a relation`);
           });
       }
       if (e.rivalAccounts !== undefined) {
@@ -3032,7 +3113,7 @@ function validateConceptEvent(e: Record<string, unknown>): string[] {
       break;
     case "argument-written":
       if (!isNonEmptyString(e.text)) errors.push("argument-written.text must be non-empty");
-      if (typeof e.basis !== "string") errors.push("argument-written.basis must name the cards it was written from");
+      if (typeof e.basis !== "string") errors.push("argument-written.basis must name the concepts and relations it was written from");
       if (e.actor === "human") errors.push("argument-written is Abductive's paragraph and takes Abductive as its actor");
       if (e.awaitsDecision !== undefined && e.awaitsDecision !== true) errors.push("argument-written.awaitsDecision is true when present");
       break;
@@ -3042,6 +3123,20 @@ function validateConceptEvent(e: Record<string, unknown>): string[] {
       errors.push(...sourceErrors(e.source, "suggestion-dropped.source"));
       if (e.actor === "human") errors.push("suggestion-dropped is Abductive's act and takes Abductive as its actor");
       break;
+  }
+  return errors;
+}
+
+const HELP_ABOUT_KEYS: ReadonlySet<string> = new Set(["stage", "field", "experience", "wants"]);
+
+function helpAboutErrors(value: unknown): string[] {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return ["help-asked.about must be an object when present"];
+  const entries = Object.entries(value as Record<string, unknown>);
+  const errors: string[] = [];
+  if (entries.length === 0) errors.push("help-asked.about is absent rather than empty");
+  for (const [key, v] of entries) {
+    if (!HELP_ABOUT_KEYS.has(key)) errors.push(`help-asked.about.${key} is not a profile field`);
+    else if (!isNonEmptyString(v)) errors.push(`help-asked.about.${key} must be non-empty when present`);
   }
   return errors;
 }

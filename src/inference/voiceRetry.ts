@@ -205,13 +205,15 @@ export async function reviseInVoice(
   first: CompleteResult,
   signal?: AbortSignal,
   check: VoiceCheck = {},
+  /* M95b: the help chat asks once; every other caller keeps the two asks. */
+  maxAsks: number = MAX_REWRITES,
 ): Promise<CompleteResult> {
   if (voiceBreaks(first.text, check).length === 0) return first;
   let text = first.text;
   let best = first.text;
   let fewest = breakCount(first.text, check);
   let refused = new Set<string>();
-  for (let ask = 0; ask < MAX_REWRITES; ask += 1) {
+  for (let ask = 0; ask < Math.min(maxAsks, MAX_REWRITES); ask += 1) {
     const offending = voiceBreaks(text, check);
     if (offending.length === 0) break;
     let reply: CompleteResult;

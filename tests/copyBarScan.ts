@@ -43,6 +43,7 @@ import { Glob } from "bun";
  * runtime reads too, so the scan and the model's replies meet one set of regexes. */
 import {
   agentlessPassives,
+  CARD_WORD,
   HOLD_VERB,
   IRREGULAR_PARTICIPLES,
   MOVE_NOUN,
@@ -63,6 +64,7 @@ import {
 } from "../src/copy/rules.ts";
 export {
   agentlessPassives,
+  CARD_WORD,
   HOLD_VERB,
   IRREGULAR_PARTICIPLES,
   MOVE_NOUN,
@@ -92,6 +94,8 @@ const ROOT = new URL("../", import.meta.url).pathname;
 export const IN_SCOPE: readonly string[] = [
   "ui/**/*.tsx",
   "ui/**/*.ts",
+  /* M95. The About you labels, questions and options. */
+  "help/aboutYou.ts",
   "flow/**/*.tsx",
   "flow/**/*.ts",
   "workbench/**/*.tsx",
@@ -744,6 +748,8 @@ export const ACTION_VERBS: ReadonlySet<string> = new Set([
 export const NON_VERB_LABELS: ReadonlySet<string> = new Set([
   // "Not now" left the list at M69 (ISC-642) with the chip it named.
   "I don't know", "Not yet", "Next", "Back", "Previous",
+  // M95: the help chat's request button, in the researcher's voice as "I don't know" is.
+  "I'm stuck",
   "Newest first", "Oldest first", "Copied", "List", "Map", "Chat",
   // The skip link, in the words every site uses for it (Elicit's help, s18).
   "Skip to main content",
@@ -1432,6 +1438,53 @@ export function neverOffenders(): string[] {
      `"never"` on its own would pass the sentence read. */
   for (const { path, text } of FILES) {
     for (const m of uncommented(text).matchAll(/["'`](never)["'`]/gi)) found.push(`${path}: "${m[1]}"`);
+  }
+  return [...new Set(found)].sort();
+}
+
+/* ---------------------------------------------------------------------------
+ * L22 (the owner, 2026-10-30): "don't use the word 'card' to refer to stuff in
+ * the tool. Use a more informative term or phrase." Read over L20's population,
+ * every rendered run in scope, the M64 extras and every other source file under
+ * `src`, which is where the prompts live, since the model echoes the prompt's
+ * nouns back to the researcher.
+ * ------------------------------------------------------------------------- */
+
+/** Every class name written in `src`, which the card rule reads as styling. */
+async function classNamesInSrc(): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  for await (const rel of new Glob("**/*.tsx").scan(SRC)) {
+    const text = await Bun.file(SRC + rel).text();
+    for (const m of text.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`\}|\{"([^"]*)"\})/g)) {
+      out.add((m[1] ?? m[2] ?? m[3] ?? "").replace(/\s+/g, " ").trim());
+    }
+  }
+  return out;
+}
+
+const CLASS_NAMES = await classNamesInSrc();
+
+export const CARD_ALLOW: readonly { readonly phrase: string; readonly why: string }[] = [
+  /* The rule against the word has to name the word for the model to keep it. */
+  { phrase: 'the word "card"', why: "the L22 rule as the model reads it (personas/voice.ts) names the banned word" },
+];
+
+/** Every rendered sentence in scope, and every prompt sentence, that says "card" or "cards", outside `CARD_ALLOW`. */
+export function cardOffenders(): string[] {
+  /* A class name is styling, not copy: `className="card dissent"` names a CSS
+     rule that a researcher never reads. */
+  const classNames = CLASS_NAMES;
+  const found: string[] = [];
+  for (const { path, run } of l20Runs()) {
+    if (classNames.has(run)) continue;
+    for (const sentence of sentencesOf(run)) {
+      if (!CARD_WORD.test(sentence)) continue;
+      if (CARD_ALLOW.some((a) => sentence.includes(a.phrase))) continue;
+      found.push(`${path}: "${sentence.slice(0, 140)}"`);
+    }
+  }
+  for (const { path, text } of FILES) {
+    for (const m of uncommented(text).matchAll(/(className=)?["'`](cards?)["'`]/gi)) if (m[1] === undefined) found.push(`${path}: "${m[2]}"`);
   }
   return [...new Set(found)].sort();
 }

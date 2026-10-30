@@ -328,6 +328,110 @@
   gap: var(--space-sm);
   margin-top: var(--space-sm);
 }
+/* ── The help chat (M95, ISC-771) ──────────────────────────────────────────
+ * Under the page's parts, above the foot. The thread and the composer sit in
+ * the panel's own column and scroll with it. */
+.help-chat {
+  display: grid;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-sm);
+}
+/* M95c: the page's own help, folded under the chat. */
+.page-help-fold {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-sm);
+}
+.page-help-fold > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--text-small);
+}
+.page-help-fold[open] {
+  display: grid;
+  gap: var(--space-sm);
+}
+.page-help-more-row {
+  margin: 0;
+}
+.help-chat-note,
+.help-chat-failed {
+  margin: 0;
+}
+.help-chat-thread {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+.help-chat-exchange {
+  display: grid;
+  gap: var(--space-xs);
+}
+.help-chat-turn {
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-container);
+  font-size: var(--text-small);
+  line-height: var(--leading-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.help-chat-turn[data-who="you"] {
+  background: var(--surface-hover);
+}
+.help-chat-turn[data-who="abductive"] {
+  border: 1px solid var(--line);
+}
+.help-chat-who {
+  display: block;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+.help-chat-input,
+.help-about-field input,
+.help-about-field select,
+.help-about-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: var(--text-small);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+}
+.help-chat-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+/* M95c: About you folds the same way About this page does. */
+.help-about {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-sm);
+  font-size: var(--text-small);
+}
+.help-about > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.help-about[open] {
+  display: grid;
+  gap: var(--space-sm);
+}
+.help-about > p {
+  margin: 0;
+}
+.help-about-field {
+  display: grid;
+  gap: var(--space-hair);
+}
+
 /* The heading rows that carry it outside the study header. */
 .page-head {
   display: flex;

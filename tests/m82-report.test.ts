@@ -41,7 +41,7 @@ describe("M82: the Report carries why each card matters, and the argument so far
     const at = (s: string) => lines.indexOf(s);
     expect(at("### The argument so far")).toBeGreaterThan(-1);
     expect(at("### The argument so far")).toBeLessThan(at("### Booked slot"));
-    expect(report).toContain("You expect booked slots to cut queue talk at the tool crib.\n\n_Written by Abductive from your accepted cards._");
+    expect(report).toContain("You expect booked slots to cut queue talk at the tool crib.\n\n_Written by Abductive from the concepts and relations that you accepted._");
     /* The lead's ruling of 2026-10-04: who wrote the lines is said once for the
        section; a line carries a marker only when it is the researcher's or still
        waits for their decision. */
@@ -54,7 +54,7 @@ describe("M82: the Report carries why each card matters, and the argument so far
     expect(report).not.toContain("_Written by Abductive._");
     expect(report).not.toContain("**Why it matters:** still to come.");
     expect(report.match(/\*\*Why it matters:\*\*/g)?.length).toBe(3);
-    for (const s of [SECTION_NOTE.replace(/^_|_$/g, ""), "Written by Abductive from your accepted cards."]) expect(sentenceBreaks(s)).toEqual([]);
+    for (const s of [SECTION_NOTE.replace(/^_|_$/g, ""), "Written by Abductive from the concepts and relations that you accepted."]) expect(sentenceBreaks(s)).toEqual([]);
   });
 
   test("a project whose cards carry no line leaves the note out", () => {

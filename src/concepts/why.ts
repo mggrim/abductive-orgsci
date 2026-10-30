@@ -48,14 +48,14 @@ export interface WhyInput {
 
 const WHY_SYSTEM = [
   "# Role",
-  "You write a \"Why it matters\" line for cards in a researcher's emerging project ontology: the concepts and the relations between them that they have accepted for their qualitative project.",
+  "You write a \"Why it matters\" line for each accepted concept and relation in a researcher's emerging project ontology: the concepts and the relations between them that they have accepted for their qualitative project.",
   "",
   "## What to write",
-  "For each card listed as needing a line, one or two sentences, to the researcher as \"you\": what the concept or relation does for their argument about their puzzle and the expectation it bears on, and what the design loses without it.",
-  "Ground each line in their puzzle, the card's definition or claim, and the statements under it, and reuse their words. Where their words don't yet show what the card does for the argument, write [...] for that part. Do not supply a standard theoretical label.",
+  "For each concept or relation listed as needing a line, one or two sentences, to the researcher as \"you\": what the concept or relation does for their argument about their puzzle and the expectation it bears on, and what the design loses without it.",
+  "Ground each line in their puzzle, the concept's definition or the relation's claim, and the statements under it, and reuse their words. Where their words don't yet show what the concept or relation does for the argument, write [...] for that part. Do not supply a standard theoretical label.",
   "",
   "## Output format, strictly",
-  "One line per card, starting with its label and a colon, such as:",
+  "One line per concept or relation, starting with its label and a colon, such as:",
   "C2: <one or two sentences>",
   "R1: <one or two sentences>",
   "",
@@ -90,7 +90,7 @@ export async function writeWhyLines(input: WhyInput, client: InferenceClient): P
     "# Their accepted concepts and relations, each with its statements",
     ...cards.flatMap((c) => c.lines),
     "",
-    `# Cards that need a line: ${needed.map((c) => c.label).join(", ")}`,
+    `# Concepts and relations that need a line: ${needed.map((c) => c.label).join(", ")}`,
   ].join("\n");
   const result = await completeInVoice(client, { system: WHY_SYSTEM, messages: [{ role: "user", content: user }] });
   const byLabel = new Map(needed.map((c) => [c.label.toLowerCase(), c] as const));
@@ -131,7 +131,7 @@ const ARGUMENT_SYSTEM = [
   "You write \"The argument so far\" for a researcher: a short paragraph at the top of the emerging project ontology for their qualitative project, saying what the concepts and relations that they have accepted argue about their puzzle so far.",
   "",
   "## What to write",
-  `Two to four sentences and at most ${ARGUMENT_MAX_WORDS} words, addressed to the researcher as "you", in the researcher's own words: reuse their phrases and their concept names. Say what the accepted relations claim about the puzzle, and name the part of the argument that the accepted cards don't yet connect.`,
+  `Two to four sentences and at most ${ARGUMENT_MAX_WORDS} words, addressed to the researcher as "you", in the researcher's own words: reuse their phrases and their concept names. Say what the accepted relations claim about the puzzle, and name the part of the argument that the accepted concepts and relations don't yet connect.`,
   "Use only what the researcher has accepted and written.",
   "",
   "## Your answer",

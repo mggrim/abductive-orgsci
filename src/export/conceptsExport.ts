@@ -57,9 +57,9 @@ function kept(line: WhyLine | null): boolean {
 
 /** Whose paragraph the argument is, as the Report labels it (M93, ISC-762). */
 const ARGUMENT_ORIGIN: Readonly<Record<"you" | "abductive" | "legacy", string>> = {
-  you: "In your words, edited from the paragraph that Abductive wrote from your accepted cards.",
-  abductive: "Written by Abductive from your accepted cards, and accepted by you.",
-  legacy: "Written by Abductive from your accepted cards.",
+  you: "In your words, edited from the paragraph that Abductive wrote from the concepts and relations that you accepted.",
+  abductive: "Written by Abductive from the concepts and relations that you accepted, and accepted by you.",
+  legacy: "Written by Abductive from the concepts and relations that you accepted.",
 };
 
 function toDecide(n: number, noun: "concept" | "relation"): string {

@@ -161,6 +161,15 @@ export function useLedger(): LedgerContextValue {
   return value;
 }
 
+/**
+ * The ledger when the tree has one, or null (M95). The Help panel renders on
+ * Projects and Model access too, where the help chat writes to no project and
+ * a test may mount the panel without a provider.
+ */
+export function useOptionalLedger(): LedgerContextValue | null {
+  return useContext(LedgerContext);
+}
+
 /** Convenience: events scoped to one project. */
 export function useProjectEvents(projectId: string): readonly LedgerEvent[] {
   const { events } = useLedger();

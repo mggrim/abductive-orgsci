@@ -19,6 +19,8 @@ bun run dev
 
 Then open http://localhost:5173. `bun run dev` starts the app and a small local bridge together. If Abductive can't reach a model, the app says "Abductive is running without a model." at the top, and every answer is a canned fixture until you connect one under **Model access**.
 
+When you don't know what to do next in the app, press **?** at the top right of the page. The Help panel opens on a help chat that knows the page, your project and, if you fill in **About you**, your stage and field. The chat explains what the step needs and leaves the writing to you.
+
 If you are not a programmer, [SETUP.md](SETUP.md) gives you one message to paste into Claude Code, and Claude Code does the rest.
 
 ## Reaching a model

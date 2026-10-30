@@ -66,4 +66,6 @@ export const MODEL_VOICE_RULES = [
   "- Do not use em dashes or en dashes. Use a comma, a full stop, or a new sentence.",
   "- Do not write \"It's not X. It's Y.\", and do not use the \"X, not Y\" reframe.",
   "- Do not write three-item lists for rhythm, or one-word sentences.",
+  /* M95c: the owner, 2026-10-30: "don't use the word 'card' to refer to stuff in the tool". */
+  '- Do not use the word "card" for anything in Abductive. Name the thing: the concept, the relation, the accepted concept or relation, the Why it matters line, the step or the page.',
 ].join("\n");

@@ -62,7 +62,7 @@ import { readFromLabels, readFromSentence } from "../views/puzzleReading.ts";
 import { FRAMING_PLACE_ID } from "../views/placeSummary.ts";
 import { FRAMING_PLACE } from "../interview/conversation.ts";
 import { FRAMING_SUBJECT } from "../flow/stationBrief.ts";
-import { STUDY_TAB_LABEL } from "../ui/routes.ts";
+import { isStudyTab, STUDY_TAB_LABEL } from "../ui/routes.ts";
 
 
 /**
@@ -648,6 +648,9 @@ const FAMILY_OF: Readonly<Record<HistoryKind, LedgerFamily>> = {
   "reading-accepted": "design",
   "draft-declined": "design",
   "property-rejected": "design",
+  /* M95, ISC-778: the help chat is a conversation of its own, beside the interview's. */
+  "help-asked": "conversation",
+  "help-answered": "conversation",
 };
 
 export const LEDGER_KINDS = Object.keys(FAMILY_OF) as readonly HistoryKind[];
@@ -736,6 +739,8 @@ const KIND_MARK: Readonly<Record<HistoryKind, string>> = {
   "reading-accepted": "RAC",
   "draft-declined": "DDC",
   "property-rejected": "PRJ",
+  "help-asked": "HLQ",
+  "help-answered": "HLA",
 };
 
 /**
@@ -828,6 +833,8 @@ const KIND_LABEL: Readonly<Record<HistoryKind, string>> = {
   "reading-accepted": "a puzzle reading that you accepted",
   "draft-declined": "a suggestion from Abductive that you declined",
   "property-rejected": "a suggested property that you rejected",
+  "help-asked": "a help request that you made",
+  "help-answered": "an answer from Abductive to a help request",
 };
 
 /** What a kind is called, for the filter, a row's name, and the tests. */
@@ -1102,6 +1109,12 @@ export function briefDraftSubject(event: { readonly station: string; readonly fi
   return FRAMING_SUBJECT[field] ?? FRAMING_SUBJECT.startingInterest;
 }
 
+/** The page a help request came from, as its tab reads, with the step on Design (M95). */
+function helpPlace(page: string, station: string | undefined): string {
+  const tab = isStudyTab(page) ? STUDY_TAB_LABEL[page] : page;
+  return station === undefined ? tab : `${tab}, at ${stationLabel(station)}`;
+}
+
 function boundSubjectLabel(subject: string): string {
   const [head, tail] = subject.split(":");
   const station = head === undefined ? undefined : resolveStationId(head);
@@ -1280,6 +1293,10 @@ function indexLedger(events: readonly LedgerEvent[]): LedgerIndex {
       case "statement-suggested":
         textOfSuggestedStatement.set(event.statementId, event.text);
         break;
+      /* M95: a help request sits at the step it was asked at, or at none. */
+      case "help-asked":
+        if (event.station !== undefined) stationOf.set(event.id, event.station);
+        break;
       default:
         break;
     }
@@ -1290,6 +1307,13 @@ function indexLedger(events: readonly LedgerEvent[]): LedgerIndex {
        * what the column says when nothing is stamped, so neither kind may fall
        * through to whichever question happened to be open. */
       if (event.type === "lint-finding") continue;
+      /* M95: help is placed by the request, never by whichever question was open. */
+      if (event.type === "help-asked") continue;
+      if (event.type === "help-answered") {
+        const at = stationOf.get(event.asked);
+        if (at !== undefined) stationOf.set(event.id, at);
+        continue;
+      }
       if (event.type === "finding-disposition") {
         const placed = stationOfFinding.get(event.findingId) ?? derivedRuleStation(event.findingId);
         if (placed !== undefined) stationOf.set(event.id, placed);
@@ -1824,6 +1848,21 @@ function describeEvent(
       return {
         happened: `You rejected the suggested property "${event.name}"${event.reason === undefined ? "" : `: ${event.reason}`}`,
         changed: conceptName(index, event.conceptId),
+      };
+    /* M95, ISC-778: the help chat, named by the page and the step it was asked on. */
+    case "help-asked":
+      return {
+        happened: event.stuck === true
+          ? `You pressed I'm stuck on ${helpPlace(event.page, event.station)}`
+          : `You asked for help on ${helpPlace(event.page, event.station)}: ${event.text}`,
+        changed: "Help",
+      };
+    case "help-answered":
+      return {
+        happened: event.cutShort === true
+          ? `You stopped Abductive partway through the answer to your help request: ${event.text}`
+          : `Abductive answered your help request: ${event.text}`,
+        changed: "Help",
       };
     case "export":
       return {

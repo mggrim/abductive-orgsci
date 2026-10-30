@@ -97,7 +97,7 @@ export const WALKTHROUGH_OUTPUTS: readonly { name: string; line: string; src: st
     name: ONTOLOGY_TAB_LABEL,
     line: STUDY_TAB_TITLE.ontology,
     src: "/intro/output-ontology.jpg",
-    alt: "Rows of index cards on a desk, joined to each other by string.",
+    alt: "Rows of paper slips on a desk, joined to each other by string.",
   },
   {
     name: "Export",

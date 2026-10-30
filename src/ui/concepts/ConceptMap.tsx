@@ -203,7 +203,7 @@ export function ConceptMap(props: {
                   <title>
                     {suggested
                       ? `Open the suggested relation: ${RELATION_PHRASE[r.relation]}`
-                      : `Open the relation card: ${RELATION_PHRASE[r.relation]}`}
+                      : `Open the relation: ${RELATION_PHRASE[r.relation]}`}
                   </title>
                   <polyline className="concept-map-hit" points={points} />
                   <polyline

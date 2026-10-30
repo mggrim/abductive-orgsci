@@ -60,7 +60,7 @@ export const MOVE_NOUN =
 /* L17 (ISC-606): only an agent acts. One of the tool's own nouns as the subject
  * of an act verb, in a statement, and a thing that "is waiting". */
 const L17_NOUNS =
-  "claims?|lines?|questions?|flags?|tests?|checks?|pages?|tabs?|fields?|chips?|records?|summary|summaries|suggestions?|steps?|projects?|answers?|notes?|sentences?|panels?|cards?|controls?|bars?|lists?|exports?|reports?";
+  "claims?|lines?|questions?|flags?|tests?|checks?|pages?|tabs?|fields?|chips?|records?|summary|summaries|suggestions?|steps?|projects?|answers?|notes?|sentences?|panels?|controls?|bars?|lists?|exports?|reports?";
 const L17_VERBS =
   "asks|ask|checks|check|names|name|waits|wait|says|say|tells|tell|wants|want|decides|decide|judges|judge|reads|read|writes|write|records|record|raises|raise|expects|expect|knows|know|holds|hold|needs|need|looks|look";
 const L17_PROGRESSIVE =
@@ -356,6 +356,13 @@ export const NEGATIVE_PRONOUN = /(?<![\w-])(?:nothing|nobody|no[ -]one|nowhere)(
 export const NEVER_WORD = /(?<![\w-])never(?![\w-])/i;
 
 /**
+ * L22 (the owner, 2026-10-30): "don't use the word 'card' to refer to stuff in
+ * the tool. Use a more informative term or phrase." The whole word, singular or
+ * plural, in any case; a hyphenated identifier ("card-read") is not copy.
+ */
+export const CARD_WORD = /(?<![\w-])cards?(?![\w-]|\.\w)/i;
+
+/**
  * L21 (M75, ISC-666, the owner, 2026-10-03): "Don't use 'no' as an amount." The
  * whole word "no" before a noun phrase: "No projects yet", "no passage behind it
  * yet", "Write no blocks". "No." and "No," are L14's flat denial, "no one" is
@@ -378,7 +385,7 @@ export function noAmounts(sentence: string): readonly string[] {
  * carry the rule back to the model.
  * ------------------------------------------------------------------------- */
 
-export type RuleId = "L13" | "L14" | "L15" | "L16" | "L17" | "L18" | "L19" | "L20" | "L21" | "REFRAME" | "QUOTE";
+export type RuleId = "L13" | "L14" | "L15" | "L16" | "L17" | "L18" | "L19" | "L20" | "L21" | "L22" | "REFRAME" | "QUOTE";
 
 /**
  * The "X, not Y" reframe and "rather than" as sentence architecture (M74b,
@@ -402,6 +409,8 @@ export const RULE_TEXT: Readonly<Record<RuleId, string>> = {
   L19: "Do not use nothing, nobody, no one or nowhere. Say what is true of the thing or the person.",
   L20: 'Do not use the word "never". Say what does happen, or state a rule as "Do not".',
   L21: 'Do not use the word "no" as an amount. Say what is there or what is still to come.',
+  /* M95c: the owner, 2026-10-30. */
+  L22: 'Do not use the word "card" for anything in Abductive. Name the thing: the concept, the relation, the Why it matters line, the step or the page.',
   REFRAME: 'Do not set one thing against another with "rather than" or with an "X, not Y" reframe. Say what the thing is.',
   QUOTE:
     "Quote the researcher only word for word, from their own turns. Put their exact words in quotation marks, or say it in your own words without quotation marks.",
@@ -458,6 +467,7 @@ export function sentenceBreaks(sentence: string): readonly RuleBreak[] {
   if (NEVER_WORD.test(s)) out.push({ rule: "L20", at: first(NEVER_WORD) });
   const amounts = noAmounts(s);
   if (amounts.length > 0) out.push({ rule: "L21", at: amounts[0] ?? "" });
+  if (CARD_WORD.test(s)) out.push({ rule: "L22", at: first(CARD_WORD) });
   if (REFRAME.test(s)) out.push({ rule: "REFRAME", at: first(REFRAME) });
   return out;
 }

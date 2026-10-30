@@ -71,10 +71,10 @@ describe("M82: The argument so far at the tab's top (ISC-695)", () => {
 
   test("before the first accepted concept, the section says what is still to come; while Abductive writes, it says so", () => {
     expect(parse(page(view([]))).querySelector('[data-testid="argument-so-far"]')?.textContent).toContain(
-      "Accept a concept, and Abductive writes your argument so far from your accepted cards.",
+      "Accept a concept, and Abductive writes your argument so far from your accepted concepts and relations.",
     );
     const writing = parse(page(view(concepts(["Alpha"])), { argument: { state: "writing" } }));
-    expect(writing.querySelector('[data-testid="argument-status"]')?.textContent).toBe("Abductive is writing the argument so far from your accepted cards.");
+    expect(writing.querySelector('[data-testid="argument-status"]')?.textContent).toBe("Abductive is writing the argument so far from your accepted concepts and relations.");
   });
 });
 

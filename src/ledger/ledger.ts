@@ -136,6 +136,8 @@ export function replay(events: readonly LedgerEvent[]): DerivedState {
     "reading-accepted": 0,
     "draft-declined": 0,
     "property-rejected": 0,
+    "help-asked": 0,
+    "help-answered": 0,
   };
 
   const projectIds: string[] = [];

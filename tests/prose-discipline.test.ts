@@ -106,6 +106,8 @@ const WIDENED_DIRS = [
   "search",
   // M63, ISC-608: the emerging project ontology's vocabulary and field lines.
   "concepts",
+  // M95: the About you labels; the help chat's prompt is model input, below.
+  "help",
 ];
 const DIRS = [...ORIGINAL_DIRS, ...WIDENED_DIRS];
 
@@ -130,6 +132,8 @@ const MODEL_INPUT_FILES = [
   "proposals/extract.ts",
   "personas/engine.ts",
   "twin/twin.ts",
+  // M95: the help chat's system prompt, which a model reads and no page renders.
+  "help/helpPrompt.ts",
 ];
 
 /**

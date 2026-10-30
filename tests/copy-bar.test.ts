@@ -737,6 +737,12 @@ describe("M65: never is out of the copy and the prompts (L20)", () => {
     expect(neverOffenders()).toEqual([]);
   });
 
+  /* L22 (the owner, 2026-10-30): "don't use the word 'card' to refer to stuff in the tool." */
+  test("no rendered string or prompt calls anything in Abductive a card (L22)", async () => {
+    const { cardOffenders } = await import("./copyBarScan.ts");
+    expect(cardOffenders()).toEqual([]);
+  });
+
   test("Anti: the word is caught in any case, and a hyphenated identifier passes", async () => {
     const { NEVER_WORD } = await import("./copyBarScan.ts");
     for (const s of [

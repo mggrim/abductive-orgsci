@@ -138,7 +138,7 @@ describe("ISC-638: a photo above each output, with alt text", () => {
     const alts = WALKTHROUGH_OUTPUTS.map((o) => o.alt.toLowerCase());
     expect(alts[0]).toContain("logbook");
     expect(alts[0]).toContain("fountain pen");
-    expect(alts[1]).toContain("index cards");
+    expect(alts[1]).toContain("paper slips");
     expect(alts[1]).toContain("string");
     expect(alts[2]).toContain("folded diagram");
     expect(alts[2]).toContain("envelope");

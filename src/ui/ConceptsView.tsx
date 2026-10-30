@@ -550,7 +550,7 @@ function WhyBlock(props: {
   if (line.status === "rejected") {
     return (
       <p className="why-line small muted" data-testid={testId} data-status="rejected">
-        <span className="why-label">Why it matters</span> You rejected Abductive's line. Refine the card to write your own.
+        <span className="why-label">Why it matters</span> You rejected Abductive's line. Refine this concept or relation to write your own.
       </p>
     );
   }
@@ -2823,7 +2823,7 @@ export interface ArgumentPanel {
  */
 /** Whose paragraph the accepted argument is, as the tab and the Report label it (M93, ISC-762). */
 export function argumentOriginLabel(by: "you" | "abductive" | "legacy"): string {
-  return by === "you" ? "In your words, edited from Abductive's paragraph" : by === "abductive" ? "Abductive's paragraph, which you accepted" : "AI-suggested from your accepted cards";
+  return by === "you" ? "In your words, edited from Abductive's paragraph" : by === "abductive" ? "Abductive's paragraph, which you accepted" : "AI-suggested from your accepted concepts and relations";
 }
 
 function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly panel: ArgumentPanel; readonly acts?: ConceptActs }) {
@@ -2840,15 +2840,15 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
   const stale = argumentStale(view);
   const status =
     view.accepted.length === 0
-      ? "Accept a concept, and Abductive writes your argument so far from your accepted cards."
+      ? "Accept a concept, and Abductive writes your argument so far from your accepted concepts and relations."
       : panel.state === "writing"
-        ? "Abductive is writing the argument so far from your accepted cards."
+        ? "Abductive is writing the argument so far from your accepted concepts and relations."
         : panel.state === "error"
           ? "Abductive couldn't write the argument so far. Try again."
           : stale && panel.offline === true
             ? text === null
-              ? "Connect a model under Model access, and Abductive writes your argument so far from your accepted cards."
-              : "Your accepted cards have changed since Abductive wrote this paragraph. Connect a model under Model access, and Abductive writes the paragraph again."
+              ? "Connect a model under Model access, and Abductive writes your argument so far from your accepted concepts and relations."
+              : "Your accepted concepts and relations have changed since Abductive wrote this paragraph. Connect a model under Model access, and Abductive writes the paragraph again."
             : null;
   return (
     <section className="argument-so-far" data-testid="argument-so-far" aria-labelledby="argument-h">
@@ -2866,7 +2866,7 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
       {text !== null && view.accepted.length > 0 && decision === "suggested" && (
         <div className="argument-suggestion" data-testid="argument-suggestion">
           <p className="concept-mark small muted">
-            <SuggestedChip id="argument" /> AI-suggested from your accepted cards
+            <SuggestedChip id="argument" /> AI-suggested from your accepted concepts and relations
           </p>
           {mode === "edit" ? (
             <label className="concept-field">
@@ -2948,7 +2948,7 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
       )}
       {decision === "rejected" && view.accepted.length > 0 && (
         <p className="small muted" data-testid="argument-rejected" role="status">
-          You rejected Abductive's last paragraph. Abductive writes a new one when your accepted cards change.
+          You rejected Abductive's last paragraph. Abductive writes a new one when your accepted concepts and relations change.
         </p>
       )}
       {status !== null && (

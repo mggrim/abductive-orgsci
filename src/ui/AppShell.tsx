@@ -685,7 +685,7 @@ function StudyBar(props: {
           )}
           {/* M62, ISC-600: the page's one Help control, at the right end of the
               header, for the tab you are on (and on Design, the step). */}
-          <HelpControl page={tab} {...(tab === "design" ? { station } : {})} />
+          <HelpControl page={tab} {...(tab === "design" ? { station } : {})} {...(study === undefined ? {} : { project: study })} />
         </div>
       </div>
       {/* M84, ISC-706: the line "Go to the open question at X" went from the

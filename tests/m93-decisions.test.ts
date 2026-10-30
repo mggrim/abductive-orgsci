@@ -417,7 +417,7 @@ describe("M93: The argument so far is a suggestion until accepted (ISC-762)", ()
     expect(accepted.edited).toBe(true);
     events = [...events, accepted];
     expect(report()).toContain("My queue grows before Christmas.");
-    expect(report()).toContain("_In your words, edited from the paragraph that Abductive wrote from your accepted cards._");
+    expect(report()).toContain("_In your words, edited from the paragraph that Abductive wrote from the concepts and relations that you accepted._");
     const declined = rejectArgumentEvent({ projectId: P, view: onto(events), reason: "Too early." }, clock);
     expect(declined).toMatchObject({ type: "draft-declined", kind: "argument" });
   });
@@ -426,7 +426,7 @@ describe("M93: The argument so far is a suggestion until accepted (ISC-762)", ()
     const old = { ...env("persona:argument-writer"), type: "argument-written", text: "An older paragraph.", basis: "b" } as LedgerEvent;
     const events = [...concept, old];
     expect(onto(events).argument?.decision).toBe("legacy");
-    expect(conceptReportLines(events, P, projectOntology(events, P)).join("\n")).toContain("An older paragraph.\n\n_Written by Abductive from your accepted cards._");
+    expect(conceptReportLines(events, P, projectOntology(events, P)).join("\n")).toContain("An older paragraph.\n\n_Written by Abductive from the concepts and relations that you accepted._");
   });
 });
 

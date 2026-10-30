@@ -29,7 +29,7 @@ import { GETTING_STARTED_SCREENS, STUDY_TABS, parseHash, walkPath } from "../src
 import { WALKTHROUGH_SCREENS } from "../src/ui/Walkthrough.tsx";
 import { HELP_PAGES, HISTORY_HELP, PAGE_HELP, helpText } from "../src/ui/pageHelp.ts";
 import { HelpControl } from "../src/ui/HelpControl.tsx";
-import { stationById } from "../src/flow/stations.ts";
+import { stationById, STATIONS } from "../src/flow/stations.ts";
 import { sentencesOf, uncommented } from "./copyBarScan.ts";
 
 const SRC = new URL("../src/", import.meta.url).pathname;
@@ -216,13 +216,21 @@ describe("the control opens and closes by keyboard", () => {
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(trigger.getAttribute("aria-controls")).toBe(panel.id);
     expect(panel.contains(document.activeElement)).toBe(true);
-    const text = panel.textContent ?? "";
+    /* M95c: the chat first, and the page's help folded under it, closed. */
+    const fold = panel.querySelector('[data-testid="page-help-about"]') as HTMLDetailsElement;
+    expect(fold.tagName).toBe("DETAILS");
+    expect(fold.open).toBe(false);
+    expect(fold.querySelector("summary")?.textContent).toBe("About this page");
+    const chat = panel.querySelector('[data-testid="help-chat"]') as HTMLElement;
+    expect(chat.compareDocumentPosition(fold) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(panel.querySelector('[data-testid="page-help-jump"]')).toBeNull();
+    const text = fold.textContent ?? "";
     for (const p of PAGE_HELP.design.purpose) expect(text).toContain(p);
     // Contextual to the step you are on, and History on every study page.
     expect(text).toContain(stationById("context").blurb);
     expect(text).toContain(stationById("context").feeds);
     expect(text).toContain("History keeps every event in the order that it happened.");
-    const more = panel.querySelector('[data-testid="page-help-more"]') as HTMLAnchorElement;
+    const more = fold.querySelector('[data-testid="page-help-more"]') as HTMLAnchorElement;
     expect(more.textContent).toBe("More help");
     expect(more.getAttribute("href")).toBe(walkPath(PAGE_HELP.design.screen));
 
@@ -232,6 +240,23 @@ describe("the control opens and closes by keyboard", () => {
     expect(document.activeElement).toBe(trigger);
     root.unmount();
     host.remove();
+  });
+
+  /* M95c: every sentence that left a page for the help is inside About this page. */
+  test("every moved sentence sits inside a page's About this page fold", async () => {
+    const folded: string[] = [];
+    for (const page of HELP_PAGES) {
+      const stations = page === "design" ? STATIONS.map((s) => s.id) : [undefined];
+      for (const station of stations) {
+        const { host, root, trigger } = await mount(page as "design" | "studies", station);
+        await act(async () => props(trigger).onClick?.({}));
+        folded.push(host.querySelector('[data-testid="page-help-about"]')?.textContent ?? "");
+        root.unmount();
+        host.remove();
+      }
+    }
+    const all = flat(folded.join(" "));
+    for (const m of MOVED) expect({ now: m.now, folded: all.includes(flat(m.now)) }).toEqual({ now: m.now, folded: true });
   });
 
   test("Close closes it too, and a second press of the ? toggles it shut", async () => {

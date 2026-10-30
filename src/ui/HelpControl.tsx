@@ -12,24 +12,33 @@
  * access. The words are `pageHelp.ts`'s, so the panel and the tests read one
  * table.
  *
+ * M95c (Matthew, 2026-10-30, "Same panel, chat first"): the help chat opens the
+ * panel, and the page's explanation folds under it as About this page.
+ *
  * A native button, so Enter and Space open it with no key handling written
- * here. Opened, the panel takes focus; Escape and Close shut it and hand focus
+ * here. Opened, the question box takes focus (the panel, with no model); Escape and Close shut it and hand focus
  * back to the "?", and a press outside shuts it without moving focus. The panel
  * is a non-modal dialog: the page behind stays live, which is the point of help
  * that sits beside the thing it explains.
  */
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ComponentProps } from "react";
 import { stationById, isStationId } from "../flow/stations.ts";
 import { walkPath } from "./routes.ts";
 import { PAGE_HELP, type HelpPage, type HelpPart } from "./pageHelp.ts";
+import type { Project } from "../state/projects.ts";
+import { HelpChat } from "./HelpChat.tsx";
 
 export function HelpControl(props: {
   readonly page: HelpPage;
   /** On Design, the step you are on: its own line joins the parts. */
   readonly station?: string;
+  /** M95: the project a study page belongs to, which the help chat reads and records into. */
+  readonly project?: Project;
+  /** The help chat's client, for a test; the app leaves it to `activeInferenceClient`. */
+  readonly inference?: ComponentProps<typeof HelpChat>["inference"];
 }) {
-  const { page, station } = props;
+  const { page, station, project, inference } = props;
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -41,7 +50,9 @@ export function HelpControl(props: {
 
   useEffect(() => {
     if (!open) return;
-    panel.current?.focus();
+    /* M95c: the question box takes focus when there is one; else the panel. */
+    const box = panel.current?.querySelector<HTMLElement>('[data-testid="help-chat-input"]');
+    (box ?? panel.current)?.focus();
     const outside = (e: PointerEvent) => {
       const at = e.target as Node | null;
       if (at !== null && !panel.current?.contains(at) && !trigger.current?.contains(at)) setOpen(false);
@@ -97,26 +108,41 @@ export function HelpControl(props: {
           <h2 className="page-help-title" id={`${panelId}-title`}>
             {help.title}
           </h2>
-          {help.purpose.map((p) => (
-            <p key={p} className="page-help-purpose">
-              {p}
-            </p>
-          ))}
-          <h3 className="page-help-subhead">The parts of this page</h3>
-          <dl className="page-help-parts">
-            {parts.map((part) => (
-              <div key={part.name} className="page-help-part">
-                <dt>{part.name}</dt>
-                {part.says.map((s) => (
-                  <dd key={s}>{s}</dd>
+          {/* M95c (Matthew, 2026-10-30, "Same panel, chat first"): the help chat
+              opens the panel, and the page's own explanation folds under it. */}
+          <HelpChat
+            page={page}
+            {...(station === undefined ? {} : { station })}
+            {...(project === undefined ? {} : { project })}
+            {...(inference === undefined ? {} : { inference })}
+            aboutPage={
+              <details className="page-help-fold" data-testid="page-help-about">
+                <summary>About this page</summary>
+                {help.purpose.map((p) => (
+                  <p key={p} className="page-help-purpose">
+                    {p}
+                  </p>
                 ))}
-              </div>
-            ))}
-          </dl>
+                <h3 className="page-help-subhead">The parts of this page</h3>
+                <dl className="page-help-parts">
+                  {parts.map((part) => (
+                    <div key={part.name} className="page-help-part">
+                      <dt>{part.name}</dt>
+                      {part.says.map((s) => (
+                        <dd key={s}>{s}</dd>
+                      ))}
+                    </div>
+                  ))}
+                </dl>
+                <p className="page-help-more-row">
+                  <a className="btn" href={walkPath(help.screen)} data-testid="page-help-more">
+                    More help
+                  </a>
+                </p>
+              </details>
+            }
+          />
           <div className="page-help-foot">
-            <a className="btn" href={walkPath(help.screen)} data-testid="page-help-more">
-              More help
-            </a>
             <button type="button" className="btn-quiet" onClick={close} data-testid="page-help-close">
               Close
             </button>
