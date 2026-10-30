@@ -245,7 +245,7 @@ function dataDigest(input: StudyDataInput | undefined): readonly StudyPassage[] 
  * shown, and the two call for opposite behaviour.
  */
 export function renderStudyContext(context: StudyContext): string {
-  const lines: string[] = ["# The study you are reading for"];
+  const lines: string[] = ["# The study you are working for"];
   lines.push(
     context.exploring === undefined
       ? "What they are exploring: not yet said."

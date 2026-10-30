@@ -27,21 +27,10 @@ import { reviseInVoice } from "../inference/voiceRetry.ts";
 import { voiceGateProvenance } from "../inference/voiceGate.ts";
 import { guidanceAnswerViolations } from "../interview/prompt.ts";
 import { activeInferenceClient } from "./personaRun.ts";
-import { navigate } from "./routes.ts";
+import { motivationPath, navigate } from "./routes.ts";
 import { sendsOnKey } from "../workbench/Dialogue.tsx";
 import type { HelpPage } from "./pageHelp.ts";
-import {
-  ABOUT_YOU_FIELDS,
-  aboutSnapshot,
-  aboutYouFilled,
-  CAREER_STAGES,
-  QUAL_EXPERIENCE,
-  readAboutYou,
-  writeAboutYou,
-  type AboutYou,
-  type CareerStage,
-  type QualExperience,
-} from "../help/aboutYou.ts";
+import { aboutSnapshot, aboutYouSummary, readAboutYou, type AboutYou } from "../help/aboutYou.ts";
 import { HELP_ACTOR, HELP_REWRITE_ASKS, helpExchanges, helpMessages, helpSystemPrompt } from "../help/helpPrompt.ts";
 
 /** The words the I'm stuck button puts in the chat and on the record. */
@@ -52,8 +41,13 @@ export const HELP_OFFLINE_LINE = "Abductive answers help requests once you conne
 export const HELP_OUTSIDE_PROJECT_LINE =
   "Outside a project, Abductive keeps this chat until you reload the page. Inside a project, Abductive saves your help requests to History.";
 export const HELP_FAILED_LINE = "Abductive couldn't reach the model. Try again.";
-export const ABOUT_YOU_LINE =
-  "Abductive reads your answers here before answering a help request and fits the answer to you. Abductive keeps these answers in this browser only.";
+/** M96, ISC-793: About you moved to Starting point, and the panel keeps one line that links there. */
+export function aboutYouHelpLine(about: AboutYou): string {
+  const summary = aboutYouSummary(about);
+  return summary === ""
+    ? "About you is on Starting point. Abductive uses your answers there to fit the help chat's advice to you."
+    : `About you: ${summary}. You can change these answers on Starting point.`;
+}
 
 /** One exchange as the thread shows it, from the record or from the page's life. */
 interface ShownExchange {
@@ -114,7 +108,7 @@ export function HelpChat(props: {
     };
   }, [choose]);
 
-  const [about, setAbout] = useState<AboutYou>(() => readAboutYou());
+  const [about] = useState<AboutYou>(() => readAboutYou());
   const [draft, setDraft] = useState("");
   const [streaming, setStreaming] = useState<string | null>(null);
   const [failed, setFailed] = useState<Request | null>(null);
@@ -393,97 +387,17 @@ export function HelpChat(props: {
         </p>
       )}
       {props.aboutPage}
-      <AboutYouFold about={about} onSave={setAbout} />
+      <p className="help-about-line" data-testid="help-about">
+        {aboutYouHelpLine(about)}
+        {project !== undefined && (
+          <>
+            {" "}
+            <a href={motivationPath(project.id)} data-testid="help-about-go">
+              Open Starting point
+            </a>
+          </>
+        )}
+      </p>
     </section>
-  );
-}
-
-/** About you, folded under the page's help (M95c), closed until the researcher opens it. */
-export function AboutYouFold(props: { readonly about: AboutYou; readonly onSave: (about: AboutYou) => void }) {
-  const { about, onSave } = props;
-  const [form, setForm] = useState<AboutYou>(about);
-  const [open, setOpen] = useState(false);
-  const ids = useId();
-  const set = (patch: Partial<Record<keyof AboutYou, string>>) => setForm((f) => ({ ...f, ...patch }) as AboutYou);
-  const save = () => {
-    writeAboutYou(form);
-    const kept = readAboutYou();
-    onSave(kept);
-    setForm(kept);
-    if (aboutYouFilled(kept)) setOpen(false);
-  };
-  return (
-    <details
-      className="help-about"
-      open={open}
-      onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-      data-testid="help-about"
-    >
-      <summary>About you</summary>
-      <p className="small muted">{ABOUT_YOU_LINE}</p>
-      <label className="help-about-field" htmlFor={`${ids}-stage`}>
-        <span>{ABOUT_YOU_FIELDS.stage.label}</span>
-        <span className="small muted">{ABOUT_YOU_FIELDS.stage.help}</span>
-        <select
-          id={`${ids}-stage`}
-          value={form.stage ?? ""}
-          onChange={(e) => set({ stage: e.target.value as CareerStage })}
-          data-testid="help-about-stage"
-        >
-          <option value="">Choose one</option>
-          {CAREER_STAGES.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="help-about-field" htmlFor={`${ids}-field`}>
-        <span>{ABOUT_YOU_FIELDS.field.label}</span>
-        <span className="small muted">{ABOUT_YOU_FIELDS.field.help}</span>
-        <input
-          id={`${ids}-field`}
-          type="text"
-          value={form.field ?? ""}
-          placeholder="For example: organization theory"
-          onChange={(e) => set({ field: e.target.value })}
-          data-testid="help-about-field"
-        />
-      </label>
-      <label className="help-about-field" htmlFor={`${ids}-experience`}>
-        <span>{ABOUT_YOU_FIELDS.experience.label}</span>
-        <span className="small muted">{ABOUT_YOU_FIELDS.experience.help}</span>
-        <select
-          id={`${ids}-experience`}
-          value={form.experience ?? ""}
-          onChange={(e) => set({ experience: e.target.value as QualExperience })}
-          data-testid="help-about-experience"
-        >
-          <option value="">Choose one</option>
-          {QUAL_EXPERIENCE.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="help-about-field" htmlFor={`${ids}-wants`}>
-        <span>{ABOUT_YOU_FIELDS.wants.label}</span>
-        <span className="small muted">{ABOUT_YOU_FIELDS.wants.help}</span>
-        <textarea
-          id={`${ids}-wants`}
-          rows={2}
-          value={form.wants ?? ""}
-          placeholder="For example: a dissertation topic that I can defend"
-          onChange={(e) => set({ wants: e.target.value })}
-          data-testid="help-about-wants"
-        />
-      </label>
-      <div className="help-chat-controls">
-        <button type="button" className="btn" onClick={save} data-testid="help-about-save">
-          Save
-        </button>
-      </div>
-    </details>
   );
 }

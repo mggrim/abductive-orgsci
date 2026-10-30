@@ -170,7 +170,7 @@ export function twinUserContext(
   const lines = [
     `# Design brief: ${project.title}`,
     ...((brief.puzzleAnswer ?? "").trim() === "" ? [] : [`Puzzle, in their own words: ${brief.puzzleAnswer}`]),
-    `Puzzle, as the tool reads it: ${brief.researchQuestion}`,
+    `Puzzle, as the tool suggests it: ${brief.researchQuestion}`,
     `Site rationale: ${brief.siteRationale}`,
     `Sample rationale: ${brief.sampleRationale}`,
     `Declared data type: ${brief.dataType === "" ? "not stated" : brief.dataType}${venue}`,

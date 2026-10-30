@@ -484,7 +484,7 @@ function ReadMore(props: { readonly target: ReadTarget; readonly counts: string;
         onClick={props.onRead}
         data-testid={`card-read-${target.id}`}
       >
-        Read more
+        Open full view
       </button>
     </>
   );
@@ -693,7 +693,7 @@ function SuggestionCard(props: { card: ConceptCard; view: ProjectOntologyView; n
   const { card, view, names, acts } = props;
   const lens = props.lens ?? PREVIEW;
   const s = card.suggestion;
-  const [mode, setMode] = useState<"read" | "refine" | "reject">("read");
+  const [mode, setMode] = useState<"view" | "refine" | "reject">("view");
   const [name, setName] = useState(card.name);
   const [definition, setDefinition] = useState(card.definition);
   const [why, setWhy] = useState(card.suggestion?.whyItMatters ?? "");
@@ -762,7 +762,7 @@ function SuggestionCard(props: { card: ConceptCard; view: ProjectOntologyView; n
               Save concept
             </button>
             <InertNote control={`refine-${card.id}`} reason={unnamed} />
-            <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+            <button type="button" className="btn-bare" onClick={() => setMode("view")}>
               Cancel
             </button>
           </div>
@@ -774,7 +774,7 @@ function SuggestionCard(props: { card: ConceptCard; view: ProjectOntologyView; n
       {mode !== "refine" && <WhyBlock target={{ kind: "concept", id: card.id }} line={null} proposed={s.whyItMatters ?? ""} acts={acts} />}
       {!lens.full && <ReadMore target={{ kind: "concept", id: card.id }} counts={counts} onRead={lens.onRead} />}
       {/* M93, ISC-764: Accept takes the name and definition; the rest waits for its own decision. */}
-      {mode === "read" && (s.properties.length > 0 || s.relations.length > 0 || (s.whyItMatters ?? "") !== "") && (
+      {mode === "view" && (s.properties.length > 0 || s.relations.length > 0 || (s.whyItMatters ?? "") !== "") && (
         <p className="small muted" data-testid={`concept-accept-scope-${card.id}`}>
           When you accept, you keep the name and definition, and you decide on each property, relation and the Why it matters line after.
         </p>
@@ -847,13 +847,13 @@ function SuggestionCard(props: { card: ConceptCard; view: ProjectOntologyView; n
               Reject concept
             </button>
             <InertNote control={`reject-${card.id}`} reason={unreasoned} />
-            <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+            <button type="button" className="btn-bare" onClick={() => setMode("view")}>
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        mode === "read" && (
+        mode === "view" && (
           <div className="concept-actions">
             <button
               type="button"
@@ -973,7 +973,7 @@ function AddProperty(props: { conceptId: string; acts: ConceptActs }) {
     <div className="concept-form">
       <label className="concept-field">
         <span>Property</span>
-        <input value={name} placeholder="Reading dose" onChange={(e) => setName(e.target.value)} />
+        <input value={name} placeholder="Time on task" onChange={(e) => setName(e.target.value)} />
       </label>
       <label className="concept-field">
         <span>Variation</span>
@@ -1243,8 +1243,8 @@ function ConceptCardView(props: {
       {!lens.full && card.suggestedProperties.length > 0 && (
         <p className="small muted" data-testid={`concept-parts-waiting-${card.id}`}>
           {card.suggestedProperties.length === 1
-            ? "You have one suggested property to decide on under Read more."
-            : `You have ${numberWord(card.suggestedProperties.length)} suggested properties to decide on under Read more.`}
+            ? "You have one suggested property to decide on under Open full view."
+            : `You have ${numberWord(card.suggestedProperties.length)} suggested properties to decide on under Open full view.`}
         </p>
       )}
       {!lens.full && <ReadMore target={{ kind: "concept", id: card.id }} counts={counts} onRead={lens.onRead} />}
@@ -1445,7 +1445,7 @@ function RelationSuggestionCard(props: { relation: RelationCard; view: ProjectOn
   const { relation: r, view, names, acts, projectId } = props;
   const lens = props.lens ?? PREVIEW;
   const busy = acts.busy;
-  const [mode, setMode] = useState<"read" | "refine" | "reject">("read");
+  const [mode, setMode] = useState<"view" | "refine" | "reject">("view");
   const [reason, setReason] = useState("");
   const s = r.suggestion;
   if (s === undefined) return null;
@@ -1482,7 +1482,7 @@ function RelationSuggestionCard(props: { relation: RelationCard; view: ProjectOn
         <OriginChip origin={names.origin?.(r.suggestion ?? s) ?? null} id={r.id} />
       </header>
       {mode === "refine" ? (
-        <RelationForm relation={r} acts={acts} onDone={() => setMode("read")} onSaved={lens.onDecided} saveLabel="Save relation" />
+        <RelationForm relation={r} acts={acts} onDone={() => setMode("view")} onSaved={lens.onDecided} saveLabel="Save relation" />
       ) : (
         <p className="relation-claim">{lens.full ? r.claim : firstSentence(r.claim)}</p>
       )}
@@ -1539,13 +1539,13 @@ function RelationSuggestionCard(props: { relation: RelationCard; view: ProjectOn
               Reject relation
             </button>
             <InertNote control={`relation-reject-${r.id}`} reason={unreasoned} />
-            <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+            <button type="button" className="btn-bare" onClick={() => setMode("view")}>
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        mode === "read" && (
+        mode === "view" && (
           <div className="concept-actions">
             <button
               type="button"
@@ -2115,7 +2115,7 @@ function StatementSuggestionCard(props: {
   const { suggestion: s, view, names, acts } = props;
   const lens = props.lens ?? PREVIEW;
   const busy = acts.busy;
-  const [mode, setMode] = useState<"read" | "refine" | "reject">("read");
+  const [mode, setMode] = useState<"view" | "refine" | "reject">("view");
   const [text, setText] = useState(s.text);
   const [reason, setReason] = useState("");
   const unreasoned = reason.trim() === "" ? "Give your reason first." : null;
@@ -2183,7 +2183,7 @@ function StatementSuggestionCard(props: {
               Reject statement
             </button>
             <InertNote control={`${testId}-reject`} reason={unreasoned} />
-            <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+            <button type="button" className="btn-bare" onClick={() => setMode("view")}>
               Cancel
             </button>
           </div>
@@ -2202,7 +2202,7 @@ function StatementSuggestionCard(props: {
             onChoose={(home) => decide(() => acts.acceptStatement(s.statementId, home, text === s.text ? undefined : text))}
           />
           <div className="concept-actions">
-            {mode === "read" && (
+            {mode === "view" && (
               <button type="button" onClick={() => setMode("refine")} data-testid={`${testId}-refine`}>
                 Refine
               </button>
@@ -2801,7 +2801,7 @@ function SuggestRelations(props: { readonly view: ProjectOntologyView; readonly 
       <InertNote control="relations-suggest" reason={blocked} />
       {(props.relating || props.note !== null) && (
         <p className="small muted" role="status" data-testid="relations-suggest-note">
-          {props.relating ? "Abductive is reading your accepted concepts and their statements for relations." : props.note}
+          {props.relating ? "Abductive is considering your accepted concepts and their statements for relations." : props.note}
         </p>
       )}
     </div>
@@ -2831,7 +2831,7 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
   const acts = props.acts ?? NO_ACTS;
   const busy = acts.busy;
   /* M93, ISC-762: Accept, Edit and Reject on the paragraph. */
-  const [mode, setMode] = useState<"read" | "edit" | "reject">("read");
+  const [mode, setMode] = useState<"view" | "edit" | "reject">("view");
   const [draft, setDraft] = useState("");
   const [reason, setReason] = useState("");
   const decision = view.argument?.decision ?? null;
@@ -2878,7 +2878,7 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
               {text}
             </p>
           )}
-          {mode === "read" && (
+          {mode === "view" && (
             <div className="concept-actions">
               <button type="button" className="primary" disabled={busy} onClick={() => acts.acceptArgument()} data-testid="argument-accept">
                 Accept
@@ -2908,14 +2908,14 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
                 onClick={() => {
                   if (draft.trim() === "") return;
                   acts.acceptArgument(draft);
-                  setMode("read");
+                  setMode("view");
                 }}
                 data-testid="argument-edit-save"
               >
                 Save argument
               </button>
               <InertNote control="argument-edit-save" reason={draft.trim() === "" ? "Write the argument first." : null} />
-              <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+              <button type="button" className="btn-bare" onClick={() => setMode("view")}>
                 Cancel
               </button>
             </div>
@@ -2932,13 +2932,13 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
                   disabled={busy}
                   onClick={() => {
                     acts.rejectArgument(reason);
-                    setMode("read");
+                    setMode("view");
                   }}
                   data-testid="argument-reject-confirm"
                 >
                   Reject paragraph
                 </button>
-                <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+                <button type="button" className="btn-bare" onClick={() => setMode("view")}>
                   Cancel
                 </button>
               </div>
@@ -3108,7 +3108,7 @@ export function ConceptsPage(props: {
               </div>
               {view.suggested.length + view.accepted.length === 0 && (
                 <p className="small muted" data-testid="concepts-empty">
-                  Save a summary at a step on Design, or read your data, and Abductive suggests concepts from your words.
+                  Save a summary at a step on Design, or press Suggest concepts on Sources, and Abductive suggests concepts from your words.
                 </p>
               )}
               <AddConcept acts={acts} />
@@ -3581,8 +3581,8 @@ const ARGUMENT_SETTLE_MS = 1500;
 
 /** The line after Suggest relations (M82): how many relations Abductive suggested, or that it left them as they were. */
 export function relatedLine(n: number): string {
-  if (n === 0) return "Abductive read your accepted concepts and their statements, and left your relations as they were.";
-  return `Abductive read your accepted concepts and suggested ${n === 1 ? "one relation" : `${numberWord(n)} relations`}. Review the ${n === 1 ? "suggestion" : "suggestions"} under Relations.`;
+  if (n === 0) return "Abductive considered your accepted concepts and their statements, and left your relations as they were.";
+  return `Abductive considered your accepted concepts and suggested ${n === 1 ? "one relation" : `${numberWord(n)} relations`}. Review the ${n === 1 ? "suggestion" : "suggestions"} under Relations.`;
 }
 
 // ── M93: the cards under a step's chat (ISC-758) ─────────────────────────────

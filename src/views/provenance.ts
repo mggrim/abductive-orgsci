@@ -267,7 +267,7 @@ export function noTurnsLine(view: ProvenanceView): string | null {
     case "draft-missing":
       return "The summary that this answer came from is no longer in History.";
     case "reading":
-      return "Abductive read that puzzle from your saved answers, outside a conversation.";
+      return "Abductive suggested that puzzle from your saved answers, outside a conversation.";
     default:
       return null;
   }

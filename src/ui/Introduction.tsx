@@ -293,7 +293,7 @@ export const OBSTACLES: readonly { id: ObstacleId; group: ObstacleGroupId; title
     /* M84, ISC-702: the questions come from the literature that you named
      * (interview/challenges.ts, the bias scan reading your papers), and paper
      * fit writes each paper's expectations (proposals/paperFit.ts). */
-    body: "Abductive asks you questions drawn from the literature that you identified, so that you can see the contribution that your project might make to that stream of research. Abductive reads each paper that you have flagged, to help you consider its expectations for your setting.",
+    body: "Abductive asks you questions drawn from the literature that you identified, so that you can see the contribution that your project might make to that stream of research. Abductive considers each paper that you have flagged, to help you weigh its expectations for your setting.",
   },
   {
     id: "site-of-convenience",
@@ -329,7 +329,7 @@ export const OBSTACLES: readonly { id: ObstacleId; group: ObstacleGroupId; title
   {
     id: "early-closure",
     group: "analysis",
-    title: "Are you reading your data with an open mind, or through the ideas that you already have?",
+    title: "Are you approaching your data with an open mind, or through the ideas that you already have?",
     body: "Abductive keeps a running list of the parts of your data that seem to contrast with the early concepts and relationships that you are proposing.",
   },
   {
@@ -419,7 +419,7 @@ export const COMMITMENTS: readonly { title: string; body: string; why: string }[
     // M69, ISC-642: "Not now" and "Set step aside" went, so the card names the two replies that remain.
     title: "Abductive keeps your choices in History",
     body: "Say you don't know or change the subject, and Abductive keeps both in History as your choices.",
-    why: "If you can't answer a question yet, a good answer is still to come. If you have to fill the box, you invent an answer and then defend it for years. The questions that you leave open are evidence about the design too. A topic that you pass on three times tells you something worth reading.",
+    why: "If you can't answer a question yet, a good answer is still to come. If you have to fill the box, you invent an answer and then defend it for years. The questions that you leave open are evidence about the design too. A topic that you pass on three times tells you something worth knowing.",
   },
   /* M89 (2026-10-14): the third card, on keeping contradictions in view (Abductive
    * pointed to a mismatch and left it standing), described the checks and went

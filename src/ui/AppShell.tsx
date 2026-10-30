@@ -58,15 +58,12 @@ import { inertAttrs, inertNoteId } from "./components/inert.tsx";
 import { OfflineBanner } from "./OfflineBanner.tsx";
 import { StudyExports, StudyMaterial } from "./StudyViews.tsx";
 import { ConceptsView } from "./ConceptsView.tsx";
-// The whole keyboard model mounts here and nowhere else: one listener, one
-// bindings table, the roving groups, and the sheet on ? generated from that
-// same table. The repo had one keyboard handler before this and the bias grid
-// offered 63 squares as 63 tab stops (FND-02).
-// M32, R12. `Caps` prints a chord the way the sheet and the palette print it,
-// and `BINDINGS` is where the chord itself is written down. The chip in the
-// study header and the hints in the rail both read that table, so no key name
-// and no label is retyped in this file.
-import { BINDINGS, Caps, KeyboardLayer, type Binding } from "./keyboard/index.ts";
+// M96, ISC-794: the keyboard shortcuts went (the owner, 2026-10-30: "the
+// keyboard shortcuts should be eliminated"). The roving groups stay, because
+// the arrows inside the rail and the bias grid are the ARIA widget's own keys,
+// and Search opens from its button.
+import { installRoving } from "./roving.ts";
+import { StudySearch } from "./StudySearch.tsx";
 import { MAIN_LANDMARK_ID, focusMainLandmark } from "./landmarks.ts";
 import {
   LITERATURE_SECTION_ID,
@@ -136,22 +133,6 @@ const SECTION_LANDINGS: readonly {
   { tab: "ontology", id: MODEL_MAP_SECTION_ID, asked: mapRequested },
 ];
 
-/**
- * The chord the rail prints, and the one the study header prints (R12).
- *
- * Read out of the table rather than written here, so a chord that changes in
- * bindings.ts changes in the chrome, and a chord that is removed takes its own
- * hint with it rather than leaving a lie in the rail.
- *
- * M52, ISC-538. The rail printed two and now prints one. The owner, on the live
- * site: "get rid of 'open the palette'." The palette is not a place a first
- * study passes through, and a line in the rail's foot advertising a chord for it
- * spent the reader's attention on the app rather than on their study. The chord
- * itself is untouched, `Mod+K` still opens the palette, and the sheet at `?`
- * still lists it, which is what the remaining hint points at.
- */
-const PALETTE_BINDING: Binding | undefined = BINDINGS.find((b) => b.id === "open-palette");
-const HELP_BINDINGS: readonly Binding[] = BINDINGS.filter((b) => b.id === "open-sheet");
 
 /**
  * Below this the rail is folded to its marks (R2).
@@ -165,19 +146,6 @@ const HELP_BINDINGS: readonly Binding[] = BINDINGS.filter((b) => b.id === "open-
  */
 const RAIL_FOLDS_BELOW = "(max-width: 1179px)";
 
-/**
- * The keystroke the palette already answers to, sent from a click.
- *
- * `KeyboardLayer` owns the overlay state and there is exactly one listener in
- * the app, on `document`, reading the table. A chip that opened the palette by
- * lifting that state into the shell would put a second path to one overlay in
- * the app, which is the shape FND-02 exists to prevent. Dispatching the chord
- * the layer is already listening for keeps one path: the chip is a keyboard
- * user's shortcut, made visible and made clickable.
- */
-function openPalette(): void {
-  document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
-}
 
 export function AppShell() {
   const route = useRoute();
@@ -223,6 +191,9 @@ export function AppShell() {
     [],
   );
   const closeRecordPanel = useCallback(() => withTransition(() => setRecordOpen(false)), []);
+  /* M96, ISC-794: the arrows inside the rail and the bias grid, the one keyboard
+   * behaviour that stayed when the shortcuts went (an ARIA widget's own keys). */
+  useEffect(() => installRoving(document), []);
   useEffect(() => {
     document.addEventListener(RECORD_OPEN_EVENT, openRecordPanel);
     return () => document.removeEventListener(RECORD_OPEN_EVENT, openRecordPanel);
@@ -349,7 +320,6 @@ export function AppShell() {
             the frame because the rail is chrome and the banner is about the
             page. */}
         <OfflineBanner />
-        <KeyboardLayer />
 
         {route.view === "study" && (
           <StudyBar
@@ -532,18 +502,6 @@ function NavRail(props: {
       </ul>
 
       <div className="navrail-foot">
-        {/* R12, narrowed to one chord by M52 (ISC-538). Printed where a
-            researcher will meet it before they need it, at the register R4
-            added for exactly this. The row it points at lists every other
-            chord, the palette's among them. */}
-        <div className="navrail-hints">
-          {HELP_BINDINGS.map((b) => (
-            <p className="navrail-hint" key={b.id}>
-              <span>{b.label}</span>
-              <Caps keys={b.keys} />
-            </p>
-          ))}
-        </div>
         <a
           className="navrail-settings"
           href="#/settings"
@@ -599,6 +557,7 @@ function StudyBar(props: {
   /* The tab the pointer or the focus is on, whose line shows under the strip
    * (ISC-607; M69, ISC-640: every tab, and no native tooltip over the line). */
   const [hint, setHint] = useState<StudyTab | null>(null);
+  const [searching, setSearching] = useState(false);
   /* The one sentence per tab: how to open a greyed tab, or when to come to an
    * open one. It used to ride as the open tab's `title`, and the browser drew
    * that tooltip over the line under the strip (Matthew, 2026-10-02). */
@@ -665,24 +624,18 @@ function StudyBar(props: {
           >
             History
           </button>
-          {/* R12. The keyboard model has been complete since FND-02 and
-              invisible ever since. The chip prints the chord out of the table
-              and, pressed, sends the same keystroke the one listener is
-              already waiting for. */}
-          {PALETTE_BINDING !== undefined && (
+          {/* M53, ISC-545; M96, ISC-794: Search opens from its button. */}
+          {study !== undefined && (
             <button
               type="button"
-              className="studybar-kbd"
-              onClick={openPalette}
-              title={PALETTE_BINDING.label}
+              className="studybar-search"
+              onClick={() => setSearching(true)}
               data-testid="palette-chip"
             >
-              {/* M53, ISC-545: the chip says what the keys do, now that they search. */}
-              <span className="studybar-kbd-word">Search</span>
-              <span className="visually-hidden">{PALETTE_BINDING.label}</span>
-              <Caps keys={PALETTE_BINDING.keys} />
+              Search
             </button>
           )}
+          {study !== undefined && <StudySearch open={searching} projectId={study.id} onClose={() => setSearching(false)} />}
           {/* M62, ISC-600: the page's one Help control, at the right end of the
               header, for the tab you are on (and on Design, the step). */}
           <HelpControl page={tab} {...(tab === "design" ? { station } : {})} {...(study === undefined ? {} : { project: study })} />

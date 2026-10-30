@@ -268,7 +268,7 @@ describe("the tool's user-facing prose", () => {
     // keyboard model sat inside a covered directory and outside the coverage.
     const paths = FILES.map((f) => f.path);
     expect(paths).toContain("ui/components/DecisionGroup.tsx");
-    expect(paths).toContain("ui/keyboard/ShortcutSheet.tsx");
+    expect(paths).toContain("ui/StudySearch.tsx");
   });
 
   test("no AI-tell vocabulary from the P2 list (ISC-178)", () => {

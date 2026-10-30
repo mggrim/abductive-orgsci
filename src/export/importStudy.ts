@@ -96,5 +96,5 @@ export function importFailureMessage(err: unknown): string {
     }
     return `That project is missing something that Abductive needs to open it: ${detail}.`;
   }
-  return "Abductive couldn't read that file. Choose the file again, or ask for a fresh export.";
+  return "Abductive couldn't open that file. Choose the file again, or ask for a fresh export.";
 }

@@ -60,7 +60,7 @@ function suggestion(over: Partial<Record<string, unknown>> = {}): LedgerEvent {
     ...env("persona:concepts"),
     type: "concept-suggested",
     conceptId: "c-dose",
-    name: "Reading dose",
+    name: "Time on task",
     definition: "How many founder updates a mentor reads in a week, in your words [...]",
     properties: ["Weekly count"],
     relations: [],
@@ -132,7 +132,7 @@ describe("the twelve events validate like every other (ISC-608)", () => {
 describe("the projection (ISC-608)", () => {
   test("a suggestion waits and holds nothing until the researcher decides", () => {
     const o = onto([...base(), suggestion()]);
-    expect(o.suggested.map((c) => c.name)).toEqual(["Reading dose"]);
+    expect(o.suggested.map((c) => c.name)).toEqual(["Time on task"]);
     expect(o.accepted).toEqual([]);
     // Both claims read as unplaced statements while nothing is accepted.
     expect(o.unplaced.map((s) => s.id).sort()).toEqual(["pg-1", "pg-2"]);
@@ -294,7 +294,7 @@ describe("History and the shipped example (ISC-608)", () => {
     expect(byKind.get("concept-suggested")).toStartWith("Abductive suggested the concept");
     expect(byKind.get("concept-accepted")).toStartWith("You accepted the concept");
     expect(byKind.get("concept-rejected")).toBe('You rejected the concept "Room performance": Not a concept of mine.');
-    expect(byKind.get("concept-refined")).toContain('the name now reads "Reading load"');
+    expect(byKind.get("concept-refined")).toContain('the name is now "Reading load"');
     expect(byKind.get("statement-attached")).toStartWith("You placed");
     expect(byKind.get("look-for-raised")).toStartWith("Abductive added a line to look for in the field");
   });
@@ -326,7 +326,7 @@ describe("what the account can't explain yet is something to look for (the lead'
 
   test("placing the claim moves the line to its concept, settling raises it first, and retiring the claim settles it", () => {
     let events: LedgerEvent[] = [residue("pg-r", "Stopping rate noticed, not measured")];
-    events = [...events, ...addConceptEvents(events, { projectId: P, name: "Reading dose", definition: "d x" }, clock)];
+    events = [...events, ...addConceptEvents(events, { projectId: P, name: "Time on task", definition: "d x" }, clock)];
     const c = onto(events).accepted[0]!;
     events = [...events, ...placeStatementEvents(events, { projectId: P, conceptId: c.id, pageId: "pg-r" }, clock)];
     const raised = onto(events).lookFor.find((l) => l.kind === "residue")!;

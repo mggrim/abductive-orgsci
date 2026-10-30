@@ -76,7 +76,7 @@ describe("every source file is text a diff can read", () => {
     const paths = FILES.map((f) => f.path);
     expect(paths).toContain("src/proposals/paperFit.ts");
     expect(paths).toContain("src/ui/ConceptsView.tsx");
-    expect(paths).toContain("tests/keyboard.test.ts");
+    expect(paths).toContain("tests/copy-bar.test.ts");
     expect(paths).toContain("index.html");
   });
 

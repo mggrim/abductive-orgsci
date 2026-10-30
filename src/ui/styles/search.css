@@ -1,0 +1,99 @@
+/*
+ * Search (M53, ISC-545), a dialog of its own since M96 (ISC-794), when the
+ * keyboard shortcuts and their stylesheet went. color-mix keeps tokens.css the
+ * only stylesheet that holds a colour.
+ */
+.study-search::backdrop {
+  background: color-mix(in srgb, var(--hero-ground-top) 55%, transparent);
+}
+
+/* ── Search ─────────────────────────────────────────────────────────── */
+.study-search {
+  width: min(34rem, calc(100vw - 3rem));
+  margin-top: 12vh;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+}
+
+.study-search-body {
+  padding: var(--pad);
+}
+
+.study-search-field {
+  width: 100%;
+  font-size: var(--text-title);
+}
+
+.study-search-hint {
+  margin: var(--space-sm) 0 var(--space-xs);
+  max-width: var(--measure);
+}
+
+.study-search-none {
+  margin: var(--space-sm) 0 var(--space-xs);
+}
+
+.study-search-list {
+  list-style: none;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  max-height: 22rem;
+  overflow: auto;
+}
+
+.study-search-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding: var(--space-sm) var(--space-sm);
+  border-radius: var(--radius-control);
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+
+/* The active row is marked by fill rather than by an outline, because focus
+ * stays in the field: an outline here would read as a second focus ring. */
+.study-search-row[data-at="true"] {
+  background: var(--accent-fill);
+  color: var(--accent);
+}
+
+/* A result from the study (M53, ISC-545): its title, the line round the match
+ * under it, and the kind at the end of the row where a place prints its keys. */
+.study-search-found {
+  display: grid;
+  gap: var(--space-hair);
+  min-width: 0;
+}
+.study-search-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.study-search-snippet {
+  overflow-wrap: anywhere;
+}
+.study-search-kind {
+  flex: none;
+  white-space: nowrap;
+}
+
+.study-search-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-sm);
+}
+
+/* ── Roving groups ───────────────────────────────────────────────────────────
+ * A group is one tab stop, so the researcher has to be able to see which
+ * member holds it before they press an arrow. The rail and the bias grid draw
+ * their own current state; this covers the declared groups a later surface
+ * adds, where nothing else would say. */
+[data-roving] [data-roving-item][tabindex="0"] {
+  scroll-margin: var(--space-lg);
+}

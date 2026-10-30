@@ -242,13 +242,13 @@ describe("the prompt (ISC-776, ISC-779, ISC-780)", () => {
     expect(MAX_REWRITES).toBe(2);
   });
 
-  test("the researcher: the card's words when filled, an instruction to infer when empty", () => {
+  test("the researcher: their own words when filled, an instruction to infer when empty", () => {
     const filled = helpSystemPrompt({ page: "studies", about: { stage: "PhD student in the first two years", experience: "New to qualitative research", wants: "a topic" } });
     expect(filled).toContain("Career stage: PhD student in the first two years");
     expect(filled).toContain("Experience with qualitative research: New to qualitative research");
     expect(filled).toContain("What they want from Abductive: a topic");
     const empty = helpSystemPrompt({ page: "studies" });
-    expect(empty).toContain("They haven't told Abductive about themselves under About you. Infer their experience only from the way that they write");
+    expect(empty).toContain("They haven't told Abductive about themselves under About you, on Starting point. Infer their experience only from the way that they write");
   });
 
   test("where they are: the page, and on Design the step with its question", () => {
@@ -438,7 +438,7 @@ describe("the Help panel opens on the chat (ISC-787)", () => {
     return { host, root, panel: host.querySelector('[data-testid="page-help-panel"]') as HTMLElement };
   }
 
-  test("I'm stuck and the question box come first, the box takes focus, and About this page and About you fold below, closed", async () => {
+  test("I'm stuck and the question box come first, the box takes focus, About this page folds below, closed, and the About you line links to Starting point", async () => {
     const { host, root, panel } = await openPanel(true);
     const order = ["help-chat-stuck", "help-chat-input", "help-chat-send", "page-help-about", "help-about"].map(
       (id) => panel.querySelector(`[data-testid="${id}"]`) as HTMLElement,
@@ -449,7 +449,10 @@ describe("the Help panel opens on the chat (ISC-787)", () => {
     }
     expect(document.activeElement).toBe(panel.querySelector('[data-testid="help-chat-input"]'));
     expect((panel.querySelector('[data-testid="page-help-about"]') as HTMLDetailsElement).open).toBe(false);
-    expect((panel.querySelector('[data-testid="help-about"]') as HTMLDetailsElement).open).toBe(false);
+    /* M96, ISC-793: About you moved to Starting point; the panel keeps a line that links there. */
+    expect(panel.querySelector('[data-testid="help-about"]')?.tagName).toBe("P");
+    expect(panel.querySelector('[data-testid="help-about-go"]')?.getAttribute("href") ?? "").toContain("/motivation");
+    expect(panel.querySelector('[data-testid="help-about-stage"]')).toBeNull();
     expect(panel.querySelector('[data-testid="page-help-jump"]')).toBeNull();
     root.unmount();
     host.remove();
@@ -487,7 +490,7 @@ describe("the word card (L22, ISC-789)", () => {
   test("the voice gate reads card in model output as L22, so the existing retry rewrites the sentence", () => {
     expect(voiceBreaks("Open the concept card to read the claim.").flatMap((o) => o.breaks.map((b) => b.rule))).toContain("L22");
     expect(voiceBreaks("Your accepted cards add up.").flatMap((o) => o.breaks.map((b) => b.rule))).toContain("L22");
-    expect(voiceBreaks("Open the concept to read the claim.").length).toBe(0);
+    expect(voiceBreaks("Open the concept to see the claim.").length).toBe(0);
     expect(RULE_TEXT.L22).toContain('Do not use the word "card"');
   });
 

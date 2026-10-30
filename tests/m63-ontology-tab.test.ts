@@ -67,7 +67,7 @@ function suggestion(conceptId: string, name: string, statementIds: string[]): Le
 }
 
 function build(): LedgerEvent[] {
-  let events: LedgerEvent[] = [...EVENTS, suggestion("c-read", "Reading dose", [cited.id]), suggestion("c-wait", "Waiting concept", [])];
+  let events: LedgerEvent[] = [...EVENTS, suggestion("c-read", "Time on task", [cited.id]), suggestion("c-wait", "Waiting concept", [])];
   /* M93, ISC-764: Accept all writes the concept, its property and its statement, one event each. */
   events = [...events, ...acceptAllOnCardEvents(events, { projectId: P, conceptId: "c-read" }, clock)];
   events = [...events, ...addConceptEvents(events, { projectId: P, name: "Judgement shift", definition: "Where a mentor's judgement of a founder moves." }, clock)];
@@ -82,7 +82,7 @@ const text = (markup: string) =>
 /**
  * M70 and the owner's addendum: a card on the page is a preview, and its whole
  * body (properties, relations, statements, evidence) is in the overlay that
- * Read more opens. A test that reads a card's body names the card to open.
+ * Open full view opens. A test that reads a card's body names the card to open.
  */
 function page(events: LedgerEvent[], current: string | null = "c-read", reading: ReadTarget | null = null) {
   const graph = projectOntology(events, P);
@@ -132,12 +132,12 @@ describe("the page on the shipped example (ISC-609)", () => {
     expect(markup).not.toContain('data-testid="suggestion-c-read"');
   });
 
-  // M70 and the owner's addendum: the card's body is in the overlay that Read more opens, so the test opens it.
+  // M70 and the owner's addendum: the card's body is in the overlay that Open full view opens, so the test opens it.
   test("each concept card shows name, definition, properties, relations, statements and evidence", () => {
     const opened = page(build(), "c-read", { kind: "concept", id: "c-read" });
     const card = opened.slice(opened.indexOf("<dialog"));
     const body = text(card.slice(0, card.indexOf('data-testid="concept-card-', 20)));
-    expect(body).toContain("Reading dose");
+    expect(body).toContain("Time on task");
     expect(body).toContain("in the words you used at Context");
     expect(body).toContain("How often it happens");
     expect(body).toContain("leads to");
@@ -161,9 +161,9 @@ describe("the page on the shipped example (ISC-609)", () => {
     expect(read).toContain("What to look for in the field");
     /* M74a, ISC-663: a property's line asks its own question rather than one
        template for every property (the walk, finding 14). */
-    expect(read).toContain("In each case of Reading dose, how often does it happen?");
+    expect(read).toContain("In each case of Time on task, how often does it happen?");
     // M67, ISC-635: a relation with no evidence reads in the words of the field list's new line.
-    expect(read).toContain("Watch whether Reading dose leads to Judgement shift, and under which conditions.");
+    expect(read).toContain("Watch whether Time on task leads to Judgement shift, and under which conditions.");
   });
 
   test("the map draws concepts as nodes and the relation as a labelled edge, with the current card marked", () => {
@@ -267,7 +267,7 @@ describe("statement lines carry their own acts, and every statement is listed fl
     expect(fold).toContain("All statements");
     expect(markup).toContain(`data-testid="all-statement-${other.id}"`);
     const line = text(markup.slice(markup.indexOf(`data-testid="all-statement-${cited.id}"`)).slice(0, 600));
-    expect(line).toContain("Reading dose");
+    expect(line).toContain("Time on task");
     const loose = text(markup.slice(markup.indexOf(`data-testid="all-statement-${other.id}"`)).slice(0, 600));
     expect(loose).toContain("unplaced");
   });

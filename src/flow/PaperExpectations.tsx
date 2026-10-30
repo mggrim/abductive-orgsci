@@ -74,7 +74,7 @@ export const NOT_JUDGED_NOTE =
  */
 export function notJudgedNote(input: { readonly judgeable: boolean }): string {
   if (!input.judgeable) return NOT_JUDGED_NOTE;
-  return "Abductive hasn't read this paper yet. Abductive reads a paper when the paper arrives, and again when you save your starting point.";
+  return "Abductive hasn't considered this paper yet. Abductive considers a paper when the paper arrives, and again when you save your starting point.";
 }
 
 /**
@@ -90,7 +90,7 @@ export function notJudgedNote(input: { readonly judgeable: boolean }): string {
  * surfaces print it (the row on Material, the band on Design and the companion
  * panel), which is why the wording is here and not in any of them.
  */
-export const NOTHING_EXPECTED_NOTE = "Abductive read this paper and found the paper silent on a setting like yours.";
+export const NOTHING_EXPECTED_NOTE = "Abductive considered this paper and found the paper silent on a setting like yours.";
 
 /**
  * What it says once the researcher has answered and the reading is still due.
@@ -101,7 +101,7 @@ export const NOTHING_EXPECTED_NOTE = "Abductive read this paper and found the pa
  * old verdict arriving through the back door on a paper they have just placed.
  */
 export const BEARING_READING_AGAIN_NOTE =
-  "Abductive reads this paper again with your answer, and any expectations land on this row.";
+  "Abductive considers this paper again with your answer, and any expectations land on this row.";
 
 /**
  * And what it says when that reading has landed and written nothing down.
@@ -114,7 +114,7 @@ export const BEARING_READING_AGAIN_NOTE =
  * reading were still on its way.
  */
 export const BEARING_READ_NOTHING_NOTE =
-  "Abductive read this paper again with your answer and found the paper still silent on a setting like yours.";
+  "Abductive considered this paper again with your answer and found the paper still silent on a setting like yours.";
 
 /** The two controls, in the order they are offered. M83, ISC-700: "Add to
  * model" named no model the co-author could identify (2026-10-05); the expectation goes

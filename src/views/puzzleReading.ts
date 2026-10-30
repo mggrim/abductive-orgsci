@@ -315,10 +315,10 @@ export function readFromLabels(sources: readonly PuzzleSource[]): readonly strin
  */
 export function passageCoverageLine(read: number, held: number): string {
   if (read === 0) return "";
-  const cap = `Abductive reads at most ${read} ${read === 1 ? "passage" : "passages"} of your sources, the ones most often read.`;
+  const cap = `Abductive considers at most ${read} ${read === 1 ? "passage" : "passages"} of your sources, the passages that you've opened most often.`;
   const left = held - read;
   if (left <= 0) return cap;
-  return `${cap} The other ${left} ${left === 1 ? "passage is" : "passages are"} not in this reading.`;
+  return `${cap} Abductive excludes the other ${left} ${left === 1 ? "passage" : "passages"} from this suggestion.`;
 }
 
 /** The labels as one clause: "a, b and c". */
@@ -423,8 +423,8 @@ export function puzzlePromptLines(input: {
   if (answer !== "") lines.push(`The puzzle, in their own words at the Puzzle step: ${answer}`);
   lines.push(
     reading === ""
-      ? "The puzzle, as the tool reads it from their answers: not yet read."
-      : `The puzzle, as the tool reads it from their answers: ${reading}`,
+      ? "The puzzle, as the tool suggests it from their answers: not yet suggested."
+      : `The puzzle, as the tool suggests it from their answers: ${reading}`,
   );
   return lines;
 }
@@ -466,7 +466,7 @@ export function puzzleExportLines(
  * can't agree with the researcher by construction. Once the researcher has
  * saved a puzzle, the panel and the Report compare the two in one sentence.
  */
-export const PUZZLE_READING_MATCHES = "Abductive's reading of your answers matches your saved puzzle.";
+export const PUZZLE_READING_MATCHES = "Abductive's suggested puzzle matches your saved puzzle.";
 export const PUZZLE_READING_NONE = "Your answers don't yet show a puzzle; your saved puzzle stands as your own.";
 
 const STOP = new Set([
@@ -542,8 +542,8 @@ export function puzzleAgreement(
   const read = reading.text.trim();
   if (read === "") return PUZZLE_READING_NONE;
   if (samePuzzle(saved, read)) return PUZZLE_READING_MATCHES;
-  if (opts.quote === false) return "Abductive reads a different puzzle out of your answers: the suggested puzzle above.";
-  return `Abductive reads a different puzzle out of your answers: ${/[.!?]$/.test(read) ? read : `${read}.`}`;
+  if (opts.quote === false) return "Abductive suggests a different puzzle from your answers: the suggested puzzle above.";
+  return `Abductive suggests a different puzzle from your answers: ${/[.!?]$/.test(read) ? read : `${read}.`}`;
 }
 
 /** The Report's one line for a project with no puzzle yet. */
@@ -561,13 +561,13 @@ export const PUZZLE_MISSING = "You haven't stated a puzzle yet. At the Puzzle st
  */
 
 /** What a reading says in place of an expectation that the answers don't state. */
-export const EXPECTATION_UNSTATED = "Your answers don't yet state the expectation; Abductive reads this contrast:";
+export const EXPECTATION_UNSTATED = "Your answers don't yet state the expectation; Abductive suggests this contrast:";
 
 /** The rule the reading's prompt carries, appended by the hook that sends it. */
 export const EXPECTATION_RULE = [
   "## The expectation, in their words",
   `- Open the PUZZLE line on the words "You expected" only to quote a sentence from the blocks below in which the researcher states an expectation, word for word or nearly so. Do not compose an expectation from the researcher's observations or data.`,
-  `- When none of the researcher's answers states an expectation, start the PUZZLE line with "${EXPECTATION_UNSTATED}" and then state the contrast that you read.`,
+  `- When none of the researcher's answers states an expectation, start the PUZZLE line with "${EXPECTATION_UNSTATED}" and then state the contrast that you see.`,
 ].join("\n");
 
 /** A share of the clause's words that one run of the researcher's words has to cover. */
@@ -649,6 +649,6 @@ export function groundedExpectation(reading: string, said: readonly string[]): s
     .replace(/^[\s.,;!?]+/, "")
     .replace(/^(?:yet|but|instead|while|whereas)\b[\s,]*/i, "")
     .trim();
-  if (rest === "") return EXPECTATION_UNSTATED.replace(/; Abductive reads this contrast:$/, ".");
+  if (rest === "") return EXPECTATION_UNSTATED.replace(/; Abductive suggests this contrast:$/, ".");
   return `${EXPECTATION_UNSTATED} ${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
 }

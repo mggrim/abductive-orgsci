@@ -3183,7 +3183,7 @@ function drawnFromErrors(e: Record<string, unknown>, type: string): string[] {
   const drawn = e.drawnFrom as readonly string[];
   if (drawn.length === 0) return [`${type}.drawnFrom must name at least one turn`];
   const read = new Set(Array.isArray(src?.turnIds) ? (src.turnIds as readonly string[]) : []);
-  if (!drawn.every((t) => read.has(t))) return [`${type}.drawnFrom names a turn the surfacing did not read`];
+  if (!drawn.every((t) => read.has(t))) return [`${type}.drawnFrom names a turn the surfacing did not consider`];
   return [];
 }
 

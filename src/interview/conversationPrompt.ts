@@ -217,6 +217,8 @@ export interface ConversationPromptInput {
    */
   readonly stepAnswered: boolean;
   readonly chunks: readonly Chunk[];
+  /** At Early data, the file names of the passages and the files left out (M96, ISC-790). */
+  readonly files?: { readonly names: ReadonlyMap<string, string>; readonly leftOut: readonly string[] };
   readonly ontologySummary: string;
   readonly design?: DesignDigest;
   /** The exchange at this place, oldest first. */
@@ -320,7 +322,7 @@ export function conversationPrompt(input: ConversationPromptInput): string {
    * citation instruction travels with the passages, so a turn that cannot see
    * them is not told to cite ids that are not there. */
   if (input.stepAnswered && input.chunks.length > 0) {
-    const block = materialBlock(input.chunks);
+    const block = materialBlock(input.chunks, input.files);
     quoted.push(...block.quoted);
     authored.push(...block.authored);
   }
@@ -402,7 +404,7 @@ export function draftPrompt(input: DraftPromptInput): string {
     "- Do not join their replies end to end. A summary is shorter than the replies that it summarises.",
     "- Keep their hedges and their uncertainty. A tentative sentence stays tentative.",
     "- Where the answer would need something that they did not say, write [...] and carry on. Do not fill the gap.",
-    "- Add only facts that they gave, do not read meaning into their words, and do not praise them. Keep each fact with the person or the event that they gave it for.",
+    "- Add only facts that they gave, do not add meaning to their words, and do not praise them. Keep each fact with the person or the event that they gave it for.",
     /* M78b, ISC-681: the serendipity walk's summaries dropped the student's
      * relativizers eight times, turned their active verbs passive, reordered
      * their words, and ran to six or seven sentences four times out of nine. */

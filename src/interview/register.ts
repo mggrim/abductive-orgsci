@@ -77,7 +77,7 @@ export function DETAIL_LINE(label: string, place: string): string {
 export const PROCESS_FOLLOW_UP =
   "- Ask next about variation: how they expect the phenomenon that they'll track to vary across their period and, where their project compares cases, the cases in which they expect the variation to show.";
 export const UNIT_KNOWN_LINE =
-  "- They identified their unit of analysis at Context. Read the unit from there, and do not ask for it again.";
+  "- They identified their unit of analysis at Context. Take the unit from there, and do not ask for it again.";
 export const UNIT_EMPTY_FOLLOW_UP =
   "- The unit of analysis at Context is still empty. After the question about variation, ask which unit the variation shows in: a person, a team, an organisation, a community or a field.";
 export const OUTCOME_FOLLOW_UP =

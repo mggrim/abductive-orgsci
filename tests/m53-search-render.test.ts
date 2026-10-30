@@ -1,5 +1,5 @@
 /**
- * M53, ISC-545, rendered: the palette searches the study it is opened in, and
+ * M53, ISC-545, rendered (StudySearch since M96): the search dialog searches the study it is opened in, and
  * choosing a result moves the route and nothing else.
  */
 import "fake-indexeddb/auto";
@@ -9,7 +9,7 @@ useDom();
 import { describe, expect, test } from "bun:test";
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
-import { CommandPalette } from "../src/ui/keyboard/CommandPalette.tsx";
+import { StudySearch } from "../src/ui/StudySearch.tsx";
 import { LedgerProvider } from "../src/state/ledgerContext.tsx";
 import { InMemoryLedgerStore } from "../src/ledger/ledger.ts";
 import { emptyBrief, saveProject } from "../src/state/projects.ts";
@@ -40,12 +40,10 @@ describe("the palette searches the study (ISC-545)", () => {
       root.render(
         React.createElement(LedgerProvider, {
           store,
-          children: React.createElement(CommandPalette, {
+          children: React.createElement(StudySearch, {
             open: true,
-            scope: "study",
             projectId: ID,
             onClose: () => {},
-            onGo: () => {},
           }),
         }),
       );
@@ -64,7 +62,7 @@ describe("the palette searches the study (ISC-545)", () => {
     expect(first?.textContent ?? "").toContain("Context");
 
     await act(async () => {
-      const body = host.querySelector(".kbd-palette-body");
+      const body = host.querySelector(".study-search-body");
       if (body === null) return;
       reactProps(body)?.onKeyDown?.({ key: "Enter", preventDefault: () => {} });
     });

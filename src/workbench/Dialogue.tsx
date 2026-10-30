@@ -60,6 +60,7 @@ import { sentencesOf } from "../copy/rules.ts";
 import { streamOrComplete } from "../inference/types.ts";
 import { activeInferenceClient } from "../ui/personaRun.ts";
 import { dataChunkCount, type Chunk, type StoredDocument } from "../state/chunks.ts";
+import { earlyDataScope } from "../flow/earlyData.ts";
 import type { OntologyGraph } from "../ontology/schema.ts";
 import { useLedger } from "../state/ledgerContext.tsx";
 import {
@@ -461,7 +462,20 @@ export function Dialogue(props: {
           ? brief !== undefined &&
             stationStated(brief, stationById(station), dataChunkCount(chunks))
           : (brief?.startingInterest ?? "").trim() !== "",
-        chunks,
+        /* M96, ISC-790: at Early data the conversation considers every data
+         * file on Sources, in full and named by file, and leaves the papers out. */
+        ...(station === "early-data" && documents !== undefined
+          ? (() => {
+              const scope = earlyDataScope(documents, chunks);
+              return {
+                chunks: scope.chunks,
+                files: {
+                  names: new Map(scope.considered.map((d) => [d.id, d.name] as const)),
+                  leftOut: scope.leftOut.map((d) => d.name),
+                },
+              };
+            })()
+          : { chunks }),
         ontologySummary: ontologyDigest(graph),
         ...(brief === undefined ? {} : { design: designDigest(brief) }),
         /* From the store, not the render snapshot. `send` appends the
@@ -597,7 +611,7 @@ export function Dialogue(props: {
         setError("Abductive couldn't record that question. Try again.");
       }
     },
-    [station, projectId, brief, chunks, graph, ledger, readEvents],
+    [station, projectId, brief, chunks, documents, graph, ledger, readEvents],
   );
 
   /* The two the opener reads, held in refs rather than in its closure.

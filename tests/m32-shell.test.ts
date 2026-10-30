@@ -197,7 +197,6 @@ describe("R2: the rail", () => {
     for (const hidden of [
       ".navrail-name",
       ".navrail-head",
-      ".navrail-hints",
       ".navrail-settingsname",
     ]) {
       expect({ hidden, folds: RAIL_CSS.includes(`.shell[data-rail="collapsed"] ${hidden}`) }).toEqual(
@@ -300,7 +299,7 @@ describe("R4: the three tokens the app had no name for", () => {
           "exports.css",
           "instrumentation.css",
           "intro.css",
-          "keyboard.css",
+          "search.css",
           "material.css",
           "ontology.css",
           "panels.css",
@@ -504,7 +503,7 @@ describe("R7: one filled primary per surface", () => {
 
 // ---------------------------------------------------------------------------
 
-describe("R11 and R12: the next step, and the keyboard made visible", () => {
+describe("R11 and R12: the next step, and Search without a shortcut", () => {
   test("the next bar is a row in the standing header, and keeps its content", async () => {
     // M32 made the app's one persistent "what now" sticky at the foot, because
     // it had been an inline element at the foot of a 4,082px document. On
@@ -527,30 +526,15 @@ describe("R11 and R12: the next step, and the keyboard made visible", () => {
     expect(bar).toContain('<span data-testid="next-sentence">{step.sentence}</span>');
   });
 
-  test("the chord chip prints the binding rather than a key name of its own", () => {
-    // bindings.ts is the only place a keystroke is written down. A chip that
-    // typed its own would be wrong the first time a chord moved.
-    expect(APPSHELL).toContain('BINDINGS.find((b) => b.id === "open-palette")');
-    expect(APPSHELL).toContain("<Caps keys={PALETTE_BINDING.keys} />");
-    expect(APPSHELL).toContain('className="studybar-kbd"');
-  });
-
-  test("pressing it sends the keystroke the one listener is already waiting for", () => {
-    // There is exactly one keydown listener in the app, on `document`, reading
-    // the table. Lifting the overlay state into the shell would put a second
-    // path to one overlay in the app, which is what FND-02 exists to prevent.
-    expect(APPSHELL).toContain(
-      'document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))',
-    );
-  });
-
-  test("the rail's hints are the table's rows, at the micro step", () => {
-    // One row since M52 (ISC-538): the palette's hint is off the rail's foot.
-    // tests/m52-palette-line.test.ts holds that, and holds the chord itself
-    // still working.
-    expect(APPSHELL).toContain('BINDINGS.filter((b) => b.id === "open-sheet")');
-    expect(APPSHELL).toContain('className="navrail-hint"');
-    expect(RAIL_CSS).toMatch(/\.navrail-hint \{[^}]*font-size: var\(--text-micro\)/s);
+  /* M96, ISC-794 (the owner, 2026-10-30): "the keyboard shortcuts should be
+   * eliminated". The chip became a plain Search button that opens the search
+   * dialog itself, and the rail's foot carries no key hints. */
+  test("Search is a plain button, and the rail's foot prints no key hint", () => {
+    expect(APPSHELL).toContain('className="studybar-search"');
+    expect(APPSHELL).toContain("<StudySearch ");
+    expect(APPSHELL).not.toContain("KeyboardEvent(");
+    expect(APPSHELL).not.toContain("navrail-hint");
+    expect(RAIL_CSS).not.toContain(".navrail-hint");
   });
 });
 

@@ -61,7 +61,7 @@ export function TwinReveal(props: {
           <p className="muted">
             This baseline is a deliberately conventional version of the same design, built
             from your brief alone, with your ontology left out. Comparing against it shows where
-            your design diverges from the modal study. Reading it too early is the risk: it
+            your design diverges from the modal study. Opening it too early is the risk: it
             can anchor you to exactly the conventions it describes.
           </p>
 
@@ -93,7 +93,7 @@ export function TwinReveal(props: {
             <div className="card twinwarn">
               <p>
                 <strong>Early reveal warning.</strong> This project is still in the{" "}
-                {project.stage} stage. Reading the modal baseline now may anchor your
+                {project.stage} stage. Opening the modal baseline now may anchor your
                 framing, site, and expectations to the conventional design before your
                 own has taken shape. The reveal, including that it happened early,
                 will be appended to the ledger.

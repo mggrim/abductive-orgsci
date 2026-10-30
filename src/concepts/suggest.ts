@@ -55,7 +55,7 @@ import type { ChatTurn } from "./chat.ts";
  * or a turn that isn't in the chat the pass read, so whose words it is can't be
  * worked out. History shows the drop with this reason.
  */
-export const CHAT_DROP_REASON = "it named turns that aren't in the chat that Abductive read";
+export const CHAT_DROP_REASON = "it named turns that aren't in the chat that Abductive considered";
 
 /** The owner's cap: at most three concept suggestions, and three relation suggestions, per event. */
 export const MAX_SUGGESTED = 3;
@@ -301,7 +301,7 @@ function system(source: ConceptSource): string {
         : chat
           ? [
               "Take every name, definition, claim and statement from the turns listed under the chat, both the researcher's and Abductive's, and from the summary they saved there. The rest of their project is there to orient you: do not take wording from it.",
-              "Name on a TURNS line every turn that a concept or a relation draws on, by its label exactly as given, and end each statement with the turns it came from. Abductive works out whose words each suggestion came from by reading the turns you name, so name each turn that the wording came from, and only those turns.",
+              "Name on a TURNS line every turn that a concept or a relation draws on, by its label exactly as given, and end each statement with the turns it came from. Abductive works out whose words each suggestion came from by looking at the turns you name, so name each turn that the wording came from, and only those turns.",
             ]
           : []),
     "Do not restate a sentence of their summaries word for word as a statement, and do not suggest a statement that is already in their project or already suggested.",

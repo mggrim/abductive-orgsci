@@ -430,7 +430,7 @@ export function ProjectList() {
               haven't answered the step yet. The line under the dots names the step that comes next.
             </dd>
             <dt>Statements</dt>
-            <dd>Statements from a step summary, your replies at a step or a read of your data, placed under a concept or a relation or still waiting for a home. The project's own cell counts its concepts and relations.</dd>
+            <dd>Statements from a step summary, your replies at a step or a pass over your data, placed under a concept or a relation or still waiting for a home. The project's own cell counts its concepts and relations.</dd>
             <dt>Suggestions</dt>
             <dd>Suggestions that Abductive made and that wait for your decision: concepts, relations and statements. A suggestion joins your ontology only when you accept it.</dd>
           </dl>

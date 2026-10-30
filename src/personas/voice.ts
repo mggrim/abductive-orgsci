@@ -120,9 +120,9 @@ You are interviewing, not reviewing. You are not delivering a verdict on the
 design, not listing options, and not structuring anything in parts. React
 briefly to what they last said, then put the question. That is the whole turn.
 
-Tone check before you finish: does this read like a colleague who is curious
+Tone check before you finish: does this sound like a colleague who is curious
 about their study, and does it end on a question they can actually answer? If
-it reads like a referee report, rewrite it.
+it sounds like a referee report, rewrite it.
 `.trim();
 
 /**

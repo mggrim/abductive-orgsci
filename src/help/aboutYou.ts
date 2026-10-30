@@ -133,4 +133,51 @@ export function aboutSnapshot(about: AboutYou): HelpAbout | undefined {
 /** For tests: forget the page-life copy. */
 export function resetAboutYouForTests(): void {
   kept = {};
+  skippedHere = false;
+}
+
+/**
+ * Whether the researcher has passed on About you (M96, ISC-793). About you moved
+ * to Starting point, which shows the questions once and then one line; Skip is
+ * the way past them without answering, kept per browser as the answers are.
+ */
+export const ABOUT_YOU_SKIPPED_KEY = "abductive.about-you.skipped.v1";
+
+let skippedHere = false;
+
+export function aboutYouSkipped(storage: Storage | undefined = browserStorage()): boolean {
+  if (storage === undefined) return skippedHere;
+  try {
+    return storage.getItem(ABOUT_YOU_SKIPPED_KEY) === "1" || skippedHere;
+  } catch {
+    return skippedHere;
+  }
+}
+
+export function skipAboutYou(storage: Storage | undefined = browserStorage()): void {
+  skippedHere = true;
+  if (storage === undefined) return;
+  try {
+    storage.setItem(ABOUT_YOU_SKIPPED_KEY, "1");
+  } catch {
+    /* A private window keeps the skip for the page's life. */
+  }
+}
+
+const EXPERIENCE_PHRASE: Readonly<Record<QualExperience, string>> = {
+  new: "new to qualitative research",
+  some: "some qualitative experience",
+  "a-lot": "a lot of qualitative experience",
+};
+
+/** The one line that stands for the answers: "PhD student in year three or later, sociology". */
+export function aboutYouSummary(about: AboutYou): string {
+  const a = cleanAboutYou(about);
+  return [
+    a.stage === undefined ? undefined : stageLabel(a.stage),
+    a.field,
+    a.experience === undefined ? undefined : EXPERIENCE_PHRASE[a.experience],
+  ]
+    .filter((x): x is string => x !== undefined)
+    .join(", ");
 }

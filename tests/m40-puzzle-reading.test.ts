@@ -407,7 +407,7 @@ describe("the prompt that reads the puzzle (ISC-508)", () => {
     expect(system).toContain("Early data outranks the other answers");
     expect(system).toContain("The starting interest is the weakest evidence of an expectation.");
     // And it says what it is being asked for, so the mock can branch on it.
-    expect(system).toContain("## Reading rules");
+    expect(system).toContain("## Puzzle rules");
   });
 
   test("a quoted phrase is not also paraphrased in the same sentence (D52, M43d)", () => {
@@ -530,12 +530,12 @@ describe("a reading is its own event on the record (ISC-509)", () => {
     const { sources, digest } = reading.puzzleSources(input());
     const found = projectLedger([read("Expected a point, found a drift.", sources, digest)])[0];
     expect(found?.happened).toBe(
-      "Abductive read the puzzle from Your starting interest, Context, Site, Early data and 3 passages",
+      "Abductive suggested the puzzle from Your starting interest, Context, Site, Early data and 3 passages",
     );
     expect(found?.changed).toBe("the suggested puzzle");
     expect(found?.kind).toBe("puzzle-reading");
     const none = projectLedger([read("", sources, digest, "No expectation stated.")])[0];
-    expect(none?.happened).toBe("Abductive read the answers that you have saved and found the puzzle still to come");
+    expect(none?.happened).toBe("Abductive considered the answers that you have saved and found the puzzle still to come");
     // Never "your puzzle" and never "as you stated it", on any row.
     for (const row of [found, none]) {
       expect(`${row?.happened} ${row?.changed}`.toLowerCase()).not.toContain("your puzzle");
@@ -554,11 +554,11 @@ describe("a reading is its own event on the record (ISC-509)", () => {
     const html = renderToStaticMarkup(
       React.createElement(LedgerView as never, { events }),
     );
-    expect(html).toContain("Abductive read the puzzle from");
+    expect(html).toContain("Abductive suggested the puzzle from");
     expect(html).toContain("the suggested puzzle");
     // The kind marker and the filter label both say it is the tool's.
     expect(html).toContain("PZL");
-    expect(html).toContain("puzzle that Abductive read");
+    expect(html).toContain("puzzle that Abductive suggested");
   });
 });
 
@@ -681,7 +681,7 @@ describe("the Puzzle step shows the reading and Starting point shows none of it 
      * the same words as before it. The moment is `formatMoment`'s and is not
      * pinned here; the places and the shape are. */
     expect(find(offer.host, "puzzle-offer-source")?.textContent ?? "").toMatch(
-      /^Read from Your starting interest, Context, Site, Early data and 3 passages, .+\.$/,
+      /^Suggested from Your starting interest, Context, Site, Early data and 3 passages, .+\.$/,
     );
     /* And no control (owner, 2026-09-12: "What does that button do? And how
      * should the user know?"). The reading is current, so a button would do
@@ -704,7 +704,7 @@ describe("the Puzzle step shows the reading and Starting point shows none of it 
     const store = await storeWith([event]);
     const { host, root } = await offerFor(id, store);
     expect(find(host, "puzzle-offer-source")?.textContent ?? "").toContain(
-      "Something that Abductive read has changed since that reading.",
+      "Something that Abductive considered has changed since that suggestion.",
     );
     root.unmount();
   });
@@ -728,7 +728,7 @@ describe("the Puzzle step shows the reading and Starting point shows none of it 
     page.root.unmount();
     const { host, root } = await offerFor(id, store);
     expect(find(host, "puzzle-offer-source")?.textContent ?? "").toBe(
-      "Abductive reads the puzzle from your Early data and your answers at the steps. You haven't saved an answer for Abductive to read yet.",
+      "Abductive suggests the puzzle from your Early data and your answers at the steps. You haven't saved an answer for Abductive to consider yet.",
     );
     // And no control: with nothing saved there is nothing a reading could be made
     // of, and the line above says so in words.
@@ -880,9 +880,9 @@ describe("the writer: one event, no bound row (ISC-509), and since M93 no mirror
       store,
     );
     expect(find(offer.host, "puzzle-offer-read")?.textContent).toBe(
-      "Read the puzzle from my saved answers",
+      "Suggest a puzzle from my saved answers",
     );
-    reply = "PUZZLE: A reading, after they pressed it.";
+    reply = "PUZZLE: A puzzle, after they pressed it.";
     await act(async () => {
       press(find(offer.host, "puzzle-offer-read"));
     });
@@ -904,7 +904,7 @@ describe("the writer: one event, no bound row (ISC-509), and since M93 no mirror
       }),
       store,
     );
-    expect(find(read.host, "puzzle-offer-text")?.textContent).toBe("A reading, after they pressed it.");
+    expect(find(read.host, "puzzle-offer-text")?.textContent).toBe("A puzzle, after they pressed it.");
     expect(read.host.textContent).toContain("Is this the surprise that current accounts can't explain?");
     expect(find(read.host, "puzzle-offer-read")).toBeNull();
     read.root.unmount();
@@ -915,7 +915,7 @@ describe("the writer: one event, no bound row (ISC-509), and since M93 no mirror
      * than sitting under them going stale. */
     resetPuzzleReadingLoops();
     requests.length = 0;
-    reply = "PUZZLE: A third reading, after the Early data moved.";
+    reply = "PUZZLE: A third puzzle, after the Early data moved.";
     await projects.updateBrief(id, { earlySurprise: "the sheet was full and nobody read it" });
     const moved = (await projects.getProject(id)) as never;
     const after = await mount(
@@ -945,7 +945,7 @@ describe("the writer: one event, no bound row (ISC-509), and since M93 no mirror
     root.unmount();
     // And the Puzzle step says it has not been read (ISC-587: said there, not here).
     const offer = await offerFor(id, store);
-    expect(find(offer.host, "puzzle-offer-source")?.textContent ?? "").toBe("Not read yet.");
+    expect(find(offer.host, "puzzle-offer-source")?.textContent ?? "").toBe("Not suggested yet.");
     offer.root.unmount();
   });
 
@@ -995,7 +995,7 @@ describe("the writer: one event, no bound row (ISC-509), and since M93 no mirror
 /**
  * The dock holds one corpus and the writer reads another (D21, M43b).
  *
- * The walk of 2026-09-13 pressed "Read the puzzle again from my saved answers"
+ * The walk of 2026-09-13 pressed "Suggest the puzzle again from my saved answers"
  * and the line under the new reading still said "Something the tool read has
  * moved since", with a control beside it offering to do it again. Four readings
  * were written over two legs and the flag never cleared.
@@ -1094,18 +1094,18 @@ describe("a reading made of the study as it stands is not stale (D21)", () => {
 describe("the line says how much of the corpus a reading covers (D21)", () => {
   test("three of twelve says what was left out", () => {
     expect(reading.passageCoverageLine(3, 12)).toBe(
-      "Abductive reads at most 3 passages of your sources, the ones most often read. The other 9 passages are not in this reading.",
+      "Abductive considers at most 3 passages of your sources, the passages that you've opened most often. Abductive excludes the other 9 passages from this suggestion.",
     );
   });
 
   test("a corpus the reading covers whole claims nothing was left out", () => {
     expect(reading.passageCoverageLine(3, 3)).toBe(
-      "Abductive reads at most 3 passages of your sources, the ones most often read.",
+      "Abductive considers at most 3 passages of your sources, the passages that you've opened most often.",
     );
   });
 
   test("one passage left out reads in the singular", () => {
-    expect(reading.passageCoverageLine(3, 4)).toContain("The other 1 passage is not in this reading.");
+    expect(reading.passageCoverageLine(3, 4)).toContain("Abductive excludes the other 1 passage from this suggestion.");
   });
 
   test("a reading made of answers alone says nothing about passages", () => {
@@ -1120,11 +1120,11 @@ describe("the line says how much of the corpus a reading covers (D21)", () => {
       events: [read("Expected a point, found a drift.", sources, digest)],
     });
     const line = band.puzzleSourceLine(state, { reading: false, error: null });
-    expect(line).toContain("Read from Your starting interest");
+    expect(line).toContain("Suggested from Your starting interest");
     expect(line).toContain("and 3 passages");
     // M61, decision 6: how much the reading covers is not on the line beside it.
     expect(line).not.toContain("Abductive reads at most");
-    expect(reading.passageCoverageLine(3, 4)).toContain("Abductive reads at most 3 passages of your sources");
+    expect(reading.passageCoverageLine(3, 4)).toContain("Abductive considers at most 3 passages of your sources");
     /* ISC-587: the fold that printed it left Starting point with the rest of the
      * block, and the Puzzle step was kept exactly as M58 built it, so no surface
      * prints the coverage now. The sentence and its rule stay here, tested, for
@@ -1133,6 +1133,6 @@ describe("the line says how much of the corpus a reading covers (D21)", () => {
     expect(src).not.toContain("framing-puzzle-coverage");
     /* Four data passages in the fixture and three in every digest, which is what
      * the cap is: the count of what is outside the reading comes from the corpus. */
-    expect(reading.passageCoverageLine(3, 4)).toContain("The other 1 passage is not in this reading.");
+    expect(reading.passageCoverageLine(3, 4)).toContain("Abductive excludes the other 1 passage from this suggestion.");
   });
 });

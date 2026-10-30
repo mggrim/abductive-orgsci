@@ -196,7 +196,7 @@ describe("the three occasions are wired (ISC-610)", () => {
     // M85, ISC-716: the suggestion runs from `suggestFrom`, for the step `at` that saved.
     expect(station).toContain('source: { kind: "summary", station: at }');
     expect(station).toContain("suggestFrom(stationId, written.after, answer)");
-    const early = await read("flow/EarlyDataControls.tsx");
+    const early = await read("flow/SuggestFromData.tsx");
     expect(early).toContain('source: { kind: "data", chunkIds: [] }');
     expect(early).toContain('"Suggest concepts"');
     const dialogue = await read("workbench/Dialogue.tsx");

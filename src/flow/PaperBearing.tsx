@@ -33,13 +33,13 @@ import { editedFrom } from "../concepts/decisions.ts";
 
 /** What the row says under the question, so the box is not the only cue. */
 export const BEARING_HINT =
-  "Abductive saves your answer beside the paper and reads the paper again with your answer.";
+  "Abductive saves your answer beside the paper and considers the paper again with your answer.";
 
 /** What the row says under a line that Abductive prefilled with its placing (M78b, ISC-681). */
 export const PLACED_HINT = "Abductive placed this paper under your literatures; edit if that is wrong.";
 
 /** What the row says under the researcher's own saved line (M78b). */
-export const SAID_HINT = "You wrote this line. Edit the line and press Save, and Abductive reads the paper again with your words.";
+export const SAID_HINT = "You wrote this line. Edit the line and press Save, and Abductive considers the paper again with your words.";
 
 /**
  * Why Save is not live yet, when it is not (M78b, ISC-681). The line opens on

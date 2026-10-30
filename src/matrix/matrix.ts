@@ -30,7 +30,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [TAVORY],
     prompt:
-      "Read the research question and motivation. State, in one sentence, the answer the researcher appears to already believe. Then ask: what observation, if it appeared in the pilot data, would force you to abandon this framing entirely? If the brief cannot name one, say so plainly, because a question that every possible datum would leave standing is a conclusion wearing a question mark. Propose a rival explanation for the same phenomenon that the current framing would systematically miss.",
+      "Consider the research question and motivation. State, in one sentence, the answer the researcher appears to already believe. Then ask: what observation, if it appeared in the pilot data, would force you to abandon this framing entirely? If the brief cannot name one, say so plainly, because a question that every possible datum would leave standing is a conclusion wearing a question mark. Propose a rival explanation for the same phenomenon that the current framing would systematically miss.",
     flag: "Question presupposes its answer",
   },
   {
@@ -50,8 +50,8 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "signal", signal: "acceptance-streak" },
     personas: [TAVORY, LANGLEY],
     prompt:
-      "The researcher has accepted every recent challenge without revision, which is a pattern consistent with reading the data through the framing rather than against it. Select the three pilot excerpts that fit the working interpretation WORST. For each, articulate the strongest reading under which it disconfirms the emerging account. Do not soften: your job here is to make the disconfirming case as compelling as an advocate would.",
-    flag: "Accept-streak while reading pilot data",
+      "The researcher has accepted every recent challenge without revision, which is a pattern consistent with approaching the data through the framing rather than against it. Select the three pilot excerpts that fit the working interpretation WORST. For each, articulate the strongest interpretation under which it disconfirms the emerging account. Do not soften: your job here is to make the disconfirming case as compelling as an advocate would.",
+    flag: "Accept-streak during pilot data",
   },
 
   // -------------------------------------------------------------------------
@@ -74,7 +74,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "signal", signal: "coverage-stagnation" },
     personas: [LANGLEY],
     prompt:
-      "Retrieval has circled the same chunks for the entire recent window, so the loop is re-reading favorites rather than covering the corpus. List the document chunks that are still unretrieved and uncited, cluster them by what they are about, and pose one question that only the neglected material can answer. Ask the researcher directly: what are you avoiding in the unread portion, and would a hostile reviewer find your emerging claim there?",
+      "Retrieval has circled the same chunks for the entire recent window, so the loop is revisiting favorites rather than covering the corpus. List the document chunks that are still unretrieved and uncited, cluster them by what they are about, and pose one question that only the neglected material can answer. Ask the researcher directly: what are you avoiding in the unopened portion, and would a hostile reviewer find your emerging claim there?",
     flag: "Attention circling same chunks",
   },
   {
@@ -108,7 +108,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [TAVORY],
     prompt:
-      "Before the researcher locks in any anomaly candidate, force the design back open once. For the leading candidate, generate three mundane explanations (measurement artifact, sampling accident, informant impression management) that would dissolve the anomaly without any new theory. Only an anomaly that survives its boring rivals deserves the name. If the researcher cannot rule the mundane readings out with existing data, specify the cheapest additional observation that would.",
+      "Before the researcher locks in any anomaly candidate, force the design back open once. For the leading candidate, generate three mundane explanations (measurement artifact, sampling accident, informant impression management) that would dissolve the anomaly without any new theory. Only an anomaly that survives its boring rivals deserves the name. If the researcher cannot rule the mundane explanations out with existing data, specify the cheapest additional observation that would.",
     flag: "Anomaly locked before rival explanations tried",
   },
 
@@ -122,7 +122,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [LANGLEY],
     prompt:
-      "Look for places where the brief expresses who the researcher IS rather than what the question NEEDS: 'as an ethnographer…', 'my commitment to process research…', a home literature cited from loyalty rather than fit. For each, ask: if a stranger without a methodological identity read only the research question, what method and literature would they reach for? Where the stranger's answer differs from the brief's, name the gap and ask which one the phenomenon actually demands.",
+      "Look for places where the brief expresses who the researcher IS rather than what the question NEEDS: 'as an ethnographer…', 'my commitment to process research…', a home literature cited from loyalty rather than fit. For each, ask: if a stranger without a methodological identity saw only the research question, what method and literature would they reach for? Where the stranger's answer differs from the brief's, name the gap and ask which one the phenomenon actually demands.",
     flag: "Design serves researcher identity, not question",
   },
   {
@@ -156,7 +156,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "signal", signal: "acceptance-streak" },
     personas: [TAVORY, EISENHARDT],
     prompt:
-      "The recent record shows uninterrupted acceptance, which is a signature of a sycophantic loop in which assistant output flatters the researcher's reading and the researcher rewards the flattery. Now attempt refutation: state the researcher's current working claim, then construct the strongest argument AGAINST it from the pilot data, citing specific chunks. You may not conclude the claim survives unless you have produced at least two genuine refutation attempts and shown, chunk by chunk, why each fails. Abductive treats agreement without attempted refutation as a null response.",
+      "The recent record shows uninterrupted acceptance, which is a signature of a sycophantic loop in which assistant output flatters the researcher's interpretation and the researcher rewards the flattery. Now attempt refutation: state the researcher's current working claim, then construct the strongest argument AGAINST it from the pilot data, citing specific chunks. You may not conclude the claim survives unless you have produced at least two genuine refutation attempts and shown, chunk by chunk, why each fails. Abductive treats agreement without attempted refutation as a null response.",
     flag: "Sycophantic accept-loop; refutation demanded",
   },
 
@@ -251,7 +251,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [TAVORY],
     prompt:
-      "Read Abductive's replies while the researcher frames the project. Mark each place where Abductive agreed with the researcher's framing, praised it or restated it as settled, without asking what would count against it. For each, write the question that Abductive should have asked instead.",
+      "Consider Abductive's replies while the researcher frames the project. Mark each place where Abductive agreed with the researcher's framing, praised it or restated it as settled, without asking what would count against it. For each, write the question that Abductive should have asked instead.",
     flag: "Abductive agreed with the framing untested",
   },
   {
@@ -261,7 +261,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [EISENHARDT],
     prompt:
-      "Read Abductive's replies about the site and the sample. Mark each place where Abductive endorsed the researcher's choice of cases or setting because the researcher proposed it, without testing whether the choice isolates the contrast that the project needs. Name the test that Abductive skipped.",
+      "Consider Abductive's replies about the site and the sample. Mark each place where Abductive endorsed the researcher's choice of cases or setting because the researcher proposed it, without testing whether the choice isolates the contrast that the project needs. Name the test that Abductive skipped.",
     flag: "Abductive endorsed the cases untested",
   },
   {
@@ -271,7 +271,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [TAVORY],
     prompt:
-      "Read Abductive's replies about the puzzle and the bind. Mark each place where Abductive accepted the researcher's surprise as a real puzzle without asking which expectation it breaks and whose expectation that is. Write the question that would have tested it.",
+      "Consider Abductive's replies about the puzzle and the bind. Mark each place where Abductive accepted the researcher's surprise as a real puzzle without asking which expectation it breaks and whose expectation that is. Write the question that would have tested it.",
     flag: "Abductive accepted the puzzle untested",
   },
   {
@@ -281,7 +281,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [LANGLEY],
     prompt:
-      "Read Abductive's replies and suggestions about the site and the sample. Mark each place where Abductive steered toward the site type, case count or sampling logic that a thousand published studies already use. For each, name one choice that only this project could make.",
+      "Consider Abductive's replies and suggestions about the site and the sample. Mark each place where Abductive steered toward the site type, case count or sampling logic that a thousand published studies already use. For each, name one choice that only this project could make.",
     flag: "Abductive steered to the usual sample",
   },
   {
@@ -291,8 +291,8 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [LANGLEY],
     prompt:
-      "Read Abductive's summaries and suggestions from the early data. Mark each concept or reading that names the pattern the literature would expect anyway, where the data could support a stranger one. For each, say which passage points elsewhere.",
-    flag: "Abductive read the data the usual way",
+      "Consider Abductive's summaries and suggestions from the early data. Mark each concept or interpretation that names the pattern the literature would expect anyway, where the data could support a stranger one. For each, say which passage points elsewhere.",
+    flag: "Abductive took the usual view of the data",
   },
   {
     id: "modal-framing:anomaly",
@@ -301,7 +301,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [ZUCKERMAN],
     prompt:
-      "Read Abductive's replies about the puzzle. Mark each place where Abductive recast the researcher's puzzle as a familiar gap in the literature, the median version of the question. Say what the puzzle loses in that recasting.",
+      "Consider Abductive's replies about the puzzle. Mark each place where Abductive recast the researcher's puzzle as a familiar gap in the literature, the median version of the question. Say what the puzzle loses in that recasting.",
     flag: "Abductive recast the puzzle as the usual gap",
   },
   {
@@ -311,7 +311,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [EISENHARDT],
     prompt:
-      "Read Abductive's replies and summaries while the researcher frames the project. Mark each sentence that states the setting, the process or the outcome with more certainty than the researcher's own words carry. Rewrite each with its hedge on the surface.",
+      "Consider Abductive's replies and summaries while the researcher frames the project. Mark each sentence that states the setting, the process or the outcome with more certainty than the researcher's own words carry. Rewrite each with its hedge on the surface.",
     flag: "Abductive's framing sounds surer than yours",
   },
   {
@@ -321,7 +321,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [EISENHARDT],
     prompt:
-      "Read Abductive's replies and summaries about the site and the sample. Mark each sentence that treats access, a case or a comparison as settled when the researcher has only hoped for it. Rewrite each with what is still uncertain.",
+      "Consider Abductive's replies and summaries about the site and the sample. Mark each sentence that treats access, a case or a comparison as settled when the researcher has only hoped for it. Rewrite each with what is still uncertain.",
     flag: "Abductive treats hoped-for access as settled",
   },
   {
@@ -331,7 +331,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [LANGLEY],
     prompt:
-      "Read Abductive's replies and suggestions while the researcher frames the project. Mark each place where Abductive filed the researcher's description under a ready-made framework, so that details which sit outside the framework went unmentioned. Name those details.",
+      "Consider Abductive's replies and suggestions while the researcher frames the project. Mark each place where Abductive filed the researcher's description under a ready-made framework, so that details which sit outside the framework went unmentioned. Name those details.",
     flag: "Abductive filed the framing under a framework",
   },
   {
@@ -341,7 +341,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "stage-entry" },
     personas: [LANGLEY],
     prompt:
-      "Read Abductive's replies about the site and the sample. Mark each place where Abductive described the cases in a framework's categories so that a case which fits none of them went unremarked. Name that case and what it would need.",
+      "Consider Abductive's replies about the site and the sample. Mark each place where Abductive described the cases in a framework's categories so that a case which fits none of them went unremarked. Name that case and what it would need.",
     flag: "Abductive fitted the cases to categories",
   },
 
@@ -385,7 +385,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "ontology", condition: "orphan-construct" },
     personas: [EISENHARDT],
     prompt:
-      "Part of the corpus is still uncited by any page of the ontology. Distinguish two cases: material that is irrelevant to the emerging account, and material the account cannot absorb. The second is where discovery lives. Ask the researcher to look at the uncited passages and say which they are. If any resist the current framing, propose it as an analytic residue instead of letting it stay unread.",
+      "Part of the corpus is still uncited by any page of the ontology. Distinguish two cases: material that is irrelevant to the emerging account, and material the account cannot absorb. The second is where discovery lives. Ask the researcher to look at the uncited passages and say which they are. If any resist the current framing, propose it as an analytic residue instead of letting it stay unopened.",
     flag: "Corpus uncited by the ontology",
   },
   {
@@ -445,7 +445,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "ontology", condition: "no-expectation" },
     personas: [ZUCKERMAN],
     prompt:
-      "Check whether an explanation here is a mechanism or a familiarity. Researchers read social situations with intuition honed by ordinary experience, and where that intuition works, it feels like understanding, but feeling a tension is not the same as having a theory of that tension. This is precisely why practical tensions stay under-theorised: everyone has felt them, so nobody explains them. Ask the researcher to state the mechanism as a sequence: what produces what, under what conditions. If all they can produce is an example, say that an example is not a mechanism.",
+      "Check whether an explanation here is a mechanism or a familiarity. Researchers interpret social situations with intuition honed by ordinary experience, and where that intuition works, it feels like understanding, but feeling a tension is not the same as having a theory of that tension. This is precisely why practical tensions stay under-theorised: everyone has felt them, so nobody explains them. Ask the researcher to state the mechanism as a sequence: what produces what, under what conditions. If all they can produce is an example, say that an example is not a mechanism.",
     flag: "Familiarity standing in for mechanism",
   },
 
@@ -464,7 +464,7 @@ export const MATRIX: readonly MatrixCell[] = [
     trigger: { kind: "signal", signal: "confident-answer-streak" },
     personas: [TAVORY],
     prompt:
-      "The researcher has answered several questions in a row without a single hedge. Do not congratulate them on it. Pick the most confident of those answers and ask them to state it as a mechanism: what produces what, under what conditions, in what order. Intuition honed by ordinary social experience reads situations fluently and feels like understanding, which is exactly why it passes unexamined. If what comes back is an illustration rather than a sequence, say that an example is not a mechanism.",
+      "The researcher has answered several questions in a row without a single hedge. Do not congratulate them on it. Pick the most confident of those answers and ask them to state it as a mechanism: what produces what, under what conditions, in what order. Intuition honed by ordinary social experience interprets situations fluently and feels like understanding, which is exactly why it passes unexamined. If what comes back is an illustration rather than a sequence, say that an example is not a mechanism.",
     flag: "Uniform fluency across recent answers",
   },
   {

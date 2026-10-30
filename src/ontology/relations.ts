@@ -145,7 +145,7 @@ function observationsFor(graph: OntologyGraph, puzzleId: string): readonly strin
  */
 function unattachedDetail(graph: OntologyGraph, attached: number): string {
   if (attached === 1) {
-    return "You have attached one observation to this puzzle, and one instance reads as an unusual case";
+    return "You have attached one observation to this puzzle, and one instance counts as an unusual case";
   }
   const held = pagesOfType(graph, "observation").length;
   if (held === 0) {
@@ -397,7 +397,7 @@ const SPECS: Readonly<Record<PuzzleRelation, ObligationSpec>> = {
             ? held === 0
               ? "you have not shown anyone running aground on that expectation"
               : `you attached your ${countOf(held, "observation")} to other claims, not to this puzzle`
-            : "you have shown one person running aground on that expectation, which reads as a single case",
+            : "you have shown one person running aground on that expectation, which counts as a single case",
         );
       }
 

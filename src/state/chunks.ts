@@ -161,7 +161,7 @@ export const DOCUMENT_ADVISORY_COUNT = 20;
 export function documentCountNote(documentCount: number): string | null {
   if (documentCount < DOCUMENT_ADVISORY_COUNT) return null;
   return (
-    `${documentCount} documents loaded. Past about ${DOCUMENT_ADVISORY_COUNT} a reading pass ` +
+    `${documentCount} documents loaded. Past about ${DOCUMENT_ADVISORY_COUNT} a pass over your data ` +
     `takes noticeably longer, because Abductive hands all of your data to the model in one go. ` +
     `Abductive still cites, exports and searches everything here as normal.`
   );
@@ -314,7 +314,7 @@ export async function ingestFile(params: {
   } else {
     throw new UnsupportedFileError(
       file.name,
-      "Abductive reads only .txt, .md and .pdf files",
+      "Abductive opens only .txt, .md and .pdf files",
     );
   }
 

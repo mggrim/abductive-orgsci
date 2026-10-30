@@ -25,7 +25,7 @@ export const DRAFT_MARKER = "## Draft rules";
  * The framing's two-part draft marker was retired with the puzzle field: the
  * framing asks one question now and takes the ordinary draft.
  */
-export const PUZZLE_READING_MARKER = "## Reading rules";
+export const PUZZLE_READING_MARKER = "## Puzzle rules";
 
 /**
  * The mechanical half of the copy standard, for the model (M42).
@@ -51,7 +51,7 @@ export const PUZZLE_READING_MARKER = "## Reading rules";
  */
 export const MODEL_VOICE_RULES = [
   "## How to write (copy standard)",
-  "- Address the researcher as \"you\", and write about their study in the second person. Do not write \"they\", \"the researcher\" or \"their puzzle\": every sentence you write is read by the person it is about.",
+  "- Address the researcher as \"you\", and write about their study in the second person. Do not write \"they\", \"the researcher\" or \"their puzzle\": the person whom every sentence is about sees every sentence that you write.",
   "- Name the thing rather than writing \"it\" or \"this\": say \"your puzzle\", \"your Site answer\", \"the passage from ward-notes.txt\". Name the step, name the paper, name the tab.",
   /* M48. The naming rule above shipped at M42 and the owner still read \"holds it
    * up\", \"pushes against it\" and \"So many uses of the words 'it' 'them'
@@ -68,4 +68,7 @@ export const MODEL_VOICE_RULES = [
   "- Do not write three-item lists for rhythm, or one-word sentences.",
   /* M95c: the owner, 2026-10-30: "don't use the word 'card' to refer to stuff in the tool". */
   '- Do not use the word "card" for anything in Abductive. Name the thing: the concept, the relation, the accepted concept or relation, the Why it matters line, the step or the page.',
+  /* M96: the owner, 2026-10-30: "The tool should not use the verb 'read' or 'reads'." and "It should be called a walkthrough". */
+  '- Do not use the verb "read" in any form. Say "consider", "look at", "go through" or "open": "Abductive considers your data", "the passage that you opened".',
+  '- Do not call anything a "walk". Say "walkthrough".',
 ].join("\n");

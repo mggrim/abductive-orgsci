@@ -53,8 +53,8 @@ function built(): LedgerEvent[] {
   e = [...e, ...acceptConceptEvents(e, { projectId: P, conceptId: "c-uniform" }, clock)];
   e = [...e, ...rejectConceptEvents(e, { projectId: P, conceptId: "c-other", reason: "Not mine." }, clock)];
   e = [...e, ...refineConceptEvents(e, { projectId: P, conceptId: "c-uniform", definition: "Updates that read the same after the board's rule." }, clock)];
-  e = [...e, ...addConceptEvents(e, { projectId: P, name: "Reading dose", definition: "How much a mentor reads." }, clock)];
-  const dose = projectConcepts(e, P, projectOntology(e, P)).accepted.find((c) => c.name === "Reading dose")!;
+  e = [...e, ...addConceptEvents(e, { projectId: P, name: "Time on task", definition: "How much a mentor reads." }, clock)];
+  const dose = projectConcepts(e, P, projectOntology(e, P)).accepted.find((c) => c.name === "Time on task")!;
   e = [...e, ...setPropertyEvents(e, { projectId: P, conceptId: dose.id, name: "Weekly count", varies: "None to all." }, clock)];
   e = [...e, ...setRelationEvents(e, { projectId: P, from: "c-uniform", to: dose.id, relation: "leads-to" }, clock)];
   e = [...e, ...placeStatementEvents(e, { projectId: P, conceptId: dose.id, pageId: "pg-1" }, clock)];
@@ -94,7 +94,7 @@ describe("the Report (ISC-613)", () => {
        name, definition and origin, and leaves the first accepted wording to History. */
     expect(memo).not.toContain("First accepted as Uniform pages");
     expect(memo).toContain("- Weekly count: None to all.");
-    expect(memo).toContain("Uniform pages leads to Reading dose");
+    expect(memo).toContain("Uniform pages leads to Time on task");
     expect(memo).toContain("- Your replies: Same phrase across three ventures"); // M75: the statement carries its label (ruling B)
   });
   test("carries the field list, and a readiness report already on the record no longer reaches it", () => {
@@ -112,7 +112,7 @@ describe("the figure (ISC-613)", () => {
     const svg = conceptMapSvg(events, P, projectOntology(events, P), { title: "Pitchwright test", stamp: "abc123" })!;
     expect(svg).toContain("<svg");
     expect(svg).toContain("Uniform pages");
-    expect(svg).toContain("Reading dose");
+    expect(svg).toContain("Time on task");
     expect(svg).toContain("leads to");
     expect(conceptMapSvg([], P, projectOntology([], P), { title: "x", stamp: "y" })).toBeNull();
   });

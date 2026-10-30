@@ -44,6 +44,8 @@ import { Glob } from "bun";
 import {
   agentlessPassives,
   CARD_WORD,
+  READ_WORD,
+  WALK_NOUN,
   HOLD_VERB,
   IRREGULAR_PARTICIPLES,
   MOVE_NOUN,
@@ -65,6 +67,8 @@ import {
 export {
   agentlessPassives,
   CARD_WORD,
+  READ_WORD,
+  WALK_NOUN,
   HOLD_VERB,
   IRREGULAR_PARTICIPLES,
   MOVE_NOUN,
@@ -938,7 +942,7 @@ export const RETIRED_ALLOW: readonly { readonly run: string; readonly why: strin
   { run: "Judge one thing only: does the design depend on access", why: "coherence check prompt, sent to the model" },
   { run: "Judge one thing only: if this study compares cases", why: "coherence check prompt, sent to the model" },
   { run: "Judge one thing only: is this design set up to build an account", why: "coherence check prompt, sent to the model" },
-  { run: "The puzzle, as the tool reads it from their answers", why: "puzzlePromptLines, sent to the model" },
+  { run: "The puzzle, as the tool suggests it from their answers", why: "puzzlePromptLines, sent to the model" },
   { run: "The setting for the whole study: what the researcher is looking at", why: "the framing's purpose, sent to the model" },
   {
     run: "Abductive helps you design a qualitative project before you collect the data. The tool asks",
@@ -946,7 +950,7 @@ export const RETIRED_ALLOW: readonly { readonly run: string; readonly why: strin
   },
   /* M74b: framing in the method's sense, a frame of theory a researcher holds, is
    * a different word from the retired place name. */
-  { run: "Reading the field for your existing expectation", why: "the bias glossary, framing as a frame of theory" },
+  { run: "Searching the field for your existing expectation", why: "the bias glossary, framing as a frame of theory" },
   { run: "You can't name an observation that would make you abandon the framing", why: "the bias glossary, framing as a frame of theory" },
   { run: "Modal framing", why: "a bias's name in the glossary, framing as a frame of theory" },
   { run: "framing changed", why: "a withdrawal reason kept in History's events; FindingRow maps it to a sentence" },
@@ -1590,4 +1594,69 @@ export function noAmountOffenders(): string[] {
     }
   }
   return [...new Set(found)].sort();
+}
+
+/* ---------------------------------------------------------------------------
+ * L23 and L24 (the owner, 2026-10-30, M96): "The tool should not use the verb
+ * 'read' or 'reads'. Instead it should use terms like 'considers'", and "it
+ * shouldn't be called a walk. It should be called a walkthrough". Read over the
+ * L21 population: every rendered run in scope, the M64 extras (the README and
+ * the exports) and the rest of `src`, which is where the prompts live, with
+ * developer errors and the eval harness left out. Class names are styling.
+ * ------------------------------------------------------------------------- */
+
+export const READ_ALLOW: readonly { readonly phrase: string; readonly why: string }[] = [
+  { phrase: 'the verb "read"', why: "the L23 rule as the model gets it (inference/promptMarkers.ts, copy/rules.ts) names the banned word" },
+  { phrase: "wrote writes reads", why: "the L18 detector's list of verbs (src/copy/rules.ts), not copy" },
+];
+
+/**
+ * A run that is code the run reader picked up between two quotes: a state's
+ * literal ("view"), a type union, a call. The words in it are identifiers.
+ */
+function codeLike(run: string): boolean {
+  return /useState[<(]|===|\)\s*:\s*\(|\.test\(|"\s*\|\s*"|^\W*\w+\s*[:(]\s*$|\w\($/.test(run);
+}
+
+export const WALK_ALLOW: readonly { readonly phrase: string; readonly why: string }[] = [
+  { phrase: 'a "walk"', why: "the L24 rule as the model gets it names the banned word" },
+];
+
+function l21Runs(): readonly { path: string; run: string }[] {
+  const runs: { path: string; run: string }[] = [];
+  for (const { path, text } of FILES) {
+    const jsx = path.endsWith(".tsx") ? [...jsxAdjacentRuns(text), ...shortLabelRuns(text)] : [];
+    for (const run of [...proseRuns(text), ...jsx]) runs.push({ path, run });
+  }
+  for (const { path, runs: r } of M64_EXTRA) for (const run of r) runs.push({ path, run });
+  for (const { path, runs: r } of L20_EXTRA_CLEAN) {
+    if (path.startsWith("eval/")) continue;
+    for (const run of r) runs.push({ path, run });
+  }
+  return runs;
+}
+
+function wordOffenders(word: RegExp, allow: readonly { readonly phrase: string }[]): string[] {
+  const found: string[] = [];
+  for (const { path, run } of l21Runs()) {
+    if (CLASS_NAMES.has(run.trim()) || codeLike(run)) continue;
+    const flat = run.replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+    if (codeLike(flat)) continue;
+    for (const sentence of sentencesOf(flat)) {
+      if (!word.test(sentence)) continue;
+      if (allow.some((a) => sentence.includes(a.phrase))) continue;
+      found.push(`${path}: "${sentence.slice(0, 160)}"`);
+    }
+  }
+  return [...new Set(found)].sort();
+}
+
+/** Every rendered sentence and prompt sentence that uses the verb read in any form, outside `READ_ALLOW` (L23). */
+export function readOffenders(): string[] {
+  return wordOffenders(READ_WORD, READ_ALLOW);
+}
+
+/** Every rendered sentence and prompt sentence that calls something a walk, outside `WALK_ALLOW` (L24). */
+export function walkOffenders(): string[] {
+  return wordOffenders(WALK_NOUN, WALK_ALLOW);
 }

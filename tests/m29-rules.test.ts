@@ -495,7 +495,7 @@ describe("Early data reads thin when the material is loaded and unopened", () =>
 
   test("no material at all is empty, not thin", () => {
     expect(question(0, 0)).toContain(
-      "What is the first piece of material you will read, and what do you expect it to say?",
+      "What is the first piece of material you will open, and what do you expect it to say?",
     );
   });
 
@@ -931,7 +931,7 @@ describe("the study block one helper builds, and one caller reads", () => {
      * the sentence is the researcher's own commitment weighs it as evidence about
      * their thinking when it is evidence about the tool's. */
     expect(rendered).toContain(
-      "The puzzle, as the tool reads it from their answers: not yet read.",
+      "The puzzle, as the tool suggests it from their answers: not yet suggested.",
     );
     expect(rendered).not.toContain("as they state it");
   });
@@ -1403,7 +1403,7 @@ describe("Your ontology stops contradicting itself", () => {
     const src = await Bun.file(`${SRC}ui/pageHelp.ts`).text();
     // ProseCodex batch 2: the string moved; the criterion did not.
     // M63, ISC-614: the help names both occasions a concept is suggested.
-    expect(src).toContain("Abductive suggests concepts after you save a summary at a step or read your data, and you accept, refine or reject each one.");
+    expect(src).toContain("Abductive suggests concepts after you save a summary at a step or press Suggest concepts on Sources, and you accept, refine or reject each one.");
   });
 
   // M63, the lead's rulings of 2026-09-30: the old model tab's PagePanel, workbench/PagePanel.tsx left with it; superseded: "the claims table renders the mark, never its own column name"
@@ -1495,7 +1495,7 @@ describe("a why is asked once, and the fit verdict reaches the reader as a sente
     const src = await Bun.file(`${SRC}workbench/ProposalsTrayView.tsx`).text();
     const code = src.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
     expect(code).not.toContain('<Disclosure summary="Learn more"');
-    expect(code).toContain("Read each suggestion, edit anything that you wouldn't defend, then decide.");
+    expect(code).toContain("Review the suggestions one at a time, edit any part that you wouldn't defend, then decide on each suggestion.");
     const help = await Bun.file(`${SRC}ui/pageHelp.ts`).text();
     expect(help).toContain("Edit the suggestions first.");
   });

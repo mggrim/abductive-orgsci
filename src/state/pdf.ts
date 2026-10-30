@@ -58,7 +58,7 @@ export async function extractPdfText(file: File): Promise<string> {
     if (err instanceof PdfExtractionError) throw err;
     throw new PdfExtractionError(
       file.name,
-      "Abductive could not read the file as a PDF, so convert it to .txt/.md and re-upload",
+      "Abductive could not open the file as a PDF, so convert it to .txt/.md and re-upload",
     );
   }
 }

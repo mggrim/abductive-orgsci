@@ -144,7 +144,7 @@ describe("ISC-587 rulings (lead, 2026-09-30)", () => {
   test("the Puzzle step's lead names Abductive, and the paper note points at Design", async () => {
     const { PUZZLE_OFFER_LEAD } = await import("../src/flow/PuzzleOffer.tsx");
     const { NOT_JUDGED_NOTE } = await import("../src/flow/PaperExpectations.tsx");
-    expect(PUZZLE_OFFER_LEAD).toBe("Abductive read this puzzle from your saved answers.");
+    expect(PUZZLE_OFFER_LEAD).toBe("Abductive suggested this puzzle from your saved answers.");
     expect(NOT_JUDGED_NOTE).toBe("Answer the Context or Puzzle step on Design so Abductive can judge this paper.");
   });
 });

@@ -134,7 +134,7 @@ export const STATIONS: readonly Station[] = [
     /* M92, ISC-742 (Matthew, 2026-10-15): every question faces forward. */
     prompt: "What setting do you plan to study, and what draws you to that setting?",
     feeds:
-      "Your answer here shapes every question that Abductive asks you next. Abductive also writes an ordinary, by-the-book version of your project from your answer, which you can read whenever you like.",
+      "Your answer here shapes every question that Abductive asks you next. Abductive also writes an ordinary, by-the-book version of your project from your answer, which you can open whenever you like.",
     stage: "design-brief",
     rows: 5,
     ring: "outer",
@@ -206,7 +206,7 @@ export const STATIONS: readonly Station[] = [
       "The surprise in your setting: what you see, or expect to see, that current accounts can't explain.",
     prompt: "What do you see, or expect to see, in your setting that current accounts can't explain?",
     feeds:
-      "Your answer becomes the puzzle that the rest of your design answers to. Abductive keeps its own reading beside your answer, so you can see the places where the two differ.",
+      "Your answer becomes the puzzle that the rest of your design answers to. Abductive keeps its own suggested puzzle beside your answer, so you can see the places where the two differ.",
     stage: "anomaly",
     rows: 4,
     ring: "inner",
@@ -249,7 +249,7 @@ export const STATIONS: readonly Station[] = [
      * methods term (an exception to L15 in docs/copy-standard.md). */
     blurb: "The comparisons that you want to explore, the variation that your sample needs in order to examine them, and the conditions that you want to hold constant across the sample.",
     prompt: "What comparisons are you looking to explore? How would your sample need to vary in order to adequately examine those comparisons? And what would you ideally want to hold constant across the sample?",
-    feeds: "Abductive reads your comparisons, the variation and the constants in this answer against your process, your outcome, and whatever you said this site would be bad at showing you.",
+    feeds: "Abductive considers your comparisons, the variation and the constants in this answer against your process, your outcome, and whatever you said this site would be bad at showing you.",
     stage: "site-sample",
     rows: 4,
     ring: "external",

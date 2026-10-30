@@ -67,7 +67,7 @@ export const NONE_LINE = "NONE:";
 export function puzzlePrompt(blocks: readonly PuzzleBlock[]): string {
   const lines: string[] = [
     "# Role",
-    "You are reading the researcher's puzzle out of what they have already saved in this study. You are not asking them anything, not writing their answer, and not improving on it. What you produce is your reading, and Abductive shows it to them as yours.",
+    "You are drawing the researcher's puzzle out of what they have already saved in this study. You are not asking them anything, not writing their answer, and not improving on it. What you produce is your suggested puzzle, and Abductive shows it to them as yours.",
     "",
     "A puzzle is two things: something that they expected, and something that they found which did not fit it. A puzzle needs both halves.",
     "",
@@ -80,7 +80,7 @@ export function puzzlePrompt(blocks: readonly PuzzleBlock[]): string {
      * on a line shown under "The puzzle, as the tool reads it" to the person it
      * was about, and started in lower case after the band's "No puzzle yet.". */
     "- Abductive shows both lines to the researcher, so write them to the researcher: \"you\" and \"your\". Do not write \"they\" or \"the researcher\". Start each line with a capital letter.",
-    "- Use only the items listed below. Add only facts that they gave, do not read meaning into their words, and do not praise them.",
+    "- Use only the items listed below. Add only facts that they gave, do not add meaning to their words, and do not praise them.",
     "- Do not fill either half. If one half is missing, the answer is the NONE line, not a puzzle with a sentence that you supplied.",
     "- Early data outranks the other answers as the half that they found: that step is where they record what their material showed them that they did not expect.",
     "- The starting interest is the weakest evidence of an expectation. It is what they came in curious about, not something that they predicted, and curiosity on its own is not an expectation.",
@@ -123,7 +123,7 @@ export function puzzlePrompt(blocks: readonly PuzzleBlock[]): string {
 
 /** The user turn, so the reply is the marked line and not a conversation. */
 export const PUZZLE_READING_INSTRUCTION =
-  "Read it now. Return only the marked line.";
+  "Suggest the puzzle now. Return only the marked line.";
 
 /** What came back: a puzzle, or the reason there is none. */
 export type PuzzleReadingResult = { readonly puzzle: string } | { readonly none: string };

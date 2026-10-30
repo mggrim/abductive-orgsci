@@ -180,7 +180,7 @@ describe("M93: whose words a suggestion is, worked out from the turns (ISC-757)"
     expect(rows[0]!.happened).toBe('Abductive left out a suggestion, "Ghost", because it named turns that aren\'t in the chat at Context.');
     // The generator receives studyContext and both sides of the chat, labelled by speaker.
     const asked = client.requests[0]!.messages[0]!.content as string;
-    expect(asked).toContain("# The study you are reading for");
+    expect(asked).toContain("# The study you are working for");
     expect(asked).toContain("T1. (Abductive)");
     expect(asked).toContain("T2. (The researcher)");
     expect(client.requests[0]!.system).toContain("TURNS:");
@@ -194,7 +194,7 @@ describe("M93: a chat source on the record (ISC-756, ISC-757)", () => {
     expect(validateEvent(ok)).toEqual([]);
     expect(validateEvent({ ...ok, source: { kind: "chat", turnIds: ["t1"] } }).join(" ")).toContain("station");
     expect(validateEvent({ ...ok, source: { kind: "chat", station: "context", turnIds: [] } }).join(" ")).toContain("at least one turn");
-    expect(validateEvent({ ...ok, drawnFrom: ["t9"] }).join(" ")).toContain("did not read");
+    expect(validateEvent({ ...ok, drawnFrom: ["t9"] }).join(" ")).toContain("did not consider");
     expect(validateEvent({ ...ok, drawnFrom: undefined }).join(" ")).toContain("drawnFrom");
     expect(validateEvent({ ...base, source: { kind: "summary", station: "context" }, drawnFrom: ["t1"] }).join(" ")).toContain("only on a suggestion from the chat");
     const press = { ...env("human"), type: "surfacing", station: "context", turnIds: ["t1"], summaryIds: [] };

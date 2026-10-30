@@ -44,10 +44,10 @@ describe("the model is told both, each named", () => {
     const b = brief({ puzzleAnswer: ANSWER, researchQuestion: READING });
     const lines = describeDesign(designDigest(b)).join("\n");
     expect(lines).toContain(`The puzzle, in their own words at the Puzzle step: ${ANSWER}`);
-    expect(lines).toContain(`The puzzle, as the tool read it from their answers today: ${READING}`);
+    expect(lines).toContain(`The puzzle, as the tool suggested it from their answers today: ${READING}`);
     const context = renderStudyContext(studyContext(b));
     expect(context).toContain(`The puzzle, in their own words at the Puzzle step: ${ANSWER}`);
-    expect(context).toContain(`The puzzle, as the tool reads it from their answers: ${READING}`);
+    expect(context).toContain(`The puzzle, as the tool suggests it from their answers: ${READING}`);
   });
 });
 
@@ -107,7 +107,7 @@ describe("an answer drafted from the reading says so", () => {
     expect(view?.route).toBe("reading");
     expect(view?.routeLine).toBe("You started this answer from the suggested puzzle, and you saved it.");
     expect(view === null ? null : noTurnsLine(view)).toBe(
-      "Abductive read that puzzle from your saved answers, outside a conversation.",
+      "Abductive suggested that puzzle from your saved answers, outside a conversation.",
     );
   });
 });

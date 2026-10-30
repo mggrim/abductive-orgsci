@@ -45,7 +45,7 @@
  * file is. A default kind is a guess the tool has no standing to make.
  */
 
-import { ReadDataControl } from "./EarlyDataControls.tsx";
+import { SuggestFromDataControl } from "./SuggestFromData.tsx";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useHumanAttention } from "../attention/useHumanAttention.ts";
 import type { LedgerEvent } from "../ledger/events.ts";
@@ -305,7 +305,7 @@ export function CorpusMaterial(props: {
         e.target.value = "";
         return;
       }
-      setBusy("Reading files…");
+      setBusy("Adding files…");
       setError(null);
       const chosen = Array.from(files);
       try {
@@ -402,9 +402,9 @@ export function CorpusMaterial(props: {
       </div>
       {/* M62, ISC-600: The data lede moved into the page's Help control (ui/pageHelp.ts). */}
 
-      {/* M74b, ISC-665: the read that Early data offers, here where the data is,
-          so "I have early data" lands beside a control that reads it. */}
-      <ReadDataControl projectId={projectId} chunks={chunks} onChanged={onAdded} />
+      {/* M74b, ISC-665; M96, ISC-792: the one control that suggests concepts
+          from the data, here where the data is. */}
+      <SuggestFromDataControl projectId={projectId} chunks={chunks} onChanged={onAdded} />
 
       <div className="material-add" data-testid="material-add">
         {/* One Field, two controls. Two Fields side by side staggered their

@@ -77,7 +77,7 @@ describe("ISC-712: the gate for Sources goes", () => {
   test("the greyed sentence for Sources is gone from the code", () => {
     const code = readFileSync(`${SRC}views/earnedTabs.ts`, "utf8");
     expect(code).not.toContain("Sources opens once");
-    expect(readFileSync(`${SRC}flow/EarlyDataControls.tsx`, "utf8")).not.toContain("TAB_UNLOCK.material");
+    expect(readFileSync(`${SRC}flow/SuggestFromData.tsx`, "utf8")).not.toContain("TAB_UNLOCK.material");
   });
 
   test("a paper added before a setting exists waits with the existing note, and Help says so", async () => {

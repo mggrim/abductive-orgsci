@@ -72,7 +72,7 @@ const PROBES: Readonly<Record<StationId, ProbeSet>> = {
     ],
     thin: [
       "Whom could you ask about what draws you to this setting, and what do you expect them to make of it?",
-      "You may be seeing the setting or only your reading of it. Asking someone else is how you'll tell.",
+      "You may be seeing the setting or only your account of it. Asking someone else is how you'll tell.",
     ],
     stated: [
       [
@@ -80,7 +80,7 @@ const PROBES: Readonly<Record<StationId, ProbeSet>> = {
         "Your own observations and the accounts that people give you carry different weight, so plan for both.",
       ],
       [
-        "If someone in this setting read your context back, what would they say you had misunderstood?",
+        "If someone in this setting heard your context back, what would they say you had misunderstood?",
         "You can test your context against the people in the setting now, for far less than a later test costs.",
       ],
     ],
@@ -97,7 +97,7 @@ const PROBES: Readonly<Record<StationId, ProbeSet>> = {
     stated: [
       [
         "If you are comparing, on what single dimension do you want the sites to differ, and what do you keep constant?",
-        "Pick cases that differ on everything and you can't read the contrast that you find.",
+        "Pick cases that differ on everything and you can't interpret the contrast that you find.",
       ],
       [
         "What would you have to see at this site to conclude the site was the wrong choice?",
@@ -231,7 +231,7 @@ const PROBES: Readonly<Record<StationId, ProbeSet>> = {
     stated: [
       [
         "What will the cases or people in your sample share by design, and why those things?",
-        "The constants let you read a difference in the outcome against the variation that you chose.",
+        "The constants let you set a difference in the outcome against the variation that you chose.",
       ],
       [
         "What would a case that broke one of those constants do to your comparison?",
@@ -253,21 +253,21 @@ const PROBES: Readonly<Record<StationId, ProbeSet>> = {
   },
   "early-data": {
     empty: [
-      "What is the first piece of material you will read, and what do you expect it to say?",
-      "Write the expectation down first, or the reading can't surprise you.",
+      "What is the first piece of material you will open, and what do you expect it to say?",
+      "Write the expectation down first, or the material can't surprise you.",
     ],
     thin: [
       "Which part of this material haven't you opened yet, and what will you look for when you open it?",
-      "Only the data that you read can disconfirm a claim.",
+      "Only the data that you go through can disconfirm a claim.",
     ],
     stated: [
       [
         "Which passage fits your ontology worst, and what will you look for next because of that passage?",
-        "You usually read the worst-fitting passage last, and it's worth the most.",
+        "You usually open the worst-fitting passage last, and it's worth the most.",
       ],
       [
         "What in this material has changed your mind, and what does that change make you want to explore next?",
-        "If every passage in the data confirmed your view, you haven't read it closely yet.",
+        "If every passage in the data confirmed your view, you haven't gone through it closely yet.",
       ],
     ],
   },

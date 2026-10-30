@@ -294,30 +294,17 @@
   gap: var(--space-sm);
   flex: 0 0 auto;
 }
-/* The chord chip (R12). The keyboard model has existed since FND-02 and
- * nothing on any screen said so, which is the cheapest "this is an
- * application" signal there is. It prints the binding through the same `Caps`
- * component the sheet and the palette print it with, so no key name is written
- * down twice, and pressing it dispatches the keystroke the layer is already
- * listening for. */
-.studybar-kbd {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
+/* Search (M53, ISC-545), a plain button since the shortcuts went (M96, ISC-794). */
+.studybar-search {
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-control);
   border: 1px solid var(--line);
   background: var(--surface);
-  color: var(--ink-faint);
-  font-size: var(--text-micro);
+  color: var(--ink-muted);
+  font-size: var(--text-small);
   line-height: var(--leading-tight);
 }
-.studybar-kbd-word {
-  /* M53, ISC-545. The one word on the chip, so it says what the keys beside it do. */
-  font-size: var(--text-small);
-  color: var(--ink-muted);
-}
-.studybar-kbd:hover {
+.studybar-search:hover {
   background: var(--surface-hover);
   border-color: var(--line-strong);
   color: var(--ink);

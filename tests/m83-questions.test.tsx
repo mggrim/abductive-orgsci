@@ -84,7 +84,7 @@ describe("ISC-697: the nine are questions", () => {
       "Does your data live up to the expectations of the journal that you're aiming at?",
       // M84, ISC-702: the co-author's affirmative form of 2026-10-07.
       "Are you moving beyond your informants' statements when you explain the puzzle?",
-      "Are you reading your data with an open mind, or through the ideas that you already have?",
+      "Are you approaching your data with an open mind, or through the ideas that you already have?",
       "Do you know where each of your ideas came from?",
     ]);
     for (const o of OBSTACLES) expect({ id: o.id, asks: o.title.endsWith("?") }).toEqual({ id: o.id, asks: true });

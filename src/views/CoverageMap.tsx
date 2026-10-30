@@ -33,9 +33,9 @@ import { PASSAGE_WORD, passageAt, passageCount } from "../ui/materialVocabulary.
  * layer ids are unchanged: they are what the record stores.
  */
 const LAYERS: readonly { id: AttentionLayer; label: string; note: string }[] = [
-  { id: "retrieval", label: "Abductive read the passage", note: "the passage went into the model's context" },
+  { id: "retrieval", label: "Abductive considered the passage", note: "the passage went into the model's context" },
   { id: "citation", label: "A check quoted the passage", note: "the passage appears in a bias check's flag" },
-  { id: "human", label: "You read the passage", note: "you opened the passage or stayed on it" },
+  { id: "human", label: "You opened the passage", note: "you opened the passage or stayed on it" },
 ];
 
 export function CoverageMap(props: {
@@ -67,7 +67,7 @@ export function CoverageMap(props: {
       <h2>Coverage of sources</h2>
       <p className="small muted">
         {passageCount(summary.totalChunks)} of your sources, {summary.unattendedChunks} of them
-        still unread. Untick a layer to compare where the other two went.
+        still unopened. Untick a layer to compare where the other two went.
       </p>
 
       <div className="covlegend">
@@ -96,7 +96,7 @@ export function CoverageMap(props: {
             The mark is the same cell the grid draws. */}
         <span className="covkey">
           <span className="covcell unattended" aria-hidden="true" />
-          Passage still unread
+          Passage still unopened
         </span>
       </div>
 
@@ -107,7 +107,7 @@ export function CoverageMap(props: {
           status="You haven't added any sources to this project yet."
           // M28 r6: copy. 33 words, and "the corpus" where the product says
           // "your material".
-          teach={`One square per ${PASSAGE_WORD} of your sources, darkening as each layer reaches it. The squares that stay pale are the parts still unread.`}
+          teach={`One square per ${PASSAGE_WORD} of your sources, darkening as each layer reaches it. The squares that stay pale are the parts that you haven't opened yet.`}
           testId="coverage-empty"
         />
       )}
@@ -128,9 +128,9 @@ export function CoverageMap(props: {
                      human (proxy): no". The ids are what the record stores and
                      the legend above says what each layer means, so the tooltip
                      says the same three things in the same words. */
-                  `Abductive read the passage: ${chunk.layers.retrieval ? "yes" : "no"} · ` +
+                  `Abductive considered the passage: ${chunk.layers.retrieval ? "yes" : "no"} · ` +
                   `A check quoted the passage: ${chunk.layers.citation ? "yes" : "no"} · ` +
-                  `You read the passage: ${chunk.layers.human ? "yes" : "no"}\n` +
+                  `You opened the passage: ${chunk.layers.human ? "yes" : "no"}\n` +
                   chunk.preview
                 }
               >

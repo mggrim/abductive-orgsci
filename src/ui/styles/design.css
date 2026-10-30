@@ -828,6 +828,15 @@
 }
 /* M89: `.station-findings` and `.station-findingsregion`, the step's flag panel
  * and its grid cell, went with the checks. */
+/* M96, ISC-790: the line at the top of Early data that names the files its
+ * conversation considers, with the link to Sources. */
+.early-data-scope {
+  margin: 0 0 var(--space-sm);
+  max-width: var(--measure-wide);
+}
+.early-data-scope > p {
+  margin: 0;
+}
 .early-data {
   margin: var(--space-sm) 0 var(--space-lg);
 }

@@ -310,10 +310,10 @@ describe("the Your model page puts the decision first (D6)", () => {
       // M29b: copy. Claims come out of the papers too, so the lede names both
       // ways in rather than the one it was written for.
       // M63, ISC-614: when to come, in the owner's terms.
-      "Abductive suggests concepts after you save a summary at a step or read your data, and you accept, refine or reject each one.",
+      "Abductive suggests concepts after you save a summary at a step or press Suggest concepts on Sources, and you accept, refine or reject each one.",
     );
     // M70, ISC-648: the section empty state now says how concepts arrive, since "a suggestion above" has no section above it.
-    expect(ONTOLOGY).toContain("Save a summary at a step on Design, or read your data, and Abductive suggests concepts from your words.");
+    expect(ONTOLOGY).toContain("Save a summary at a step on Design, or press Suggest concepts on Sources, and Abductive suggests concepts from your words.");
     // ProseCodex batch 2: the string moved; the criterion did not.
     // M63, ISC-614.
     expect(HELP).toContain("Each concept and each statement carries its authorship mark");
@@ -361,7 +361,7 @@ describe("the introduction leads with what goes wrong, not with how it runs (D8)
     "Does your data live up to the expectations of the journal that you're aiming at?",
     // M84, ISC-702.
     "Are you moving beyond your informants' statements when you explain the puzzle?",
-    "Are you reading your data with an open mind, or through the ideas that you already have?",
+    "Are you approaching your data with an open mind, or through the ideas that you already have?",
     "Do you know where each of your ideas came from?",
   ];
 

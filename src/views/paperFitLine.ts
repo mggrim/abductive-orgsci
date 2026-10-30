@@ -21,7 +21,7 @@ export function paperFitSummary(counts: {
   readonly misfit: number;
 }): string {
   const read = counts.fits + counts.unclear + counts.misfit;
-  return read === 0 ? "" : `${read} paper${read === 1 ? "" : "s"} read`;
+  return read === 0 ? "" : `${read} paper${read === 1 ? "" : "s"} considered`;
 }
 
 /**

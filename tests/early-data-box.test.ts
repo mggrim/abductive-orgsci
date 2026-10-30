@@ -84,8 +84,8 @@ describe("the Early data step, rendered", () => {
     const label = host.querySelector('label[for="station-input"]');
     expect(box).not.toBeNull();
     expect(label?.textContent).toBe(stationById("early-data").prompt);
-    // And the step keeps the two controls it already had.
-    expect(host.querySelector('[data-testid="station-datatype"]')).not.toBeNull();
+    // M96, ISC-792: the Data type menu left the step.
+    expect(host.querySelector('[data-testid="station-datatype"]')).toBeNull();
 
     // Type, then save.
     await act(async () => {
@@ -181,116 +181,64 @@ describe("the kind of material has no default (D22)", () => {
     expect(projects.emptyBrief().dataType).toBe("");
   });
 
-  test("the select opens on a placeholder that asks", async () => {
-    const { host, root } = await renderStep("early-data-kind-empty");
-    const select = host.querySelector('[data-testid="station-datatype"]') as HTMLSelectElement;
-    expect(select.value).toBe("");
-    const options = [...select.querySelectorAll("option")].map((o) => ({
-      value: o.getAttribute("value"),
-      text: o.textContent,
-    }));
-    expect(options[0]).toEqual({ value: "", text: "Choose type" });
-    /* M74b, ISC-665: the kinds are the file types Sources offers, one list; the
-     * placeholder is an option and not a kind. */
-    expect(options.slice(1).map((o) => o.value)).toEqual(["transcript", "fieldnote", "chatnote", "archival", "memo"]);
-    root.unmount();
-  });
-
-  test("the read control is inert until a kind is chosen, and says why", async () => {
-    const chunks = [
-      { id: "c1", projectId: "early-data-kind-inert", documentId: "d1", kind: "fieldnote", text: "a passage", index: 0 },
-    ];
-    const { host, root } = await renderStep("early-data-kind-inert", {}, chunks, [
-      fieldnote("early-data-kind-inert"),
-    ]);
-    const button = host.querySelector('[data-testid="stage-proposals"]');
-    expect(button?.getAttribute("aria-disabled")).toBe("true");
-    expect(host.textContent ?? "").toContain(
-      "Choose a data type first.",
+  /* M96, ISC-791 and ISC-792 (the owner, 2026-10-30): "there should be no data
+   * type or suggest concepts button at the bottom of the early data screen." The
+   * step names the files that its conversation considers, and the kind of data
+   * comes from the files on Sources. */
+  test("the step carries no Data type menu and no Suggest concepts, and names the files it considers", async () => {
+    const id = "early-data-m96-scope";
+    const chunks = [{ id: "c1", projectId: id, documentId: `doc-${id}`, kind: "fieldnote", text: "a passage", index: 0 }];
+    const { host, root } = await renderStep(id, {}, chunks, [fieldnote(id)]);
+    expect(host.querySelector('[data-testid="station-datatype"]')).toBeNull();
+    expect(host.querySelector('[data-testid="stage-proposals"]')).toBeNull();
+    expect(host.textContent ?? "").not.toContain("Suggest concepts");
+    expect(host.querySelector('[data-testid="early-data-scope"]')?.textContent ?? "").toContain(
+      "This step considers your one data file on Sources, in full.",
     );
-    /* The kind is not what the reading consumes, so the note says what does read
-     * it. A gate with no reason on screen is worse than the default it replaced. */
-    expect(host.textContent ?? "").toContain("Choose a data type first.");
-    root.unmount();
-  });
-
-  test("a data file that produced no passages reports the data condition, not the kind", async () => {
-    /* Two conditions, one sentence, data first: a study with nothing to read has
-     * nothing to read whatever kind it says it is.
-     *
-     * M49 narrowed which study this is. The step swaps to "I already have some
-     * initial data" when the study holds no data document at all, so the branch
-     * this covers is the one left: a data document that yielded no passages. */
-    const { host, root } = await renderStep("early-data-kind-nodata", {}, [], [
-      fieldnote("early-data-kind-nodata"),
-    ]);
-    expect(host.textContent ?? "").toContain("Add data on the Sources tab first.");
     root.unmount();
   });
 
   test("a study with no data file at all is offered the declaration instead", async () => {
     const { host, root } = await renderStep("early-data-kind-none");
     expect(host.textContent ?? "").toContain("I have early data");
-    expect(host.querySelector('[data-testid="stage-proposals"]')).toBeNull();
+    expect(host.querySelector('[data-testid="early-data-scope"]')).toBeNull();
     root.unmount();
   });
 
-  test("a chosen kind wakes the control", async () => {
-    const chunks = [
-      { id: "c1", projectId: "early-data-kind-live", documentId: "d1", kind: "fieldnote", text: "a passage", index: 0 },
-    ];
-    const { host, root } = await renderStep(
-      "early-data-kind-live",
-      { dataType: "ethnographic" },
-      chunks,
-      [fieldnote("early-data-kind-live")],
-    );
-    const button = host.querySelector('[data-testid="stage-proposals"]');
-    expect(button?.getAttribute("aria-disabled")).toBeNull();
-    expect(host.textContent ?? "").not.toContain("goes live once you say what kind");
-    root.unmount();
-  });
-
-  test("choosing a kind writes it, and choosing nothing writes no bound row", async () => {
+  test("saving the summary writes no data-type row", async () => {
     const id = "early-data-kind-save";
     const { host, root, store } = await renderStep(id);
-    await openSummary(host, "station-summary"); // M92 polish: Save answer sits under the open box
+    await openSummary(host, "station-summary");
     await act(async () => {
       reactProps(host.querySelector('[data-testid="save-station"]') as Element)?.onClick?.(undefined);
       await wait(30);
     });
-    /* Nothing chosen, so nothing is declared: a `bound` row saying the kind is ""
-     * would be the record carrying an answer the researcher never gave. */
     expect(
-      (await store.readAll()).filter(
-        (e: LedgerEvent) => e.type === "bound" && e.subject === "data-type",
-      ),
+      (await store.readAll()).filter((e: LedgerEvent) => e.type === "bound" && e.subject === "data-type"),
     ).toHaveLength(0);
-
-    const select = host.querySelector('[data-testid="station-datatype"]') as HTMLSelectElement;
-    /* A native change event rather than the props helper above: React keeps no
-     * enumerable `__reactProps$` key on a <select> here, and the root's own
-     * listener picks the bubbled event up. */
-    /* M74b, ISC-665: choosing writes the kind at once, with its row, so the
-     * choice is there when the researcher comes back; a later save of the
-     * summary writes no second row for it. */
-    await act(async () => {
-      select.value = "fieldnote";
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-      await wait(30);
-    });
-    await openSummary(host, "station-summary"); // M92 polish
-    await act(async () => {
-      reactProps(host.querySelector('[data-testid="save-station"]') as Element)?.onClick?.(undefined);
-      await wait(30);
-    });
-    const declared = (await store.readAll()).filter(
-      (e: LedgerEvent) => e.type === "bound" && e.subject === "data-type",
-    );
-    expect(declared).toHaveLength(1);
-    expect(declared[0]).toMatchObject({ statement: "ethnographic", actor: "human" });
-    expect((await projects.getProject(id))?.brief.dataType).toBe("ethnographic");
-    expect((await projects.getProject(id))?.brief.dataKind).toBe("fieldnote");
     root.unmount();
+  });
+
+  test("the data type comes from the kinds of the data files, and an older saved type stands without files", async () => {
+    const id = "early-data-kind-files";
+    await projects.saveProject({
+      id,
+      title: "files",
+      stage: "pilot-data",
+      createdAt: 1,
+      brief: { ...projects.emptyBrief(), dataType: "archival", dataKind: "archival" },
+    } as never);
+    expect((await projects.getProject(id))?.brief.dataType).toBe("archival");
+    const doc = (n: number, kind: string) => ({ id: `${id}-${n}`, projectId: id, name: `f${n}.txt`, kind, createdAt: n, chunkCount: 1 });
+    await projects.saveDocument(doc(1, "transcript") as never);
+    await projects.saveDocument(doc(2, "fieldnote") as never);
+    await projects.saveDocument(doc(3, "chatnote") as never);
+    await projects.saveDocument(doc(4, "literature") as never);
+    const p = await projects.getProject(id);
+    expect(p?.brief.dataType).toBe("interview");
+    expect(["transcript", "chatnote"]).toContain(p?.brief.dataKind);
+    expect((await projects.listProjects()).find((x: { id: string }) => x.id === id)?.brief.dataType).toBe("interview");
+    expect(projects.dataTypeOfFiles([{ kind: "fieldnote" }, { kind: "transcript" }])?.dataType).toBe("ethnographic");
+    expect(projects.dataTypeOfFiles([{ kind: "literature" }])).toBeUndefined();
   });
 });

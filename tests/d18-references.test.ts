@@ -207,7 +207,7 @@ describe("D18: the uploaded paper keeps its verdict", () => {
 
     // The number the walk reported, pinned rather than merely compared, so a
     // change to the example that alters it is a decision somebody makes.
-    expect(before.line).toBe("5 papers read");
+    expect(before.line).toBe("5 papers considered");
     expect(after.line).toBe(before.line);
     expect(after.judged).toBe(before.judged);
   });

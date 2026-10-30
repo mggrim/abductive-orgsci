@@ -262,10 +262,10 @@ describe("what a verdict shows", () => {
      1 doesn't", on the tab a researcher opens first. It counts the same three and
      says the one thing they support without pronouncing on the reading list. */
   test("the summary counts every paper the tool has read, and no verdict", () => {
-    expect(paperFitSummary({ fits: 2, unclear: 0, misfit: 1 })).toBe("3 papers read");
-    expect(paperFitSummary({ fits: 1, unclear: 1, misfit: 0 })).toBe("2 papers read");
-    expect(paperFitSummary({ fits: 0, unclear: 0, misfit: 2 })).toBe("2 papers read");
-    expect(paperFitSummary({ fits: 1, unclear: 0, misfit: 0 })).toBe("1 paper read");
+    expect(paperFitSummary({ fits: 2, unclear: 0, misfit: 1 })).toBe("3 papers considered");
+    expect(paperFitSummary({ fits: 1, unclear: 1, misfit: 0 })).toBe("2 papers considered");
+    expect(paperFitSummary({ fits: 0, unclear: 0, misfit: 2 })).toBe("2 papers considered");
+    expect(paperFitSummary({ fits: 1, unclear: 0, misfit: 0 })).toBe("1 paper considered");
     expect(paperFitSummary({ fits: 0, unclear: 0, misfit: 0 })).toBe("");
   });
 
@@ -430,7 +430,7 @@ describe("a verdict about a line that is gone stops counting", () => {
       unclear: 0,
       misfit: [...kept.values()].filter((v) => v.verdict === "misfit").length,
     };
-    expect(paperFitSummary(counts)).toBe("3 papers read");
+    expect(paperFitSummary(counts)).toBe("3 papers considered");
   });
 
   test("an empty live set is not the same as no live set", () => {

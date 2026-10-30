@@ -264,7 +264,7 @@ describe("the walk study's Material page, with a model connected", () => {
      * given; the next one named the bulk control, which stages expectations for
      * every paper and reads none. */
     expect(host.textContent ?? "").toContain(
-      "Abductive hasn't read this paper yet. Abductive reads a paper when the paper arrives, and again when you save your starting point.",
+      "Abductive hasn't considered this paper yet. Abductive considers a paper when the paper arrives, and again when you save your starting point.",
     );
     // Both uploaded papers, by name, so this cannot pass on the typed rows alone.
     for (const doc of DOCS) {
@@ -312,7 +312,7 @@ describe("the walk study's Material page, with a model connected", () => {
     const { host, root } = await mountMaterial(ledgerEvents());
     expect(activeInferenceClient().live).toBe(false);
     expect(host.textContent ?? "").toContain(
-      "Abductive hasn't read this paper yet. Abductive reads a paper when the paper arrives, and again when you save your starting point.",
+      "Abductive hasn't considered this paper yet. Abductive considers a paper when the paper arrives, and again when you save your starting point.",
     );
     root.unmount();
   });

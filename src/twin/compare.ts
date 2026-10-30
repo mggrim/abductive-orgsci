@@ -221,7 +221,7 @@ function summarise(input: {
     return "Accept a claim into your ontology, and you can compare your claims with the ordinary version.";
   }
   if (input.twinCount === 0) {
-    return "The ordinary version came back without claims, so this comparison is empty. Write the ordinary version again before you read anything into this comparison.";
+    return "The ordinary version came back without claims, so this comparison is empty. Write the ordinary version again before you draw anything from this comparison.";
   }
 
   const parts: string[] = [];

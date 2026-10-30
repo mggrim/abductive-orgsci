@@ -77,7 +77,7 @@ describe("the guard reads a name for a bundle", () => {
       "office hour slots",
       "office hour slot time",
       "Office-hours slot",
-      "Reading dose",
+      "Time on task",
       "Room performance",
       "seed funding",
       "Funding rounds",

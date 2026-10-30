@@ -64,7 +64,8 @@ function code(text: string): string {
 const MATERIAL = await Bun.file(`${SRC}flow/CorpusMaterial.tsx`).text();
 const VIEWS = await Bun.file(`${SRC}ui/StudyViews.tsx`).text();
 const LIT = await Bun.file(`${SRC}flow/SeminalCorpus.tsx`).text();
-const EARLY = await Bun.file(`${SRC}flow/EarlyDataControls.tsx`).text();
+/* M96, ISC-792: the control left Early data and lives on Sources only. */
+const EARLY = await Bun.file(`${SRC}flow/SuggestFromData.tsx`).text();
 const PROJECT = "proj-literature";
 
 // ---------------------------------------------------------------------------
@@ -457,7 +458,7 @@ describe("the Material page stacks the papers above the data (D5)", () => {
     // draw the same line between the two kinds of file.
     // R3 item 6.
     expect(LIT).toContain("Identify the papers that you expect to draw on.");
-    expect(LIT).toContain("Abductive reads each paper for its");
+    expect(LIT).toContain("Abductive considers each paper for its");
     // M62, ISC-600: the data lede is in Sources' Help panel; the papers lede
     // stays, since it glosses "expectations" (held for the lead).
     const help = (await Bun.file(new URL("../src/ui/pageHelp.ts", import.meta.url).pathname).text()).replace(/\s+/g, " ");
@@ -542,7 +543,7 @@ describe("the Material page stacks the papers above the data (D5)", () => {
 
 // ---------------------------------------------------------------------------
 
-describe("the early-data station has one control, and it is not an upload (D5)", () => {
+describe("the Suggest concepts control on Sources is not an upload (D5)", () => {
 
   test("the duplicate picker is gone", () => {
     // Two identical pickers on two tabs, both opening on `transcript`, is how
@@ -566,13 +567,13 @@ describe("the early-data station has one control, and it is not an upload (D5)",
      * reader's own voice; every other button addresses them, and the Material
      * tab calls the same files "your data" twice on one screen. */
     // M63, ISC-610: the data read suggests concepts now, named for its result (L3).
-    expect(EARLY).toContain('busy ?? "Suggest concepts"');
+    expect(EARLY).toContain('"Considering your data…" : "Suggest concepts"');
     // Comments stripped: the module note quotes the old label to record what it
     // was, which is the file explaining itself and not the tool speaking.
     expect(code(EARLY)).not.toContain("Read the corpus and stage candidates");
   });
 
-  test("the line under it says whose material is read", () => {
+  test("the line under it says whose material Abductive considers", () => {
     // M28 r8: copy. Subjectless, which is the defect just fixed on the Checks
     // subtitle.
     //
@@ -581,11 +582,11 @@ describe("the early-data station has one control, and it is not an upload (D5)",
     // it was being rewritten. What it still has to say is which half of the
     // material the reading takes in, because that is the D5 boundary the whole
     // control turns on.
-    expect(EARLY).toContain("Abductive reads your data and leaves the papers alone.");
+    expect(EARLY).toContain("Abductive considers your data files and excludes the papers.");
     expect(EARLY).not.toContain("{data.length} passage");
   });
 
-  test("staging reads the data only", () => {
+  test("the pass considers the data only", () => {
     expect(EARLY).toContain("dataOnly(chunks)");
     expect(EARLY).toContain("chunks: data,");
   });
@@ -595,6 +596,6 @@ describe("the early-data station has one control, and it is not an upload (D5)",
     // file input on it.
     expect(EARLY).not.toContain("Add a file above");
     // M28: copy.
-    expect(EARLY).toContain("Add data on the Sources tab first.");
+    expect(EARLY).toContain("Add data above first.");
   });
 });

@@ -48,7 +48,9 @@ import { useLedger } from "../state/ledgerContext.tsx";
 // M47. The run that fills the bias grid, and the rule for when it is due.
 import { activeInferenceClient } from "../ui/personaRun.ts";
 import { runSuggestionCounts, suggestedLine } from "../concepts/run.ts";
-import { EarlyDataControls, DATA_KIND_CHOICES, chosenKind, dataTypeOfKind } from "./EarlyDataControls.tsx";
+import { EarlyDataScopeLine } from "./EarlyDataScopeLine.tsx";
+import { DeclareEarlyData } from "./DeclareEarlyData.tsx";
+import { hasData } from "./earlyData.ts";
 import { documentKindLabel } from "../ui/materialVocabulary.ts";
 import { UNITS, UNIT_LABEL, UNIT_OPTION, UNIT_OTHER_LABEL, isUnit, type UnitOfAnalysis } from "../interview/unitOfAnalysis.ts";
 import type { DocumentKind } from "../state/chunks.ts";
@@ -362,9 +364,6 @@ export function StationWorkspace(props: {
        * it is just the only station with two. */
       const patch: BriefPatch = {
         ...(field === null ? {} : { [field]: brief[field] }),
-        ...(stationId === "early-data" && brief.dataType !== ""
-          ? { dataType: brief.dataType }
-          : {}),
       } as BriefPatch;
       if (Object.keys(patch).length === 0) return;
       /* The record first, then the brief (M73, ISC-658).
@@ -458,28 +457,6 @@ export function StationWorkspace(props: {
     [appendAll, project.id],
   );
 
-
-  /* M74b, ISC-665. The walk chose ethnographic at Early data, left the step,
-   * and came back to "Choose type", because the kind was saved only with the
-   * summary. The kind is written now, with its row in History, and the methods
-   * declaration the checks read is set from it. */
-  const chooseKind = async (kind: DocumentKind | ""): Promise<void> => {
-    if (kind === "") return;
-    const dataType = dataTypeOfKind(kind);
-    setBrief((b) => ({ ...b, dataKind: kind, dataType }));
-    try {
-      const stored = await getProject(project.id);
-      if (stored === undefined) return;
-      const rows = briefChangeEvents(project.id, stored.brief, { ...stored.brief, dataType }).filter(
-        (e) => e.type === "bound" && e.subject === "data-type",
-      );
-      if (rows.length > 0) await appendAll(rows);
-      await updateBrief(project.id, { dataKind: kind, dataType });
-      onChanged();
-    } catch {
-      setSaveError(true);
-    }
-  };
 
   /* M84, ISC-707. The unit of analysis, saved the moment it is chosen, as the
    * data kind is at Early data, with its row in History. */
@@ -676,7 +653,7 @@ export function StationWorkspace(props: {
             {draftedFrom !== null && (
               <p className="small station-drafted" data-testid="station-drafted" role="status">
                 {reading !== null && draftedFrom === reading.id
-                  ? "Suggested from Abductive's reading. Save answer makes the summary yours."
+                  ? "Abductive suggested this puzzle. Save answer makes the summary yours."
                   : "Abductive wrote this from your replies. Save answer makes the summary yours."}
               </p>
             )}
@@ -772,7 +749,7 @@ export function StationWorkspace(props: {
           )}
           {suggesting && (
             <p className="small muted" data-testid="station-suggesting" role="status">
-              Abductive is reading this summary for concepts to suggest.
+              Abductive is considering this summary for concepts to suggest.
             </p>
           )}
           {suggestNote !== null && !suggesting && (
@@ -844,6 +821,10 @@ export function StationWorkspace(props: {
           {stepKicker(stationId)}
         </p>
       </header>
+      {/* M96, ISC-790: the files that the Early data conversation considers. */}
+      {stationId === "early-data" && hasData(documents) && (
+        <EarlyDataScopeLine projectId={project.id} documents={documents} chunks={chunks} />
+      )}
 
       {/*
        * The prompt sits directly above its own field and is joined to it by
@@ -923,48 +904,14 @@ export function StationWorkspace(props: {
         <SurfaceStep projectId={project.id} place={stationId} brief={project.brief} graph={graph} chunks={chunks} documents={documents} onChanged={onChanged} />
       )}
 
-      {stationId === "early-data" && (
-        <>
-          <label className="station-field">
-            <span className="small muted">Data type</span>
-            {/* The placeholder is an option with no value, so nothing is chosen
-                until the researcher chooses it (D22, M43b).
-
-                It opened on `interview`, and the walk of 2026-09-13 found an
-                ethnography declared as interview data by a control nobody had
-                touched, sitting in a spot a researcher has no reason to look at.
-                The kind is read by the coherence checks and by the bias
-                personas' question set, so a silent default is the tool answering
-                a methods question on the researcher's behalf.
-
-                The same shape as the Material tab's kind picker, whose own note
-                records what a default cost there: `transcript` sat in it once,
-                and that is how a journal editorial became a transcript. */}
-            {/* M74b, ISC-665: the file types Sources offers, one list, and the
-                choice saved the moment it is made, so it is still chosen when
-                the researcher comes back to the step. */}
-            <select
-              value={chosenKind(brief)}
-              data-testid="station-datatype"
-              onChange={(e) => void chooseKind(e.target.value as DocumentKind | "")}
-            >
-              <option value="">Choose type</option>
-              {DATA_KIND_CHOICES.map((k) => (
-                <option key={k} value={k}>
-                  {documentKindLabel(k)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <EarlyDataControls
-            dataType={brief.dataType}
-            project={project}
-            graph={graph}
-            documents={documents}
-            chunks={chunks}
-            onChanged={onChanged}
-          />
-        </>
+      {/* M96, ISC-792: the Data type menu and Suggest concepts left Early data
+          (the owner, 2026-10-30). With data, the line at the top of the step
+          says which files the conversation considers; without it, the step
+          offers the declaration that opens the Data section on Sources. */}
+      {stationId === "early-data" && !hasData(documents) && (
+        <div className="early-data" data-testid="early-data-controls">
+          <DeclareEarlyData projectId={project.id} land="material" onDeclared={onChanged} />
+        </div>
       )}
 
       {summaryHost !== undefined && summaryHost !== null ? createPortal(summary, summaryHost) : summary}

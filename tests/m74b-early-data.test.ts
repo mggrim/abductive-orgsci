@@ -42,7 +42,6 @@ afterAll(() => {
 const { InMemoryLedgerStore } = await import(`${SRC}ledger/ledger.ts`);
 const { Workbench } = await import(`${SRC}workbench/Workbench.tsx`);
 const { StudyMaterial } = await import(`${SRC}ui/StudyViews.tsx`);
-const { DATA_KIND_CHOICES, dataTypeOfKind, chosenKind } = await import(`${SRC}flow/EarlyDataControls.tsx`);
 const { DATA_DOCUMENT_KINDS } = await import(`${SRC}state/chunks.ts`);
 const projects = await import(`${SRC}state/projects.ts`);
 const { LedgerProvider } = await import(`${SRC}state/ledgerContext.tsx`);
@@ -75,66 +74,32 @@ async function settle(times = 20) {
   for (let i = 0; i < times; i += 1) await act(async () => void (await wait(5)));
 }
 
-describe("one list of data kinds", () => {
-  test("the Early data menu offers the file types Sources offers, in the same order", () => {
-    expect(DATA_KIND_CHOICES).toEqual(DATA_DOCUMENT_KINDS);
-    const step = readFileSync(new URL("../src/flow/StationWorkspace.tsx", import.meta.url), "utf8");
-    expect(step).toContain("DATA_KIND_CHOICES.map(");
-    expect(step).not.toContain("DATA_TYPES.map(");
-  });
-
+/* M96, ISC-791 and ISC-792: the Early data menu went (the owner, 2026-10-30),
+ * and the kind of data comes from the kinds of the files on Sources. */
+describe("the kind of data comes from the files", () => {
   test("a chat note is a kind of its own, an informal conversation written up afterwards (the lead's ruling)", async () => {
     const { documentKindLabel } = await import(`${SRC}ui/materialVocabulary.ts`);
     expect(DATA_DOCUMENT_KINDS).toContain("chatnote");
     expect(documentKindLabel("chatnote")).toBe("chat note");
-    expect(dataTypeOfKind("chatnote")).toBe("interview");
+    expect(projects.dataTypeOfKind("chatnote")).toBe("interview");
   });
 
-  test("each kind keeps the data type that the checks read", () => {
-    expect(dataTypeOfKind("transcript")).toBe("interview");
-    expect(dataTypeOfKind("fieldnote")).toBe("ethnographic");
-    expect(dataTypeOfKind("archival")).toBe("archival");
-    expect(dataTypeOfKind("memo")).toBe("ethnographic");
-    // A brief from before M74b shows the kind its data type stands for.
-    expect(chosenKind({ ...projects.emptyBrief(), dataType: "interview" })).toBe("transcript");
-    expect(chosenKind({ ...projects.emptyBrief(), dataType: "ethnographic", dataKind: "memo" })).toBe("memo");
-    expect(chosenKind(projects.emptyBrief())).toBe("");
+  test("each kind keeps the data type that the checks consider", () => {
+    expect(projects.dataTypeOfKind("transcript")).toBe("interview");
+    expect(projects.dataTypeOfKind("fieldnote")).toBe("ethnographic");
+    expect(projects.dataTypeOfKind("archival")).toBe("archival");
+    expect(projects.dataTypeOfKind("memo")).toBe("ethnographic");
   });
-});
 
-describe("Abductive keeps the choice when the student leaves the step", () => {
-  test("choosing a kind saves it, with its row in History, and it is there on return", async () => {
-    await study("m74b-kind");
-    const host = document.createElement("div");
-    document.body.appendChild(host);
-    const root = createRoot(host);
-    const store = new InMemoryLedgerStore();
-    const tree = (station: string) =>
-      React.createElement(StrictMode, null, React.createElement(LedgerProvider, { store }, React.createElement(Workbench, { projectId: "m74b-kind", station })));
-    await act(async () => root.render(tree("early-data")));
-    await settle();
-    const select = find<HTMLSelectElement>(host, "station-datatype")!;
-    expect([...select.options].map((o) => o.value)).toEqual(["", ...DATA_DOCUMENT_KINDS]);
-    select.value = "fieldnote";
-    // A real change event: React reads a select's change at the root.
-    await act(async () => void select.dispatchEvent(new Event("change", { bubbles: true })));
-    await settle();
-
-    await act(async () => root.render(tree("context")));
-    await settle();
-    await act(async () => root.render(tree("early-data")));
-    await settle();
-    expect(find<HTMLSelectElement>(host, "station-datatype")!.value).toBe("fieldnote");
-    const stored = await projects.getProject("m74b-kind");
-    expect(stored?.brief.dataType).toBe("ethnographic");
-    const rows = (await store.readAll("m74b-kind")).filter((e: LedgerEvent) => e.type === "bound" && e.subject === "data-type");
-    expect(rows).toHaveLength(1);
-    root.unmount();
+  test("the Early data step carries no Data type menu", () => {
+    const step = readFileSync(new URL("../src/flow/StationWorkspace.tsx", import.meta.url), "utf8");
+    expect(step).not.toContain("station-datatype");
+    expect(step).not.toContain("DATA_KIND_CHOICES");
   });
 });
 
-describe("Sources reads the data", () => {
-  test("the Data section carries Read the data, and a press reads the data", async () => {
+describe("Sources suggests concepts from the data", () => {
+  test("the Data section carries Suggest concepts, and a press considers the data", async () => {
     const id = "m74b-sources";
     await study(id);
     await projects.declareEarlyData(id);
@@ -149,7 +114,7 @@ describe("Sources reads the data", () => {
     );
     await settle();
     const button = find(host, "read-data");
-    expect(button?.textContent).toBe("Read the data");
+    expect(button?.textContent).toBe("Suggest concepts");
     await act(async () => reactProps(button!)?.onClick?.({ preventDefault() {} }));
     await settle();
     expect(find(host, "read-data-done")?.textContent ?? "").toContain("Abductive");

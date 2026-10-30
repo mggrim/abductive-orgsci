@@ -92,7 +92,7 @@ export const HISTORY_HELP: HelpPart = {
   name: "History",
   says: [
     "History keeps every event in the order that it happened.",
-    "Under the list sit three readings of the session: where your attention fell, which steps you worked, and the movement of your ontology.",
+    "Under the list sit three views of the session: where your attention fell, which steps you worked, and the movement of your ontology.",
     "Press History at the top right to open the list over the page that you're on.",
     "The list dates from your project's first event. Under Kinds one by one, a change to your ontology counts every change to a concept, a relation or a statement. The Who filter lists you and Abductive.",
     /* M78a, ISC-680. */
@@ -126,6 +126,13 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
           "Each summary has its own Save answer. An edit stays in its field, unsaved, until you press Save answer, and a dot on the Starting point tab marks an edit that you haven't saved yet.",
           "Answer these three questions once and revise them as the project changes.",
           "Under Literatures, a line with an author and a year, such as Hallen 2008, becomes a paper on Sources.",
+        ],
+      },
+      {
+        name: "About you",
+        says: [
+          "About you includes four questions: your career stage, your field, your experience with qualitative research and your aim for Abductive. All the answers are optional, and you can press Skip to bypass the questions.",
+          "Abductive uses these answers only in the help chat, to fit the help chat's advice to you. Abductive keeps the answers in this browser, for all your projects, and excludes the answers from History.",
         ],
       },
       HISTORY_HELP,
@@ -164,7 +171,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
           "One statement of the points that this conversation has settled. Abductive saves your words exactly as you wrote them.",
           AUTO_SUMMARY_HELP,
           "After a save, the lines under Save answer about suggestions belong to that step, and another step shows only its own.",
-          "At Early data, the type of data comes from the list that Sources uses for a file, and Abductive keeps your choice when you leave the step."
+          "At Early data, the conversation considers every data file on Sources in full, and leaves the papers out. The kind of data comes from the kinds that you gave your files on Sources."
         ],
       },
       HISTORY_HELP,
@@ -175,20 +182,20 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
     title: "Sources",
     purpose: [
       "Sources keeps the papers that you expect to draw on and the data that you've collected.",
-      "Your data grounds the claims in your ontology. At the Early data step, Abductive reads your data to suggest more claims.",
+      "Your data grounds the concepts in your ontology. The conversation at the Early data step considers every data file here, in full.",
     ],
     parts: [
       {
         name: "Papers",
         says: [
-          "Identify the papers that you expect to draw on. Abductive reads each paper for its expectations (what the paper leads readers to expect) and to see which conversation you're joining. Your evidence is your own data, which you add once you say you have some.",
+          "Identify the papers that you expect to draw on. Abductive considers each paper for its expectations (what the paper leads readers to expect) and to see which conversation you're joining. Your evidence is your own data, which you add once you say you have some.",
           /* M85, ISC-712: Sources is open from the start. */
           "You can add papers from the first moment of a project. Abductive judges each paper once you've saved an answer at Context or the Puzzle, and shows a note beside the paper until then.",
           /* M78a, ISC-678. */
-          "Abductive marks a paper Identified until you upload it, and reads a paper only from its text. In an older project, the expectations that Abductive wrote from a citation sit under Written from the citation alone.",
-          "Abductive files anything that you add under Papers as a paper, and reads each paper to place your project in a conversation.",
+          "Abductive marks a paper Identified until you upload it, and considers a paper only from its text. In an older project, the expectations that Abductive wrote from a citation sit under Written from the citation alone.",
+          "Abductive files anything that you add under Papers as a paper, and considers each paper to place your project in a conversation.",
           "Papers that you add on Sources join the literatures that you identified at Starting point. A line with an author and a year becomes a paper, and a line of prose names a literature.",
-          "To check a claim's grounds, Abductive reads your data instead.",
+          "To check a claim's grounds, Abductive considers your data instead.",
           "A suggestion joins your ontology only when you accept it.",
           /* M83, ISC-700: the control's sentence, as Sources prints it. */
           ADD_NOTE,
@@ -199,7 +206,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
         says: [
           "Add your transcripts, fieldnotes, memos and archives. Your claims cite this data.",
           "Everything that you're building this project on. You can see which passages you have opened and which you haven't.",
-          "Adding a file doesn't send it anywhere or read it. Press Read the data in this section, or at the Early data step on Design, and Abductive suggests concepts and statements from your data.",
+          "When you add a file, Abductive keeps the file in this browser. Abductive sends your data to the model on two occasions: after you press Suggest concepts in this section, to request suggested concepts and statements, and during your conversation at the Early data step, with all your data files.",
           "The file types here are the types that the Early data step offers.",
         ],
       },
@@ -212,7 +219,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
     title: ONTOLOGY_TAB_LABEL,
     purpose: [
       "The concepts that you define for this project, with their definitions, properties and relations. Your ontology comes before coding, and it guides the data that you collect next.",
-      "Abductive suggests concepts after you save a summary at a step or read your data, and you accept, refine or reject each one.",
+      "Abductive suggests concepts after you save a summary at a step or press Suggest concepts on Sources, and you accept, refine or reject each one.",
     ],
     parts: [
       /* M82, ISC-695 and ISC-696: the paragraph at the tab's top. */
@@ -221,26 +228,26 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
         says: [
           "At the top of the tab, Abductive writes the argument so far in two to four sentences, from your accepted concepts and relations.",
           "Abductive writes the paragraph again after you accept or refine a concept or relation, so the paragraph keeps up with your ontology.",
-          "Read the paragraph to check that your concepts and relations add up to the argument that you mean to make.",
+          "Go through the paragraph to check that your concepts and relations add up to the argument that you mean to make.",
         ],
       },
       /* M70, ISC-648: one part per kind, as the page has one section per kind. */
       {
         name: "Concepts",
         says: [
-          "Abductive suggests concepts after you save a summary at a step or read your data, and writes [...] in place of anything that you did not say. You see at most three suggested concepts, three suggested relations and six suggested statements at once; Abductive keeps the rest in a queue, and shows the next when you decide one. Each suggestion sits first under Concepts, marked Suggested, with Accept, Refine and Reject beside the suggestion.",
+          "Abductive suggests concepts after you save a summary at a step or press Suggest concepts on Sources, and writes [...] in place of anything that you did not say. You see at most three suggested concepts, three suggested relations and six suggested statements at once; Abductive keeps the rest in a queue, and shows the next when you decide one. Each suggestion sits first under Concepts, marked Suggested, with Accept, Refine and Reject beside the suggestion.",
           /* M90, ISC-734 (the owner, 2026-10-14): concepts as nouns and gerunds. */
           "Each concept that Abductive suggests is one noun or gerund, such as introductions or founders, and the relations carry the joins between concepts.",
-          "Each concept on the page shows as a preview: the name, the first sentence of the definition, and a count of the properties, statements, passages and answers behind the concept. With Read more, you open the concept's full view over the page, with every passage and answer in full, and a long passage scrolls inside its own box.",
+          "Each concept on the page shows as a preview: the name, the first sentence of the definition, and a count of the properties, statements, passages and answers behind the concept. With Open full view, you open the concept's full view over the page, with every passage and answer in full, and a long passage scrolls inside its own box.",
           "Accept, Refine and Reject sit in the full view too. Once you decide, Abductive closes the full view. Press Escape, Close or anywhere outside the full view to close the full view yourself. The page beneath stays where it was.",
           "Accept a concept and the concept joins your ontology with its properties and statements. Refine a concept to put the concept in your own words first. Reject a concept with a reason, and Abductive keeps your reason in History.",
-          "Your accepted concepts follow the suggestions. Open an accepted concept with Read more to read the concept's definition, properties (the aspects that vary), relations to other concepts, the statements that you placed under the concept, and the passages or answers behind the concept.",
+          "Your accepted concepts follow the suggestions. Open an accepted concept with Open full view to see the concept's definition, properties (the aspects that vary), relations to other concepts, the statements that you placed under the concept, and the passages or answers behind the concept.",
           "Five relations can join two concepts: is part of, leads to, varies with, contrasts with, and is a condition for.",
           "Each concept and each statement carries its authorship mark (yours, from the data, or AI-suggested), and the mark is permanent.",
           "Abductive marks each suggestion with its source: your summary at a step, the data, or the papers. Abductive suggests a statement once, and leaves out a statement that repeats a sentence of your summary word for word.",
           /* M82, ISC-695. */
           "Each concept and relation carries a Why it matters line: one or two sentences on the work that the concept or relation does for your argument, and on the gap that your design would have without it.",
-          "Abductive writes the line from your puzzle, the expectation in your puzzle that the concept or relation relates to, and the statements that you placed under the concept or relation. You read a suggestion's line before you accept the suggestion.",
+          "Abductive writes the line from your puzzle, the expectation in your puzzle that the concept or relation relates to, and the statements that you placed under the concept or relation. You see a suggestion's line before you accept the suggestion.",
           "On an accepted concept or relation, a line that Abductive wrote stays marked Suggested until you accept it. Refine the concept or relation to put the line in your own words, and Abductive marks the line Yours.",
           /* M82, the lead's ruling A. */
           "Retire concept drops a concept that turned out empty, with your reason. The concept leaves your ontology and the map, you remove its relations with it, and its statements go back to Statements to place. History keeps the concept and your reason.",
@@ -249,14 +256,14 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
       {
         name: "Relations",
         says: [
-          "Abductive suggests relations on the same occasions as concepts, and writes [...] in place of anything that you did not say. Each suggestion sits first under Relations, marked Suggested, with Accept, Refine and Reject beside the suggestion, and you open the whole relation over the page with Read more, as for a concept.",
-          "A relation has an entry of its own, like a concept. Open a relation with Read more to read the two concepts, the kind (is part of, leads to, varies with, contrasts with, or is a condition for), the claim in one sentence of yours, the conditions under which you expect the relation to apply, the statements that you placed under the relation, and the passages or answers behind the relation.",
+          "Abductive suggests relations on the same occasions as concepts, and writes [...] in place of anything that you did not say. Each suggestion sits first under Relations, marked Suggested, with Accept, Refine and Reject beside the suggestion, and you open the whole relation over the page with Open full view, as for a concept.",
+          "A relation has an entry of its own, like a concept. Open a relation with Open full view to see the two concepts, the kind (is part of, leads to, varies with, contrasts with, or is a condition for), the claim in one sentence of yours, the conditions under which you expect the relation to apply, the statements that you placed under the relation, and the passages or answers behind the relation.",
           "A relation whose claim you haven't written yet shows Write claim. Edit conditions writes the conditions, and Refine changes the kind or the claim, and Abductive keeps what the relation first said.",
           "When Abductive proposes a relation from a link that you drew between two claims, such as one claim that contradicts another, you see that link in the relation's full view.",
           /* M82, ISC-694 and ISC-696. */
           "Each relation carries a Why it matters line too, which you accept or refine as on a concept.",
           "When Abductive suggests a new concept, Abductive also suggests a relation from the new concept to a concept that you've accepted, where your words support one.",
-          "Press Suggest relations, and Abductive reads every accepted concept with its definition and statements, and suggests up to three relations among them. Each suggested relation shows the statements that it rests on.",
+          "Press Suggest relations, and Abductive considers every accepted concept with its definition and statements, and suggests up to three relations among them. Each suggested relation shows the statements that it rests on.",
           "Abductive does the same after you accept a concept, once you have three or more, when your newest concept stands alone.",
           "A concept stands alone when you haven't related it to another concept yet. A concept that stands alone has its part in your argument still to come.",
         ],
@@ -273,11 +280,11 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
         name: "Statements to place",
         says: [
           "Abductive suggests statements on the same occasions as concepts and relations, and those statements come first under Statements to place, marked Suggested. Each suggested statement names its proposed home: a concept or relation in your ontology, or one that Abductive suggests beside the statement. Choose another home in the statement's preview before you accept, or choose New concept or New relation and write the home yourself. Accept, and Abductive places the statement there in one entry in History.",
-          "Each claim that your project already has is a statement, with a label of its origin: the step summary, your replies at a step, the document that Abductive read it from (such as Fieldnote 2), the papers or a rival.",
-          "Under Statements to place, after the suggested statements, you find each statement from a step summary, your replies at a step or a read of your data that you haven't placed under a concept or a relation yet.",
+          "Each claim that your project already has is a statement, with a label of its origin: the step summary, your replies at a step, the document that Abductive took it from (such as Fieldnote 2), the papers or a rival.",
+          "Under Statements to place, after the suggested statements, you find each statement from a step summary, your replies at a step or a pass over your data that you haven't placed under a concept or a relation yet.",
           "A claim from the papers and a rival stay under All statements, with their own controls.",
           "On first open, Abductive proposes a home for each of those statements, and shows three suggested homes at a time. Accept the suggested home, or choose another one, and the next statement in the queue takes the place of the statement that you placed. Once you have placed every statement, the section is gone.",
-          "For each of those statements, you see the statement's first sentence and its proposed home, with Accept. With Read more, you open the whole statement over the page, with every passage or answer behind the statement in full.",
+          "For each of those statements, you see the statement's first sentence and its proposed home, with Accept. With Open full view, you open the whole statement over the page, with every passage or answer behind the statement in full.",
         ],
       },
       {
@@ -296,7 +303,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
           "You find the map below both columns, in its own frame across the tab. In the frame's header, you see Concept map and the count of the concepts and relations on the map.",
           "Drag the handle on the frame's top edge up to open the map, or down to close the frame to its header. With the handle in focus, press an arrow key to move the handle a step, Home to close the frame or End to open the whole map.",
           "The frame starts closed. Drag the frame open, and the frame opens as far as the map's height, up to three fifths of the window. Abductive keeps the height that you set for the project in this browser. When the frame is shorter than the map, scroll inside the frame.",
-          "With Expand, you open the map over the page at the size of the window, for reading a large map. Press Escape or Close to close the map.",
+          "With Expand, you open the map over the page at the size of the window, for a large map. Press Escape or Close to close the map.",
           "On the map, you see every concept and relation in your ontology: accepted ones solid, and suggested ones dotted, with a suggested ring.",
           "A suggested concept that is the proposed home of a statement to place is faint.",
           "Press an accepted concept or line to open its full view, or press a dotted one to open the suggestion.",
@@ -310,7 +317,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelp>> = {
         says: [
           "Claims that Abductive suggested from your papers, or as rivals, stay open under Suggested claims until you decide.",
           "Each of those claims shows the home that Abductive proposes for its statement, with the same select. Accept the claim, and Abductive places the statement at the home that you left chosen, or, when you chose Place later, lists the statement under Statements to place, or under All statements for a claim from the papers or a rival.",
-          "A suggestion becomes a claim (a statement in your ontology) once you accept the suggestion. Read each suggestion, edit anything that you wouldn't defend, then decide.",
+          "A suggestion becomes a claim (a statement in your ontology) once you accept the suggestion. Review the suggestions one at a time, edit any part that you wouldn't defend, then decide on each suggestion.",
           "Reject a suggestion and it stays under Suggestions to review, struck through, with your reason. Decide later and the suggestion stays open.",
           "Edit the suggestions first. A write-up keeps the confident part of your answer and drops the hedging. The words in a write-up are usually surer than the ones that you said.",
           "Whatever you change, Abductive records the claim as the model's suggestion and keeps your edit beside the original.",

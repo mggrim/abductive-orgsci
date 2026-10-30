@@ -391,9 +391,9 @@
   color: var(--ink-faint);
 }
 .help-chat-input,
-.help-about-field input,
-.help-about-field select,
-.help-about-field textarea {
+.about-you-field input,
+.about-you-field select,
+.about-you-field textarea {
   width: 100%;
   box-sizing: border-box;
   font: inherit;
@@ -410,26 +410,52 @@
   align-items: center;
   gap: var(--space-sm);
 }
-/* M95c: About you folds the same way About this page does. */
-.help-about {
-  border-top: 1px solid var(--line);
-  padding-top: var(--space-sm);
-  font-size: var(--text-small);
-}
-.help-about > summary {
-  cursor: pointer;
-  font-weight: 600;
-}
-.help-about[open] {
+/* M96, ISC-793: About you on Starting point, one block on first visit and one
+ * line after Save or Skip. The Help panel keeps a line that links here. */
+.about-you {
   display: grid;
   gap: var(--space-sm);
+  /* The full width of the page, so the four questions sit two by two and the
+     block stays short above the conversation (the M96 walkthrough at 1400). */
+  margin: 0 0 var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--surface);
+  font-size: var(--text-small);
 }
-.help-about > p {
+.about-you.about-you-line {
+  max-width: var(--measure-wide);
+  padding: var(--space-xs) var(--space-md);
+}
+.about-you > p {
   margin: 0;
+  max-width: var(--measure-wide);
 }
-.help-about-field {
+.about-you-title {
+  margin: 0;
+  font-size: var(--text-body);
+}
+.about-you-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-sm) var(--space-md);
+}
+.about-you-field {
   display: grid;
   gap: var(--space-hair);
+  align-content: start;
+}
+.about-you-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.help-about-line {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-sm);
+  margin: 0;
+  font-size: var(--text-small);
 }
 
 /* The heading rows that carry it outside the study header. */

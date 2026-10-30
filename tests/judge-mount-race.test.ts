@@ -237,7 +237,7 @@ describe("what the row says when nothing has judged the paper", () => {
      * acts on every paper, which is how the walk staged all seven expectations of
      * four papers while trying to read a fifth. */
     expect(notJudgedNote({ judgeable: true })).toBe(
-      "Abductive hasn't read this paper yet. Abductive reads a paper when the paper arrives, and again when you save your starting point.",
+      "Abductive hasn't considered this paper yet. Abductive considers a paper when the paper arrives, and again when you save your starting point.",
     );
     expect(notJudgedNote({ judgeable: true })).not.toContain("Press ");
     expect(notJudgedNote({ judgeable: true })).not.toContain(readPapersLabel(1, 1));
@@ -266,11 +266,11 @@ describe("what the row says when nothing has judged the paper", () => {
    serendipity walk) stays out of the sentence. */
 describe("a judge that throws says so", () => {
   test("the message names the paper that was due", () => {
-    expect(judgeFailureNote(PAPER.name)).toBe("Abductive couldn't read bechky-2003.pdf. Try again.");
+    expect(judgeFailureNote(PAPER.name)).toBe("Abductive couldn't consider bechky-2003.pdf. Try again.");
   });
 
   test("with several papers due it names the papers rather than one of them", () => {
-    expect(judgeFailureNote(null)).toBe("Abductive couldn't read your papers. Try again.");
+    expect(judgeFailureNote(null)).toBe("Abductive couldn't consider your papers. Try again.");
   });
 
   test("the panel shows it, where it already shows an upload that failed", async () => {
@@ -284,7 +284,7 @@ describe("a judge that throws says so", () => {
       () => (host.querySelector('[data-testid="literature-error"]')?.textContent ?? "") !== "",
     );
     const shown = host.querySelector('[data-testid="literature-error"]')?.textContent ?? "";
-    expect(shown).toContain("Abductive couldn't read bechky-2003.pdf");
+    expect(shown).toContain("Abductive couldn't consider bechky-2003.pdf");
     expect(shown).not.toContain("the model refused the request");
     expect(host.querySelector('[data-testid="literature-retry"]')?.textContent).toBe("Try again");
     root.unmount();

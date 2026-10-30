@@ -511,7 +511,7 @@ export function ExportBar(props: {
   const groups: readonly ExportGroup[] = [
     {
       id: "read",
-      title: "Read and share",
+      title: "View and share",
       blurb: "Your design as it stands, in a form that a person can open.",
       rows: [
         {
@@ -543,7 +543,7 @@ export function ExportBar(props: {
           filename: `${slug}-wiki/`,
           tail: "…-wiki/",
           purpose:
-            "One linked file per claim, for reading in a repository or a notes app. You choose the folder.",
+            "One linked file per claim, for browsing in a repository or a notes app. You choose the folder.",
           contains: contains.wiki,
           actionLabel: "Choose folder",
           run: () => void exportWiki(),
@@ -554,7 +554,7 @@ export function ExportBar(props: {
     {
       id: "machine",
       title: "Use in other tools",
-      blurb: "Machine-readable. Both files record the author of each claim and each link, so another tool can read your ontology without rebuilding it.",
+      blurb: "Machine-readable. Both files record the author of each claim and each link, so another tool can open your ontology without rebuilding it.",
       rows: [
         {
           id: "agent-graph",

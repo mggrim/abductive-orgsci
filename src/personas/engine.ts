@@ -39,7 +39,7 @@ export function questionSetFor(dataType: DeclaredDataType, chosen?: UnitOfAnalys
   const set = questionSetForKind(dataType);
   const unit = effectiveUnit(chosen, unitOther);
   if (unit === undefined || unit === "person") return set;
-  return `${set}\n- Read each passage for what it shows of ${unitWords(unit, unitOther)}, the project's unit of analysis, and ask at that level.`;
+  return `${set}\n- Consider each passage for what it shows of ${unitWords(unit, unitOther)}, the project's unit of analysis, and ask at that level.`;
 }
 
 function questionSetForKind(dataType: DeclaredDataType): string {
@@ -53,17 +53,17 @@ function questionSetForKind(dataType: DeclaredDataType): string {
   if (dataType === "") {
     return [
       "## Question set: the researcher has not stated the kind of material",
-      "The researcher has not said whether they built this study on fieldnotes, interviews or archival documents, so do not assume. Read what is in front of you as a record of uncertain provenance, and ask what kind of record it is.",
+      "The researcher has not said whether they built this study on fieldnotes, interviews or archival documents, so do not assume. Treat what is in front of you as a record of uncertain provenance, and ask what kind of record it is.",
       "- What kind of record is this passage: something observed, something recounted to the researcher, or something produced by the setting for its own purposes?",
-      "- Which reading of this passage would change if it turned out to be a rehearsed account rather than an observation?",
-      "- What does this passage's own form tell you about who wrote it and who they expected to read it?",
+      "- Which interpretation of this passage would change if it turned out to be a rehearsed account rather than an observation?",
+      "- What does this passage's own form tell you about who wrote it and whom they expected it to reach?",
     ].join("\n");
   }
   switch (dataType) {
     case "ethnographic":
       return [
         "## Question set: ethnographic data (reflective / prompting)",
-        "You are reading fieldnotes: partial, positioned records of what one observer could see and chose to write down. You cannot interrogate the site directly, so prompt the researcher's reflection rather than asserting what happened.",
+        "You are considering fieldnotes: partial, positioned records of what one observer could see and chose to write down. You cannot interrogate the site directly, so prompt the researcher's reflection rather than asserting what happened.",
         "- What were you positioned to see here, and what was structurally invisible from where you stood?",
         "- Which of these observations would a differently-positioned observer likely record differently?",
         "- What did you choose not to write down, and what does that choice protect?",
@@ -72,7 +72,7 @@ function questionSetForKind(dataType: DeclaredDataType): string {
     case "interview":
       return [
         "## Question set: interview data (account-probing)",
-        "You are reading retrospective, self-presented accounts. Probe the accounts as accounts: what work is the telling doing, and what would corroborate or contradict it?",
+        "You are considering retrospective, self-presented accounts. Probe the accounts as accounts: what work is the telling doing, and what would corroborate or contradict it?",
         "- Where is the informant narrating a rehearsed story rather than recalling an episode?",
         "- Which claims rest on a single informant's account and what independent trace would corroborate them?",
         "- What question was the informant answering that the researcher did not ask?",
@@ -81,11 +81,11 @@ function questionSetForKind(dataType: DeclaredDataType): string {
     case "archival":
       return [
         "## Question set: archival data (direct interrogation)",
-        "You are reading fixed documentary traces. Interrogate the record directly and state what it does and does not establish.",
+        "You are considering fixed documentary traces. Interrogate the record directly and state what it does and does not establish.",
         "- What does this document establish on its face, and what is only inference from it?",
         "- Who produced this record, for what audience, and what did its production omit by design?",
         "- Which claims in the working interpretation have NO documentary trace in the corpus?",
-        "- What contemporaneous document would falsify the current reading, and is it in the corpus?",
+        "- What contemporaneous document would falsify the current interpretation, and is it in the corpus?",
       ].join("\n");
   }
 }
@@ -161,7 +161,7 @@ export function assembleUserMessage(params: {
   return [
     `# Project brief: ${project.title}`,
     ...((brief.puzzleAnswer ?? "").trim() === "" ? [] : [`Puzzle, in their own words: ${brief.puzzleAnswer}`]),
-    `Puzzle, as the tool reads it: ${brief.researchQuestion}`,
+    `Puzzle, as the tool suggests it: ${brief.researchQuestion}`,
     `Site rationale: ${brief.siteRationale}`,
     `Sample rationale: ${brief.sampleRationale}`,
     `Declared data type: ${brief.dataType === "" ? "not stated" : brief.dataType}${venue}${papers}`,

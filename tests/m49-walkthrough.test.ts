@@ -11,7 +11,7 @@
  *                 front page, because the function being right says nothing
  *                 about the component asking it.
  *   the screens   four of them, in order, each carrying the sentences the long
- *                 page carries. Read from the constants the two surfaces share,
+ *                 page carries. Suggested from the constants the two surfaces share,
  *                 so a screen that stops rendering one fails here rather than
  *                 drifting quietly into a second copy of it.
  *   the bypass    once a study of their own exists, the front page is the long

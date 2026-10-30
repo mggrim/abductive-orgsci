@@ -83,6 +83,7 @@ describe("ISC-708: Help says the unit, the order of the questions, and the free 
   test("Design's Help keeps its existing structure: the parts it had, in order, with the new part after Steps", () => {
     const names = PAGE_HELP.design.parts.map((p) => p.name);
     expect(names).toEqual(["Steps", "How Abductive asks", "Chat", "Summary", "History"]);
-    expect(PAGE_HELP.motivation.parts.map((p) => p.name)).toEqual(["How Abductive asks", "Chat", "Your answers", "History"]);
+    // M96, ISC-793: About you joined Starting point, after Your answers.
+    expect(PAGE_HELP.motivation.parts.map((p) => p.name)).toEqual(["How Abductive asks", "Chat", "Your answers", "About you", "History"]);
   });
 });

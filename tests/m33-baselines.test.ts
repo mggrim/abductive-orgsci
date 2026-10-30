@@ -845,17 +845,17 @@ describe("the fit row absorbs the count rather than adding a third row", () => {
     /* M51, ISC-533: the count says how many papers have been read, where it used
        to say how many fit and how many did not. */
     expect(paperFitLine({ fits: 3, unclear: 0, misfit: 1 }, 7)).toBe(
-      "4 papers read. You haven't answered 7 things the papers expect.",
+      "4 papers considered. You haven't answered 7 things the papers expect.",
     );
   });
 
   test("nothing waiting leaves the line exactly as it was", () => {
-    expect(paperFitLine({ fits: 3, unclear: 0, misfit: 1 }, 0)).toBe("4 papers read");
+    expect(paperFitLine({ fits: 3, unclear: 0, misfit: 1 }, 0)).toBe("4 papers considered");
   });
 
   test("one thing waiting reads as one thing", () => {
     expect(paperFitLine({ fits: 1, unclear: 0, misfit: 0 }, 1)).toBe(
-      "1 paper read. You haven't answered 1 thing the papers expect.",
+      "1 paper considered. You haven't answered 1 thing the papers expect.",
     );
   });
 

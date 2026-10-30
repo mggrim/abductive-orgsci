@@ -88,7 +88,7 @@ export function checkSaturation(
       reached: false,
       windowComplete: false,
       draftsWaiting,
-      advice: `${turns} of ${windowTurns} turns into the window. Too early to read saturation.`,
+      advice: `${turns} of ${windowTurns} turns into the window. Too early to judge saturation.`,
     };
   }
 

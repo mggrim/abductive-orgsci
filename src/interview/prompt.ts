@@ -98,7 +98,7 @@ const INTERROGATION_RULES = [
 export const LITERATURE_RULES = [
   "## The papers",
   "- Do not treat a passage from a paper as evidence for something happening in their setting. It is evidence only of what someone expects.",
-  "- Do not ask them to summarise a paper. You are not a literature review assistant and their reading list is not the subject.",
+  "- Do not ask them to summarise a paper. You are not a literature review assistant and their list of papers is not the subject.",
   "- Do not put forward an expectation from a paper that they have not identified or uploaded. Work with the list that they gave you.",
 ].join("\n");
 
@@ -218,7 +218,7 @@ export function describeDesign(design: DesignDigest | undefined): readonly strin
   }
   if (design.researchQuestion !== undefined && design.researchQuestion.trim() !== "") {
     lines.push(
-      `The puzzle, as the tool read it from their answers today: ${design.researchQuestion.trim()}`,
+      `The puzzle, as the tool suggested it from their answers today: ${design.researchQuestion.trim()}`,
     );
   }
   for (const s of design.stations) {
@@ -250,19 +250,35 @@ export function describeDesign(design: DesignDigest | undefined): readonly strin
  * Exported at M37 so a conversation turn is handed the material the same way,
  * with the same mark on a paper, rather than a second assembly of it.
  */
-export function materialBlock(chunks: readonly Chunk[]): {
+export function materialBlock(
+  chunks: readonly Chunk[],
+  /**
+   * The file each passage came from (M96, ISC-790). At Early data the block
+   * carries every data file, so each passage says which file it is from; the
+   * files past the budget are named, so the model knows the corpus is larger
+   * than the block.
+   */
+  files?: { readonly names: ReadonlyMap<string, string>; readonly leftOut: readonly string[] },
+): {
   readonly quoted: readonly string[];
   readonly authored: readonly string[];
 } {
+  const from = (c: Chunk): string => {
+    const name = files?.names.get(c.documentId);
+    return name === undefined ? "" : `(${name}, passage ${c.index + 1}) `;
+  };
   return {
     quoted: [
       "",
-      "## Material in context",
+      files === undefined ? "## Material in context" : "## Material in context: every data file that they have added",
       ...chunks.map((c) =>
         isLiterature(c.kind)
           ? `[[chunk:${c.id}]] (${documentKindLabel(c.kind)}) ${c.text}`
-          : `[[chunk:${c.id}]] ${c.text}`,
+          : `[[chunk:${c.id}]] ${from(c)}${c.text}`,
       ),
+      ...(files !== undefined && files.leftOut.length > 0
+        ? ["", `Their other data files, past the length that this conversation can carry, and so not shown to you: ${files.leftOut.join(", ")}.`]
+        : []),
     ],
     authored: [
       "",

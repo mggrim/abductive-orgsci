@@ -96,7 +96,7 @@ export function Divergence(props: { events: readonly LedgerEvent[] }) {
         <>
           <p className="muted">
             Challenges that you rejected, challenges that Abductive logged as ignored, and challenges
-            that are still open. A challenge left unresolved may hide an anomaly, so read
+            that are still open. A challenge left unresolved may hide an anomaly, so go through
             these before you settle on an explanation.
           </p>
           {report.survivingDissent.map(({ challenge, status }) => (

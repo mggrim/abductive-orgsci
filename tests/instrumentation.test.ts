@@ -563,9 +563,9 @@ describe("the coverage legend", () => {
     // M42: the three keys say what happened to the passage. "Retrieval" and
     // "Citation" were the tool's names for the layers, and both are on the copy
     // bar's banned list; the layer ids behind them are unchanged.
-    expect(html).toContain('<span class="covkey-name">Abductive read the passage<em class="muted">,');
+    expect(html).toContain('<span class="covkey-name">Abductive considered the passage<em class="muted">,');
     expect(html).toContain('<span class="covkey-name">A check quoted the passage<em class="muted">,');
-    expect(html).toContain('<span class="covkey-name">You read the passage<em class="muted">,');
+    expect(html).toContain('<span class="covkey-name">You opened the passage<em class="muted">,');
   });
 
   test("every checkbox in the legend carries the class this surface styles", () => {

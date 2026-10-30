@@ -101,8 +101,8 @@ describe("the search goes places and never acts (FND-02, ISC-545)", () => {
       expect({ bad, found: lib.includes(bad) }).toEqual({ bad, found: false });
     }
   });
-  test("the palette's only way out is a navigation", () => {
-    const palette = read("ui/keyboard/CommandPalette.tsx");
+  test("the search dialog's only way out is a navigation", () => {
+    const palette = read("ui/StudySearch.tsx");
     for (const bad of ["appendAll", "append(", "Inference", "personaRun", "fetch(", "saveProject", "updateBrief", "accept", "decline"]) {
       expect({ bad, found: palette.includes(bad) }).toEqual({ bad, found: false });
     }

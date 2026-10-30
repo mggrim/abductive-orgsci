@@ -351,7 +351,7 @@ describe("the puzzle step offers the tool's reading as its first draft (M58, ISC
     await act(async () => reactProps(find(host, "draft-from-reading") as Element)?.onClick?.({}));
     // M92, ISC-752: the reading lands as text, unsaved, until Save answer.
     expect(find(host, "station-text")?.textContent).toContain("the scores followed who knew the founder");
-    expect(find(host, "station-drafted")?.textContent).toContain("Suggested from Abductive's reading");
+    expect(find(host, "station-drafted")?.textContent).toContain("Abductive suggested this puzzle");
     await act(async () => reactProps(find(host, "save-station") as Element)?.onClick?.({}));
     await settle();
     const bound = (await events(store, "m58-puzzle-save")).filter(

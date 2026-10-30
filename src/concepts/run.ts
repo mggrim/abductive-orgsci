@@ -169,7 +169,7 @@ export function suggestedLine(count: number | SuggestionCounts): string {
     ...(c.relations > 0 ? [counted(c.relations, "relation", "relations")] : []),
     ...(c.statements > 0 ? [counted(c.statements, "statement with a home", "statements, each with a home")] : []),
   ];
-  if (parts.length === 0) return "Abductive read this and left your suggestions as they were.";
+  if (parts.length === 0) return "Abductive considered this and left your suggestions as they were.";
   const list = parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
   const many = c.concepts + c.relations + c.statements > 1;
   const queue = queueLine(c.queued ?? 0);

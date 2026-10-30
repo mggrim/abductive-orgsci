@@ -97,6 +97,7 @@ import { readUnsaved, setUnsaved } from "./unsavedEdits.ts";
 // row on Material rather than being written a second time here.
 import { PaperFitChip } from "./PaperFitChip.tsx";
 import { NOTHING_EXPECTED_NOTE, NOT_JUDGED_NOTE } from "./PaperExpectations.tsx";
+import { AboutYouBlock } from "../help/AboutYouBlock.tsx";
 import { Dialogue } from "../workbench/Dialogue.tsx";
 import { projectOntology } from "../ontology/projection.ts";
 import { projectInterview } from "../interview/state.ts";
@@ -491,7 +492,7 @@ export function puzzleSourceLine(
   state: PuzzleState,
   status: { readonly reading: boolean; readonly error: string | null },
 ): string {
-  if (status.error !== null) return `Abductive couldn't read the puzzle: ${status.error}`;
+  if (status.error !== null) return `Abductive couldn't suggest a puzzle: ${status.error}`;
   /* In every state, not only the first (owner, 2026-09-12: "Read the puzzle
    * doesn't do anything"). It did: a press wrote a second reading in ten seconds.
    * But the line under the puzzle said the same words before and after, and the
@@ -500,14 +501,14 @@ export function puzzleSourceLine(
   if (status.reading) return READING_NOW;
   switch (state.kind) {
     case "nothing-to-read":
-      return "Abductive reads the puzzle from your Early data and your answers at the steps. You haven't saved an answer for Abductive to read yet.";
+      return "Abductive suggests the puzzle from your Early data and your answers at the steps. You haven't saved an answer for Abductive to consider yet.";
     case "unread":
-      return "Not read yet.";
+      return "Not suggested yet.";
     case "stated":
       /* C1: the reader's own verb inside eight words. "As stated when this study was
        * framed" led with a passive and named nobody, on the one line whose whole job
        * is to say that these words are theirs rather than the tool's. */
-      return "You stated this puzzle when you framed the project, before Abductive read puzzles.";
+      return "You stated this puzzle when you framed the project, before Abductive suggested puzzles.";
     case "none":
       return `Your puzzle is still to come. ${state.reason}`;
     case "read":
@@ -517,8 +518,8 @@ export function puzzleSourceLine(
         /* What it was read from, and how much of the corpus that is (D21). The
          * passage count on its own said three over a corpus of twelve and left
          * the reader to wonder which three. */
-        const from = `Read from ${readFromSentence(state.readFrom)}, ${formatMoment(state.reading.ts)}.`;
-        const moved = state.stale ? " Something that Abductive read has changed since that reading." : "";
+        const from = `Suggested from ${readFromSentence(state.readFrom)}, ${formatMoment(state.reading.ts)}.`;
+        const moved = state.stale ? " Something that Abductive considered has changed since that suggestion." : "";
         // M61: how much the reading covers moved behind Learn more (decision 6).
         return `${from}${moved}`;
       }
@@ -526,7 +527,7 @@ export function puzzleSourceLine(
 }
 
 /** Said while a reading is in the air, in both the line and the control. */
-export const READING_NOW = "Reading the puzzle from your saved answers…";
+export const READING_NOW = "Suggesting a puzzle from your saved answers…";
 
 /**
  * The control, or none (owner, 2026-09-12: "What is supposed to happen when the
@@ -546,16 +547,16 @@ export function puzzleReadControl(
   status: { readonly reading: boolean; readonly error: string | null },
 ): string | null {
   if (status.reading) return null;
-  if (status.error !== null) return "Try reading again";
+  if (status.error !== null) return "Try again";
   switch (state.kind) {
     case "nothing-to-read":
       return null;
     case "stated":
     case "unread":
-      return "Read the puzzle from my saved answers";
+      return "Suggest a puzzle from my saved answers";
     case "none":
     case "read":
-      return state.stale ? "Read the puzzle again from my saved answers" : null;
+      return state.stale ? "Suggest the puzzle again from my saved answers" : null;
   }
 }
 
@@ -1292,6 +1293,8 @@ export function MotivationPage(props: { project: Project; onChanged: () => void 
       <p className="motivation-stage small muted" data-testid="design-stage">
         {STAGE_LINE}
       </p>
+      {/* M96, ISC-793: About you, asked once per browser (the owner, 2026-10-30). */}
+      <AboutYouBlock />
       <div className="motivation-frame" data-testid="motivation-frame">
         <div className="motivation-aside" data-testid="motivation-aside">
           {/* M61 follow-up, ISC-587 (Matthew, 2026-09-30): the puzzle "should be

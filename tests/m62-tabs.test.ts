@@ -188,7 +188,7 @@ describe("the strip, in the shell", () => {
 
 describe("Design's pointer at Sources is live, since Sources is open from the start (M85, ISC-712)", () => {
   test("the early data control carries no closed reason", async () => {
-    const controls = await Bun.file(new URL("../src/flow/EarlyDataControls.tsx", import.meta.url).pathname).text();
+    const controls = await Bun.file(new URL("../src/flow/SuggestFromData.tsx", import.meta.url).pathname).text();
     expect(controls).not.toContain("TAB_UNLOCK.material");
     expect(controls).not.toContain("closedReason=");
   });

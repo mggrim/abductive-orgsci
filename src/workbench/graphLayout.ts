@@ -328,7 +328,7 @@ export const LEAF_RATIO = 15 / 22;
  */
 export const DASH_OFF_TERM = "Dash";
 export const DASH_OFF_READS =
-  "is not a channel on this drawing. This drawing holds too many claims for a dash pattern to read, so Abductive draws every link solid and colour carries the family.";
+  "is not a channel on this drawing. This drawing holds too many claims for a dash pattern to stay legible, so Abductive draws every link solid and colour carries the family.";
 /**
  * And where the role went, which is not the same place on the two surfaces.
  *
@@ -340,9 +340,9 @@ export const DASH_OFF_READS =
  * surfaces give the same reason; only the last clause is the surface's own.
  */
 export const DASH_OFF_ON_SCREEN =
-  "Select a claim to read the role of each link that touches it, in words.";
+  "Select a claim to see the role of each link that touches it, in words.";
 export const DASH_OFF_IN_FILE =
-  "Abductive lists every link by role and direction under the drawing, so you can read the role of each link here even where a line no longer separates them.";
+  "Abductive lists every link by role and direction under the drawing, so you can see the role of each link here even where a line no longer separates them.";
 
 /**
  * And what both surfaces say when the drawing could not carry the names.

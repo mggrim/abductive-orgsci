@@ -49,7 +49,7 @@ describe("ISC-702: the cards", () => {
   test("card 2 says Abductive asks questions drawn from the literature that you identified (M86 wording)", () => {
     const two = card("no-conversation");
     expect(two.body).toBe(
-      "Abductive asks you questions drawn from the literature that you identified, so that you can see the contribution that your project might make to that stream of research. Abductive reads each paper that you have flagged, to help you consider its expectations for your setting.",
+      "Abductive asks you questions drawn from the literature that you identified, so that you can see the contribution that your project might make to that stream of research. Abductive considers each paper that you have flagged, to help you weigh its expectations for your setting.",
     );
   });
 

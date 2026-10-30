@@ -363,6 +363,22 @@ export const NEVER_WORD = /(?<![\w-])never(?![\w-])/i;
 export const CARD_WORD = /(?<![\w-])cards?(?![\w-]|\.\w)/i;
 
 /**
+ * L23 (the owner, 2026-10-30, M96): "The tool should not use the verb 'read' or
+ * 'reads'. Instead it should use terms like 'considers' as in 'this section
+ * considers...'" Every form: read, reads, reading, readings, reread, unread. A
+ * hyphenated identifier ("read-only") and longer words (ready, reader, thread,
+ * already) are not the verb.
+ */
+export const READ_WORD = /(?<![\w-])(?:re|un)?read(?:s|ing|ings)?(?![\w-])/i;
+
+/**
+ * L24 (the owner, 2026-10-30, M96): "it shouldn't be called a walk. It should be
+ * called a walkthrough". The noun walk or walks; "walk through" and "walk me
+ * through", the verb phrase an interview question uses, pass.
+ */
+export const WALK_NOUN = /(?<![\w-])walks?(?![\w-])(?!\s+(?:\w+\s+)?through\b)/i;
+
+/**
  * L21 (M75, ISC-666, the owner, 2026-10-03): "Don't use 'no' as an amount." The
  * whole word "no" before a noun phrase: "No projects yet", "no passage behind it
  * yet", "Write no blocks". "No." and "No," are L14's flat denial, "no one" is
@@ -385,7 +401,7 @@ export function noAmounts(sentence: string): readonly string[] {
  * carry the rule back to the model.
  * ------------------------------------------------------------------------- */
 
-export type RuleId = "L13" | "L14" | "L15" | "L16" | "L17" | "L18" | "L19" | "L20" | "L21" | "L22" | "REFRAME" | "QUOTE";
+export type RuleId = "L13" | "L14" | "L15" | "L16" | "L17" | "L18" | "L19" | "L20" | "L21" | "L22" | "L23" | "L24" | "REFRAME" | "QUOTE";
 
 /**
  * The "X, not Y" reframe and "rather than" as sentence architecture (M74b,
@@ -411,6 +427,9 @@ export const RULE_TEXT: Readonly<Record<RuleId, string>> = {
   L21: 'Do not use the word "no" as an amount. Say what is there or what is still to come.',
   /* M95c: the owner, 2026-10-30. */
   L22: 'Do not use the word "card" for anything in Abductive. Name the thing: the concept, the relation, the Why it matters line, the step or the page.',
+  /* M96: the owner, 2026-10-30. */
+  L23: 'Do not use the verb "read" in any form. Say "consider", "look at", "go through" or "open": "Abductive considers your data", "this step considers your four data files".',
+  L24: 'Do not call anything a "walk". Say "walkthrough".',
   REFRAME: 'Do not set one thing against another with "rather than" or with an "X, not Y" reframe. Say what the thing is.',
   QUOTE:
     "Quote the researcher only word for word, from their own turns. Put their exact words in quotation marks, or say it in your own words without quotation marks.",
@@ -468,6 +487,13 @@ export function sentenceBreaks(sentence: string): readonly RuleBreak[] {
   const amounts = noAmounts(s);
   if (amounts.length > 0) out.push({ rule: "L21", at: amounts[0] ?? "" });
   if (CARD_WORD.test(s)) out.push({ rule: "L22", at: first(CARD_WORD) });
+  /* M96: the researcher's own words in quotation marks keep their "read"; the
+     rule is about the tool's prose, and a quote is the researcher's. */
+  const unquoted = s.replace(/"[^"]*"|\u201c[^\u201d]*\u201d/g, "");
+  const readAt = unquoted.match(READ_WORD)?.[0];
+  if (readAt !== undefined) out.push({ rule: "L23", at: readAt });
+  const walkAt = unquoted.match(WALK_NOUN)?.[0];
+  if (walkAt !== undefined) out.push({ rule: "L24", at: walkAt });
   if (REFRAME.test(s)) out.push({ rule: "REFRAME", at: first(REFRAME) });
   return out;
 }

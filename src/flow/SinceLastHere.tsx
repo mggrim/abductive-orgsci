@@ -171,7 +171,7 @@ export function digestRows(
     /* M89: "New flags" and "Flags that you settled" went with the checks. */
     {
       key: "papers",
-      label: "Papers read",
+      label: "Papers considered",
       row: view.paperVerdicts,
       href: literaturePath(projectId),
     },

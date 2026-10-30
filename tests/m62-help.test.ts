@@ -91,16 +91,16 @@ const MOVED: readonly { readonly file: string; readonly was: string; readonly no
   { file: "workbench/Workbench.tsx", was: "Your answers here shape every question Abductive asks you and every check it runs.", now: "Your answers on Design shape every question that Abductive asks you." },
   { file: "flow/StationWorkspace.tsx", was: "One statement of the points that this conversation has settled.", now: "One statement of the points that this conversation has settled. Abductive saves your words exactly as you wrote them." },
   // Sources.
-  { file: "ui/StudyViews.tsx", was: "Your data grounds the claims in your model. The Early data step reads your data to suggest more claims.", now: "Your data grounds the claims in your ontology. At the Early data step, Abductive reads your data to suggest more claims." },
+  { file: "ui/StudyViews.tsx", was: "Your data grounds the claims in your model. The Early data step reads your data to suggest more claims.", now: "Your data grounds the concepts in your ontology. The conversation at the Early data step considers every data file here, in full." },
   { file: "ui/StudyViews.tsx", was: "Everything you're building this project on. You can see which passages you have opened and which you haven't.", now: "Everything that you're building this project on. You can see which passages you have opened and which you haven't." },
-  { file: "flow/SeminalCorpus.tsx", was: "Abductive files anything you drop here as a paper, and reads it to place your project in a conversation.", now: "Abductive files anything that you add under Papers as a paper, and reads each paper to place your project in a conversation." },
-  { file: "flow/SeminalCorpus.tsx", was: "When a check asks for a claim's grounds, Abductive reads your data instead.", now: "To check a claim's grounds, Abductive reads your data instead." },
+  { file: "flow/SeminalCorpus.tsx", was: "Abductive files anything you drop here as a paper, and reads it to place your project in a conversation.", now: "Abductive files anything that you add under Papers as a paper, and considers each paper to place your project in a conversation." },
+  { file: "flow/SeminalCorpus.tsx", was: "When a check asks for a claim's grounds, Abductive reads your data instead.", now: "To check a claim's grounds, Abductive considers your data instead." },
   { file: "flow/SeminalCorpus.tsx", was: "Nothing joins your model until you accept the suggestion.", now: "A suggestion joins your ontology only when you accept it." },
   { file: "flow/CorpusMaterial.tsx", was: "Your claims cite this data.", now: "Add your transcripts, fieldnotes, memos and archives. Your claims cite this data." },
-  { file: "flow/CorpusMaterial.tsx", was: "Adding a file doesn't send it anywhere or read it.", now: "Adding a file doesn't send it anywhere or read it. Press Read the data in this section, or at the Early data step on Design, and Abductive suggests concepts and statements from your data." }, // M74b, ISC-665
+  { file: "flow/CorpusMaterial.tsx", was: "Adding a file doesn't send it anywhere or read it.", now: "When you add a file, Abductive keeps the file in this browser. Abductive sends your data to the model on two occasions: after you press Suggest concepts in this section, to request suggested concepts and statements, and during your conversation at the Early data step, with all your data files." }, // M74b, ISC-665
   // Your model, rewritten at M63 (ISC-614) in the owner's terms: the "now" is the M63 sentence doing the same job.
   { file: "ui/ConceptsView.tsx", was: "Your answers and data build your model. Every check reads your model.", now: "The concepts that you define for this project, with their definitions, properties and relations." },
-  { file: "ui/ConceptsView.tsx", was: "come here to accept or reject the claims Abductive suggested.", now: "Abductive suggests concepts after you save a summary at a step or read your data, and you accept, refine or reject each one." },
+  { file: "ui/ConceptsView.tsx", was: "come here to accept or reject the claims Abductive suggested.", now: "Abductive suggests concepts after you save a summary at a step or press Suggest concepts on Sources, and you accept, refine or reject each one." },
   { file: "ui/ConceptsView.tsx", was: "You accepted every claim here, and each claim shows its origin mark.", now: "Each claim that your project already has is a statement, with a label of its origin" }, // M75, ISC-669
   { file: "workbench/ProposalsTrayView.tsx", was: "Reject a suggestion and it stays in this tray, struck through, with your reason.", now: "Reject a suggestion and it stays under Suggestions to review, struck through, with your reason." },
   { file: "workbench/ProposalsTrayView.tsx", was: "Whatever you change, Abductive records the claim as the model's suggestion and keeps your edit beside the original.", now: "Whatever you change, Abductive records the claim as the model's suggestion and keeps your edit beside the original." },
@@ -155,7 +155,7 @@ describe("the explanatory sentences left the pages and live in the help", () => 
  * Help panel carries each one as well, so a ruling to move them is a deletion.
  */
 const HELD: readonly { readonly file: string; readonly gloss: string }[] = [
-  { file: "flow/SeminalCorpus.tsx", gloss: "Abductive reads each paper for its expectations (what the paper leads readers to expect) and to see which conversation you're joining." },
+  { file: "flow/SeminalCorpus.tsx", gloss: "Abductive considers each paper for its expectations (what the paper leads readers to expect) and to see which conversation you're joining." },
   // M63, ISC-614: a claim is a statement in the ontology now.
   { file: "workbench/ProposalsTrayView.tsx", gloss: "A suggestion becomes a claim (a statement in your ontology) once you accept the suggestion." },
 ];

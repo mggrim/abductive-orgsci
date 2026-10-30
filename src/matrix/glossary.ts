@@ -41,8 +41,8 @@ export const BIAS_GLOSSARY: Readonly<Record<BiasId, BiasEntry>> = {
     id: "confirmation",
     name: "Confirmation",
     definition:
-      "Reading the field for your existing expectation, and finding it. The bias arrives before fieldwork as a question with the answer already folded into its framing. During fieldwork the bias arrives as material in which every excerpt fits your view.",
-    short: "Confirmation is the habit of reading the field for your existing expectation, and finding it.",
+      "Searching the field for your existing expectation, and finding it. The bias arrives before fieldwork as a question with the answer already folded into its framing. During fieldwork the bias arrives as material in which every excerpt fits your view.",
+    short: "Confirmation is the habit of searching the field for your existing expectation, and finding it.",
     tell: "You can't name an observation that would make you abandon the framing.",
   },
   "limited-attention": {
@@ -57,7 +57,7 @@ export const BIAS_GLOSSARY: Readonly<Record<BiasId, BiasEntry>> = {
     id: "premature-closure",
     name: "Premature closure",
     definition:
-      "Settling an open question because a plausible answer turned up, with the rivals still untried. The account stops being provisional while the evidence still supports several readings.",
+      "Settling an open question because a plausible answer turned up, with the rivals still untried. The account stops being provisional while the evidence still supports several interpretations.",
     short: "Premature closure is settling an open question because a plausible answer turned up, with the rivals still untried.",
     tell: "There's a resolution in your ontology, and History lacks a rival that you weighed against it.",
   },
@@ -97,7 +97,7 @@ export const BIAS_GLOSSARY: Readonly<Record<BiasId, BiasEntry>> = {
     id: "artificial-certainty",
     name: "Artificial certainty",
     definition:
-      "Fluent synthesis that reads exactly as confident on one interview as it would on forty. Machine prose comes unhedged by default, so the assurance of a passage isn't a guide to the weight of evidence underneath it.",
+      "Fluent synthesis that sounds exactly as confident on one interview as it would on forty. Machine prose comes unhedged by default, so the assurance of a passage isn't a guide to the weight of evidence underneath it.",
     short: "Artificial certainty is fluent prose that sounds as sure on one interview as it would on forty.",
     tell: "You write a claim resting on a single informant in the same voice as one resting on all of your data.",
   },
@@ -154,7 +154,7 @@ export const CONTEXT_GLOSSARY: Readonly<Record<ContextId, ContextEntry>> = {
     id: "pilot-data",
     short: "Pilot",
     name: "Early data",
-    definition: "The first data back from the field, and your reading of it.",
+    definition: "The first data back from the field, and your interpretation of it.",
     family: "stage",
   },
   anomaly: {
@@ -169,7 +169,7 @@ export const CONTEXT_GLOSSARY: Readonly<Record<ContextId, ContextEntry>> = {
     short: "Your ontology",
     name: "Your ontology",
     definition:
-      "What you now claim the setting contains. These squares read the shape of your ontology: a claim owing evidence, a rival deleted, an unexplained remainder that only ever shrinks.",
+      "What you now claim the setting contains. These squares track the shape of your ontology: a claim owing evidence, a rival deleted, an unexplained remainder that only ever shrinks.",
     family: "graph",
   },
   "orphan-construct": {

@@ -283,5 +283,5 @@ export function originDoubtCaveat(count: number): string {
 
 /** The same caveat where a share computed from origin is printed under it. */
 export function originDoubtShareCaveat(count: number): string {
-  return `${originDoubtCaveat(count)} Read any share computed from origin as an upper bound on the researcher's own contribution.`;
+  return `${originDoubtCaveat(count)} Treat any share computed from origin as an upper bound on the researcher's own contribution.`;
 }

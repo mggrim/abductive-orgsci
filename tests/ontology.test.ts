@@ -316,7 +316,7 @@ describe("contradicts obligation", () => {
     // observations attached to this puzzle and the old wording read as a count of
     // what the model held.
     expect(result.detail).toBe(
-      "You have attached one observation to this puzzle, and one instance reads as an unusual case",
+      "You have attached one observation to this puzzle, and one instance counts as an unusual case",
     );
   });
 

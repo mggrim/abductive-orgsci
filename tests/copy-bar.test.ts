@@ -323,7 +323,7 @@ describe("the refusals carry their reasoning, and the pieces say how they fit", 
     expect(help).toContain("Your answers on Design shape every question that Abductive asks you.");
     // M28 r6: copy. It ended on an ellipsis. More what?
     expect(help).toContain(
-      "Your data grounds the claims in your ontology. At the Early data step, Abductive reads your data to suggest more claims.",
+      "Your data grounds the concepts in your ontology. The conversation at the Early data step considers every data file here, in full.",
     );
     // M28 r6: copy. Two passives with no subject and no reader.
     // M63, ISC-614: the two pages in the owner's terms.
@@ -547,19 +547,6 @@ describe("Part 5: every control, fold, chip and place reads as a label (M61)", (
     expect(faults).toEqual([]);
   });
 
-  test("every keyboard binding is named as an action (L1)", async () => {
-    const { actionLabelFault } = await import("./copyBarScan.ts");
-    const { BINDING_LABELS, PART5_PLACES } = await import("./copyBarPart5Places.ts");
-    /* The sheet's opener is fixed by what the binding does (keyboard.test.ts):
-     * "Go to" for a move, "Open" for a reveal. It reads as one verb here, so
-     * "Go to next item" is held to the same three words as "Open section". */
-    const faults = BINDING_LABELS.flatMap((n) => {
-      const f = actionLabelFault(n.replace(/^Go to /, "Go_to "), PART5_PLACES);
-      return f === null ? [] : [`binding "${n}" ${f}`];
-    });
-    expect(faults).toEqual([]);
-  });
-
   test("no retired word reaches a rendered string (L12)", async () => {
     const { retiredTermOffenders } = await import("./copyBarScan.ts");
     expect(retiredTermOffenders()).toEqual([]);
@@ -741,6 +728,30 @@ describe("M65: never is out of the copy and the prompts (L20)", () => {
   test("no rendered string or prompt calls anything in Abductive a card (L22)", async () => {
     const { cardOffenders } = await import("./copyBarScan.ts");
     expect(cardOffenders()).toEqual([]);
+  });
+
+  /* L23 and L24 (the owner, 2026-10-30, M96): "The tool should not use the verb
+     'read' or 'reads'", and "It should be called a walkthrough". */
+  test("no rendered string, export or prompt uses the verb read (L23)", async () => {
+    const { readOffenders } = await import("./copyBarScan.ts");
+    expect(readOffenders()).toEqual([]);
+  });
+
+  test("no rendered string, export or prompt calls anything a walk (L24)", async () => {
+    const { walkOffenders } = await import("./copyBarScan.ts");
+    expect(walkOffenders()).toEqual([]);
+  });
+
+  test("Anti: L23 and L24 catch the verb and the noun, and pass the longer words", async () => {
+    const { READ_WORD, WALK_NOUN } = await import("./copyBarScan.ts");
+    for (const s of ["Read the data", "Abductive reads your data.", "Reading files…", "still unread", "reread it", "Read more"])
+      expect({ s, hit: READ_WORD.test(s) }).toEqual({ s, hit: true });
+    for (const s of ["Ready to collect data", "the reader", "a thread", "already", "read-only", "Machine-readable"])
+      expect({ s, hit: READ_WORD.test(s) }).toEqual({ s, hit: false });
+    for (const s of ["the walk of record", "two walks", "A walk showed it"])
+      expect({ s, hit: WALK_NOUN.test(s) }).toEqual({ s, hit: true });
+    for (const s of ["the walkthrough", "Walk me through the day.", "walk you through it", "a sidewalk"])
+      expect({ s, hit: WALK_NOUN.test(s) }).toEqual({ s, hit: false });
   });
 
   test("Anti: the word is caught in any case, and a hyphenated identifier passes", async () => {

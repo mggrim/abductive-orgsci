@@ -30,7 +30,7 @@ import { StationSuggestions } from "./ConceptsView.tsx";
 export const SURFACE_LABEL = "Surface concepts and relationships";
 
 /** The one sentence under the control while it is open. */
-export const SURFACE_LEDE = "Abductive reads both sides of this chat since your last surfacing, with the summary that you saved here.";
+export const SURFACE_LEDE = "Abductive considers both sides of this chat since your last surfacing, with the summary that you saved here.";
 
 /** Why the control is inert: the chat holds no reply of the researcher's yet. */
 export const SURFACE_NEEDS_REPLY = "Reply in the chat first, and Abductive can surface concepts and relationships from it.";
@@ -41,10 +41,10 @@ export const SURFACE_ALL_READ = "Abductive has surfaced from every reply in this
 /** Why the control is inert: a model isn't connected. */
 export const SURFACE_OFFLINE = "Connect a model under Model access, and Abductive surfaces concepts and relationships from this chat.";
 
-export const SURFACE_RUNNING = "Abductive is reading both sides of this chat for concepts and relationships.";
+export const SURFACE_RUNNING = "Abductive is considering both sides of this chat for concepts and relationships.";
 
 /** What a surfacing that brought back zero suggestions says (ISC-760). */
-export const SURFACE_EMPTY = "Abductive read this chat and left your suggestions as they were.";
+export const SURFACE_EMPTY = "Abductive considered this chat and left your suggestions as they were.";
 
 const counted = (n: number, one: string, many: string) => `${numberWord(n)} ${n === 1 ? one : many}`;
 

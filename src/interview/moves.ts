@@ -263,7 +263,7 @@ function coldStart(): Candidate[] {
       question:
         "Where in your setting do you plan to look for the observation that this puzzle rests on?",
       rationale:
-        "A puzzle without an observation behind it drifts into a gap that you found in the reading, so name the place where you'll look.",
+        "A puzzle without an observation behind it drifts into a gap that you found in the literature, so name the place where you'll look.",
       source: "residue",
     },
   ];
@@ -466,7 +466,7 @@ function fromMatrixGaps(
       // and a piece of the engine's vocabulary, in front of someone with no
       // way to look either up. topicLabel already renders this pair in
       // English and was being used everywhere except here.
-      rationale: `You haven't been near ${topicLabel(`cell:${cell.id}`)} yet. Where you haven't looked is where your reading and the setting most often come apart.`,
+      rationale: `You haven't been near ${topicLabel(`cell:${cell.id}`)} yet. Where you haven't looked is where your account and the setting most often come apart.`,
       source: "matrix-gap",
       matrixCell: cell.id,
     },

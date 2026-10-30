@@ -37,9 +37,9 @@ History records the provider, the model and its version for every turn that a mo
 
 ## Replaying the example
 
-`examples/auditing-judgement.bundle.json` is a walk of record: a complete project exported from Abductive with its full event history, in which a second-year PhD student finds a dissertation topic on how junior auditors learn judgement after automation (17 October 2026). To open it, start the app, go to **Projects**, press **Import project** and pick the file. You can read the conversation, the emerging project ontology and the full History without connecting a model. `examples/auditing-judgement.report.md` is the report that Abductive exported from the same project.
+`examples/auditing-judgement.bundle.json` is a walkthrough of record: a complete project exported from Abductive with its full event history, in which a second-year PhD student finds a dissertation topic on how junior auditors learn judgement after automation (17 October 2026). To open it, start the app, go to **Projects**, press **Import project** and pick the file. You can go through the conversation, the emerging project ontology and the full History without connecting a model. `examples/auditing-judgement.report.md` is the report that Abductive exported from the same project.
 
-The walk is synthetic. An AI agent played the researcher and wrote the researcher's replies and the fictional data files, while Abductive answered as itself through Claude Code. Every participant and every data file in it is fictional.
+The walkthrough is synthetic. An AI agent played the researcher and wrote the researcher's replies and the fictional data files, while Abductive answered as itself through Claude Code. Every participant and every data file in it is fictional.
 
 ## Tests
 
@@ -54,7 +54,7 @@ bun x tsc --noEmit
 - `scripts/cli-bridge.ts` the local bridge from the browser to Claude Code, Codex, a local model server or an API relay
 - `bridge-app/` source for Abductive Bridge, a macOS menu-bar app that runs the same bridge natively (`bridge-app/build.sh` builds it; it needs Xcode and XcodeGen)
 - `content/creeds/` the methodological stances for the planned challenge personas
-- `examples/` the walk of record (see above)
+- `examples/` the walkthrough of record (see above)
 - `docs/TECHNICAL_APPENDIX.md` the technical appendix for the proposal
 - `docs/copy-standard.md` the writing standard that every string in the app meets
 - `tests/` the test suite

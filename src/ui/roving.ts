@@ -5,7 +5,7 @@
  * squares as 63 tab stops or none, and the rail presents eight. A keyboard
  * user reaching the coverage grid on /biases had to press Tab 63 times to get
  * past it, which is the single worst keyboard defect in the product and the
- * reason WAI-ARIA's grid pattern exists. One stop for the group, arrows to
+ * reason WAI-ARIA's grid pattern exists. The arrows inside a group are the ARIA widget's own keys, and they stayed when the app's shortcuts went at M96 (ISC-794). One stop for the group, arrows to
  * move inside it: Tab is for getting past a thing, arrows are for moving
  * within it.
  *

@@ -155,7 +155,7 @@ describe("what the sentence says (D33)", () => {
   test("with one attached, it says one is attached rather than that one is held", () => {
     const result = owes([...LOOSE_OBSERVATIONS, relate("ob1", "pz", "evidences")]);
     expect(result.detail).toBe(
-      "You have attached one observation to this puzzle, and one instance reads as an unusual case",
+      "You have attached one observation to this puzzle, and one instance counts as an unusual case",
     );
   });
 

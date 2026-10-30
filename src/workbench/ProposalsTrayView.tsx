@@ -405,7 +405,7 @@ export function ProposalsTrayView(props: {
           on the page; moving it into the Help panel is returned to the lead. */}
           <p className="muted small">
             A suggestion becomes a claim (a statement in your ontology) once you accept the suggestion.
-            Read each suggestion, edit anything that you wouldn't defend, then decide.
+            Review the suggestions one at a time, edit any part that you wouldn't defend, then decide on each suggestion.
           </p>
           {/* M62, ISC-600: the Learn more fold under it moved into the page's Help control (ui/pageHelp.ts). */}
         </>

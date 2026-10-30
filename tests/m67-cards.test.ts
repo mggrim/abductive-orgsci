@@ -61,7 +61,7 @@ const text = (markup: string) =>
 
 /**
  * M70 and the owner's addendum: a card on the page is a preview, and its whole
- * body is in the overlay that Read more opens. A test that reads a card's body
+ * body is in the overlay that Open full view opens. A test that reads a card's body
  * names the card to open.
  */
 function page(events: readonly LedgerEvent[], reading: ReadTarget | null = null) {
@@ -72,7 +72,7 @@ function page(events: readonly LedgerEvent[], reading: ReadTarget | null = null)
 
 describe("relation cards under Relations (ISC-631)", () => {
   const { events, rel } = built();
-  // M70 and the owner's addendum: the relation's body is in the overlay that Read more opens, so the test opens it.
+  // M70 and the owner's addendum: the relation's body is in the overlay that Open full view opens, so the test opens it.
   const markup = page(events, { kind: "relation", id: rel.id });
 
   test("Relations sits beside Concepts, and the relation is a card with its kind, claim, conditions, statements and evidence", () => {

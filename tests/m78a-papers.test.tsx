@@ -237,12 +237,12 @@ describe("the row says Named, and the error says what to do", () => {
   });
 
   test("the named note is the brief's sentence", () => {
-    expect(NAMED_NOTE).toBe("Identified at Starting point; upload the paper and Abductive reads it.");
+    expect(NAMED_NOTE).toBe("Identified at Starting point; upload the paper and Abductive considers it.");
   });
 
   test("a failed read names no exception and offers Try again", async () => {
-    expect(judgeFailureNote(null)).toBe("Abductive couldn't read your papers. Try again.");
-    expect(judgeFailureNote("bechky-2003.pdf")).toBe("Abductive couldn't read bechky-2003.pdf. Try again.");
+    expect(judgeFailureNote(null)).toBe("Abductive couldn't consider your papers. Try again.");
+    expect(judgeFailureNote("bechky-2003.pdf")).toBe("Abductive couldn't consider bechky-2003.pdf. Try again.");
     const corpus = await src("flow/SeminalCorpus.tsx");
     expect(corpus).toContain('data-testid="literature-retry"');
     expect(corpus).not.toContain("${message}");

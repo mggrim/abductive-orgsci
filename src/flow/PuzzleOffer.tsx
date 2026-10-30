@@ -36,13 +36,13 @@ import { formatMoment } from "../ui/format.ts";
 export const PUZZLE_OFFER_QUESTION = "Is this the surprise that current accounts can't explain?";
 
 /** The sentence over the reading, naming whose words follow. */
-export const PUZZLE_OFFER_LEAD = "Abductive read this puzzle from your saved answers.";
+export const PUZZLE_OFFER_LEAD = "Abductive suggested this puzzle from your saved answers.";
 
 /* M93, ISC-763: the reading is a suggestion with its own decision. */
-export const READING_PENDING_LINE = "Accept the reading and it becomes your research question, which Abductive reads for every question and suggestion.";
-export const READING_ACCEPTED_LINE = "You accepted this reading as your research question.";
-export const READING_EDITED_LINE = "You accepted this reading in your own words as your research question.";
-export const READING_REJECTED_LINE = "You rejected this reading, so your research question stays as it was.";
+export const READING_PENDING_LINE = "Accept the suggested puzzle to make the puzzle your research question. Abductive then considers your research question for its questions and suggestions.";
+export const READING_ACCEPTED_LINE = "You accepted this suggested puzzle as your research question.";
+export const READING_EDITED_LINE = "You accepted this suggested puzzle in your own words as your research question.";
+export const READING_REJECTED_LINE = "You rejected this suggested puzzle, so your research question stays as it was.";
 
 /** The line under a reading for the researcher's decision on it (M93, ISC-763). */
 export function readingDecisionLine(decision: ReadingDecision): string | null {
@@ -71,7 +71,7 @@ export function ReadingDecisionCard(props: {
 }) {
   const { projectId, reading, decision, onChanged } = props;
   const { appendAll } = useLedger();
-  const [mode, setMode] = useState<"read" | "edit" | "reject">("read");
+  const [mode, setMode] = useState<"view" | "edit" | "reject">("view");
   const [text, setText] = useState(reading.text);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
@@ -82,7 +82,7 @@ export function ReadingDecisionCard(props: {
     setError(null);
     void write()
       .then(() => {
-        setMode("read");
+        setMode("view");
         onChanged();
       })
       .catch((err: unknown) => setError(`Abductive couldn't record your decision: ${err instanceof Error ? err.message : String(err)}`))
@@ -117,7 +117,7 @@ export function ReadingDecisionCard(props: {
               Save puzzle
             </button>
             <InertNote control="reading-edit-save" reason={unwritten} />
-            <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+            <button type="button" className="btn-bare" onClick={() => setMode("view")}>
               Cancel
             </button>
           </div>
@@ -136,15 +136,15 @@ export function ReadingDecisionCard(props: {
               onClick={() => act(() => rejectReading({ projectId, reading, appendAll, ...(reason.trim() === "" ? {} : { reason }) }))}
               data-testid="reading-reject-confirm"
             >
-              Reject reading
+              Reject puzzle
             </button>
-            <button type="button" className="btn-bare" onClick={() => setMode("read")}>
+            <button type="button" className="btn-bare" onClick={() => setMode("view")}>
               Cancel
             </button>
           </div>
         </div>
       )}
-      {decision.kind === "pending" && mode === "read" && (
+      {decision.kind === "pending" && mode === "view" && (
         <div className="concept-actions">
           <button
             type="button"
@@ -173,7 +173,7 @@ export function ReadingDecisionCard(props: {
 }
 
 /** The control after a saved puzzle, one label in every state but the wait. */
-export const READ_PUZZLE_AGAIN = "Read puzzle again";
+export const READ_PUZZLE_AGAIN = "Suggest puzzle again";
 
 export interface SavedPuzzlePanel {
   /** The researcher's saved puzzle, as they saved it. */
@@ -215,14 +215,14 @@ export function savedPuzzlePanel(input: {
   const last = latestReading(input.events, input.projectId);
   const line =
     input.error !== null
-      ? `Abductive couldn't read the puzzle: ${input.error}`
+      ? `Abductive couldn't suggest a puzzle: ${input.error}`
       : input.reading
         ? READING_NOW
         : last === null
-          ? "Abductive hasn't read your answers for a puzzle yet."
+          ? "Abductive hasn't suggested a puzzle from your answers yet."
           : savedAt !== null && last.ts < savedAt
-            ? `Abductive last read your answers ${formatMoment(last.ts)}, before you saved this puzzle.`
-            : `Abductive last read your answers ${formatMoment(last.ts)}.`;
+            ? `Abductive last considered your answers ${formatMoment(last.ts)}, before you saved this puzzle.`
+            : `Abductive last considered your answers ${formatMoment(last.ts)}.`;
   const agreement = input.reading || input.error !== null ? null : puzzleAgreement(text, last);
   return { text, line, agreement, control: input.reading ? null : READ_PUZZLE_AGAIN };
 }

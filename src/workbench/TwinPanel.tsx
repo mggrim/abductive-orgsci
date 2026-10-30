@@ -188,15 +188,14 @@ export function TwinPanel(props: {
               and the warning about reading it early are a fold, because both
               are answers to "why" and neither changes what you press. */}
           <p className="small muted">
-            See the design an ordinary, by-the-book version of this project would have had, then
-            read yours against it.
+            See the design of an ordinary, by-the-book version of this project, then compare your design
+            with the ordinary version.
           </p>
           <Disclosure summary="Learn more" testId="twin-why">
             <p className="small muted">
               Abductive writes the ordinary version only from your starting point and the expectations that
-              you took from the papers. Read the ordinary version early and you lose the
-              ability to tell,
-              afterwards, whether you converged on it or got there yourself.
+              you took from the papers. If you open the ordinary version early, you can't tell
+              afterward whether you followed the ordinary version or reached the same design on your own.
             </p>
           </Disclosure>
           {gated ? (
@@ -213,9 +212,9 @@ export function TwinPanel(props: {
               {/* M80: the claim count went. The walk read "Your model has 0 claims"
                   over a project built from 22 concepts. */}
               <p className="warn small">
-                Reading the ordinary version now will shape what you build next, and you will not be
+                Opening the ordinary version now will shape what you build next, and you will not be
                 able to tell afterwards whether you converged on it or arrived there yourself.
-                Abductive records that you read it either way.
+                Abductive records that you opened it either way.
               </p>
               <button type="button" onClick={() => void reveal("on-demand")} data-testid="twin-reveal-anyway">
                 Show anyway
@@ -263,7 +262,7 @@ export function TwinPanel(props: {
             </div>
           )}
           {alreadyRevealed && (
-            <p className="small muted">You read this before, and the entry is in History.</p>
+            <p className="small muted">You opened this before, and the entry is in History.</p>
           )}
         </>
       )}

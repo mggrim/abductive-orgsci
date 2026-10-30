@@ -57,7 +57,7 @@ import "./intro.css";
 // Not a route. The keyboard model's sheet, palette and chord chip render over
 // whichever surface is up, and the file is here for the same reason as the
 // rest: one declaration of what loads and in what order (FND-02).
-import "./keyboard.css";
+import "./search.css";
 import "./material.css";
 import "./ontology.css";
 // M32. Two surfaces, both alphabetical among the rest, and both new rather

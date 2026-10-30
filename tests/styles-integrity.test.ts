@@ -128,7 +128,7 @@ test("the split produced the files it said it would", () => {
     "exports.css",
     "instrumentation.css",
     "intro.css",
-    "keyboard.css",
+    // M96, ISC-794: keyboard.css went with the shortcuts.
     "material.css",
     "ontology.css",
     "panels.css",
@@ -136,6 +136,8 @@ test("the split produced the files it said it would", () => {
     // M32 R8: rows.css, the second half of the primitive layer beside
     // components.css, not a sixteenth surface.
     "rows.css",
+    // M96, ISC-794: the search dialog's own sheet, which keyboard.css held.
+    "search.css",
     "shell.css",
     "tokens.css",
   ]);

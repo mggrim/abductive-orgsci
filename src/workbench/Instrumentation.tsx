@@ -762,13 +762,13 @@ const KIND_LABEL: Readonly<Record<HistoryKind, string>> = {
   // The tool's, said so in the filter as well as in the row, because the filter
   // is where a reader decides what to look at and "puzzle read" alone would read
   // as something the researcher did.
-  "puzzle-reading": "a puzzle that Abductive read",
+  "puzzle-reading": "a puzzle that Abductive suggested",
   /* M74a, ISC-662: this and `question-selection` read "a question that Abductive
      asked you" and "a question that Abductive asked". A challenge is raised
      about the design; a selection is the conversation's next question. */
   challenge: "a question that Abductive raised about your design",
   flag: "a bias flag that Abductive raised",
-  "bias-scan": "an answer that Abductive read for bias flags",
+  "bias-scan": "an answer that Abductive considered for bias flags",
   attention: "a passage that you opened",
   /* M78a, ISC-680: a reply, the conversation's word; the researcher's and Abductive's apart. */
   response: "your reply",
@@ -830,7 +830,7 @@ const KIND_LABEL: Readonly<Record<HistoryKind, string>> = {
   "why-rejected": "a Why it matters line that you rejected",
   "argument-accepted": "the argument so far, as you accepted it",
   surfacing: "concepts and relationships that you asked Abductive to surface",
-  "reading-accepted": "a puzzle reading that you accepted",
+  "reading-accepted": "a suggested puzzle that you accepted",
   "draft-declined": "a suggestion from Abductive that you declined",
   "property-rejected": "a suggested property that you rejected",
   "help-asked": "a help request that you made",
@@ -1478,8 +1478,8 @@ function describeEvent(
       return {
         happened:
           event.text.trim() === ""
-            ? "Abductive read the answers that you have saved and found the puzzle still to come"
-            : `Abductive read the puzzle from ${readFromSentence(readFromLabels(event.sources))}`,
+            ? "Abductive considered the answers that you have saved and found the puzzle still to come"
+            : `Abductive suggested the puzzle from ${readFromSentence(readFromLabels(event.sources))}`,
         changed: "the suggested puzzle",
       };
     case "challenge":
@@ -1493,8 +1493,8 @@ function describeEvent(
       return {
         happened:
           event.firedCells.length === 0
-            ? "Abductive read your answer for bias flags and raised none"
-            : `Abductive read your answer for bias flags and raised ${event.firedCells.length}`,
+            ? "Abductive considered your answer for bias flags and raised none"
+            : `Abductive considered your answer for bias flags and raised ${event.firedCells.length}`,
         changed: stationLabel(event.station),
       };
     case "attention":
@@ -1585,7 +1585,7 @@ function describeEvent(
         happened: `${event.mutationsInWindow} change${
           event.mutationsInWindow === 1 ? "" : "s"
         } to your ontology in the last ${event.windowTurns} turns, ${
-          event.reached ? "which reads as saturated" : "which does not read as saturated"
+          event.reached ? "which counts as saturated" : "which does not count as saturated"
         }`,
         changed: "your ontology, unchanged",
       };
@@ -1660,8 +1660,8 @@ function describeEvent(
     }
     case "concept-refined": {
       const parts = [
-        ...(event.name === undefined ? [] : [`the name now reads "${event.name}"`]),
-        ...(event.definition === undefined ? [] : [`the definition now reads "${event.definition}"`]),
+        ...(event.name === undefined ? [] : [`the name is now "${event.name}"`]),
+        ...(event.definition === undefined ? [] : [`the definition is now "${event.definition}"`]),
       ];
       return { happened: `You refined the concept: ${parts.join(", and ")}`, changed: conceptName(index, event.conceptId) };
     }
@@ -1746,8 +1746,8 @@ function describeEvent(
       };
     case "relation-refined": {
       const parts = [
-        ...(event.relation === undefined ? [] : [`the kind now reads "${RELATION_PHRASE[event.relation]}"`]),
-        ...(event.claim === undefined ? [] : [`the claim now reads "${event.claim}"`]),
+        ...(event.relation === undefined ? [] : [`the kind is now "${RELATION_PHRASE[event.relation]}"`]),
+        ...(event.claim === undefined ? [] : [`the claim is now "${event.claim}"`]),
       ];
       return { happened: `You refined the relation: ${parts.join(", and ")}`, changed: relationName(index, event.relationId) };
     }
@@ -1776,7 +1776,7 @@ function describeEvent(
       };
     case "homes-proposed":
       return {
-        happened: `Abductive proposed a home for ${countOf(event.proposals.length, "statement")} of the ${countOf(event.read.length, "statement")} that it read`,
+        happened: `Abductive proposed a home for ${countOf(event.proposals.length, "statement")} of the ${countOf(event.read.length, "statement")} that it considered`,
         changed: "Statements to place",
       };
     case "statement-suggested": {
@@ -1834,11 +1834,11 @@ function describeEvent(
       };
     case "reading-accepted":
       return {
-        happened: event.edited ? `You accepted Abductive's puzzle reading in your own words: ${event.text}` : `You accepted Abductive's puzzle reading: ${event.text}`,
+        happened: event.edited ? `You accepted Abductive's suggested puzzle in your own words: ${event.text}` : `You accepted Abductive's suggested puzzle: ${event.text}`,
         changed: "the research question",
       };
     case "draft-declined": {
-      const what = event.kind === "brief" ? "a summary that Abductive wrote from the chat" : event.kind === "puzzle-reading" ? "Abductive's puzzle reading" : "Abductive's argument so far";
+      const what = event.kind === "brief" ? "a summary that Abductive wrote from the chat" : event.kind === "puzzle-reading" ? "Abductive's suggested puzzle" : "Abductive's argument so far";
       return {
         happened: `You declined ${what}${event.reason === undefined ? "" : `: ${event.reason}`}`,
         changed: event.kind === "argument" ? "The argument so far" : event.kind === "puzzle-reading" ? "the suggested puzzle" : "the summary",
@@ -1871,7 +1871,7 @@ function describeEvent(
         // the log for "which version did I send in March" is looking for these
         // eight characters and nothing else on the row identifies the file.
         happened: `You exported ${event.artefact} (file stamp ${event.stamp})`,
-        changed: "Your project is unchanged: Abductive reads the project to export it.",
+        changed: "Abductive exports a copy of your project, so your project stays unchanged.",
       };
   }
   /* An event type this switch doesn't name yet (M74b's chip events arrive with

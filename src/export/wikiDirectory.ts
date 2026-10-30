@@ -286,13 +286,13 @@ function logFile(events: readonly LedgerEvent[], graph: OntologyGraph): string {
 }
 
 const README = [
-  "# Read me first",
+  "# Start here",
   "",
   /* M74a, ISC-663: affirmative, without the "X, not Y" reframe. */
   "This folder is a proto-ontology exported from Abductive: a qualitative research design",
   "that is still changing.",
   "",
-  "## How to read this folder",
+  "## How to use this folder",
   "",
   "- `index.md` is the catalogue. Start with that file.",
   "- `pages/` holds one markdown file per construct, with typed frontmatter and",

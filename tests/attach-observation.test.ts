@@ -197,7 +197,7 @@ describe("the attach, and what the record says about it (D29)", () => {
     );
     await relatePages({ projectId: PROJECT, from: "ob1", to: "pz", role: "evidences" }, ledger);
     expect(owes(ledger.store).detail).toBe(
-      "You have attached one observation to this puzzle, and one instance reads as an unusual case",
+      "You have attached one observation to this puzzle, and one instance counts as an unusual case",
     );
     await relatePages({ projectId: PROJECT, from: "ob2", to: "pz", role: "evidences" }, ledger);
     const full = owes(ledger.store);

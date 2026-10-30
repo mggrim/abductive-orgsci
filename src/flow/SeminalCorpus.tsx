@@ -131,12 +131,12 @@ export function paperRowState(input: {
  * citations read READ, with expectations the model wrote from memory; a paper
  * is read only once its text is here.
  */
-export const NAMED_NOTE = "Identified at Starting point; upload the paper and Abductive reads it.";
+export const NAMED_NOTE = "Identified at Starting point; upload the paper and Abductive considers it.";
 
 export function readPapersReason(papers: number, unread: number = papers, named: number = 0): string | null {
   if (papers === 0) {
     /* M78a: the papers named only by their citation have nothing to read yet. */
-    return named > 0 ? "Upload a paper, and Abductive reads it for its expectations." : "Identify or upload a paper first.";
+    return named > 0 ? "Upload a paper, and Abductive considers it for its expectations." : "Identify or upload a paper first.";
   }
   /* Walk finding. Every paper has been read against the framing you have now,
    * so there is nothing a second press would buy. It goes live again when the
@@ -211,7 +211,7 @@ export function judgeFailureNote(paperName: string | null): string {
   const what = paperName === null ? "your papers" : paperName;
   /* M78a, ISC-678 (L9): what failed, then what to do. The walk read "Abductive
    * couldn't read your papers: AbortError", an exception's name. */
-  return `Abductive couldn't read ${what}. Try again.`;
+  return `Abductive couldn't consider ${what}. Try again.`;
 }
 
 /**
@@ -435,7 +435,7 @@ export function SeminalCorpus(props: {
     async (e: ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       if (files === null || files.length === 0) return;
-      setBusy("Reading files…");
+      setBusy("Adding files…");
       setError(null);
       const chosen = Array.from(files);
       try {
@@ -665,7 +665,7 @@ export function SeminalCorpus(props: {
   const readPapers = useCallback(async () => {
     if (readingRef.current || unread.length === 0) return;
     readingRef.current = true;
-    setReading("Reading your papers…");
+    setReading("Considering your papers…");
     setReadError(null);
     try {
       /* M33. This control keeps its label, its place and its sentences, and it
@@ -746,7 +746,7 @@ export function SeminalCorpus(props: {
       <p className="studyview-lede" data-testid="papers-join-literatures">
         Papers that you add on Sources join the literatures that you identified at Starting point.
         Identify the papers that you expect to draw on.
-        Abductive reads each paper for its expectations (what the paper leads readers to expect) and to see which conversation
+        Abductive considers each paper for its expectations (what the paper leads readers to expect) and to see which conversation
         you're joining. Your evidence is your own data, which you add once you
         say you have some.
       </p>

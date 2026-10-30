@@ -550,7 +550,7 @@ describe("a pass of proposals homes every statement it reads (the lead's ruling,
           "NAME: Command score\nDEFINITION: The programme's score [...]\nSTATEMENTS: 4",
           "FROM: Office-hours slot\nKIND: leads-to\nTO: Command score\nCLAIM: Longer slots lead to higher scores.",
         ].join("\n---\n"),
-        ["HOME: B1\nSTATEMENTS: 2", "NAME: Uniform pages\nDEFINITION: Updates that read alike [...]\nSTATEMENTS: 3"].join("\n---\n"),
+        ["HOME: B1\nSTATEMENTS: 2", "NAME: Uniform pages\nDEFINITION: Updates that look alike [...]\nSTATEMENTS: 3"].join("\n---\n"),
       ],
     });
     const out = await run(four(), client);

@@ -205,7 +205,7 @@ describe("the app has one word for the thing you click", () => {
 describe("every route agrees about where a page ends and where a section starts", () => {
   const SHEETS = ["base.css", "shell.css", "design.css", "intro.css", "biases.css",
     "ontology.css", "instrumentation.css", "material.css", "exports.css",
-    "components.css", "keyboard.css", "tokens.css"] as const;
+    "components.css", "search.css", "tokens.css"] as const;
 
   /**
    * Every rule in a sheet as [selector, declarations]. Nested rules inside a

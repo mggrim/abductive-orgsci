@@ -36,13 +36,13 @@ const WP = WALK.project.id;
 const SAVED = WALK.project.brief.puzzleAnswer ?? "";
 
 describe("the panel after a saved puzzle (finding 9)", () => {
-  test("the walk's panel reads the saved puzzle, says when Abductive last read it, and offers Read puzzle again", () => {
+  test("the walk's panel reads the saved puzzle, says when Abductive last read it, and offers Suggest puzzle again", () => {
     expect(SAVED).toContain("I expected the volunteers to just fix whatever they could.");
     const panel = savedPuzzlePanel({ brief: WALK.project.brief, events: WALK.events, projectId: WP, reading: false, error: null });
     expect(panel).not.toBeNull();
     expect(panel!.text).toBe(SAVED);
-    expect(panel!.line).toMatch(/^Abductive last read your answers .+, before you saved this puzzle\.$/);
-    expect(panel!.control).toBe("Read puzzle again");
+    expect(panel!.line).toMatch(/^Abductive last considered your answers .+, before you saved this puzzle\.$/);
+    expect(panel!.control).toBe("Suggest puzzle again");
     expect(panel!.agreement).toBe(PUZZLE_READING_NONE);
     expect(`${panel!.text} ${panel!.line}`).not.toContain("No puzzle yet");
   });
@@ -62,15 +62,15 @@ describe("the panel after a saved puzzle (finding 9)", () => {
       modelVersion: "m",
     } as unknown as LedgerEvent;
     const panel = savedPuzzlePanel({ brief: WALK.project.brief, events: [...WALK.events, reading], projectId: WP, reading: false, error: null });
-    expect(panel!.line).toMatch(/^Abductive last read your answers .+\.$/);
+    expect(panel!.line).toMatch(/^Abductive last considered your answers .+\.$/);
     expect(panel!.line).not.toContain("before you saved");
     expect(panel!.agreement).toBe(PUZZLE_READING_MATCHES);
-    expect(panel!.control).toBe("Read puzzle again");
+    expect(panel!.control).toBe("Suggest puzzle again");
   });
 
   test("a reading of a different puzzle is quoted, so the researcher can judge it", () => {
     const other = "You expected volunteers to refuse unsafe items; they refuse cheap ones.";
-    expect(puzzleAgreement(SAVED, { text: other })).toBe(`Abductive reads a different puzzle out of your answers: ${other}`);
+    expect(puzzleAgreement(SAVED, { text: other })).toBe(`Abductive suggests a different puzzle from your answers: ${other}`);
     expect(puzzleAgreement(SAVED, { text: "" })).toBe(PUZZLE_READING_NONE);
     expect(puzzleAgreement(SAVED, null)).toBeNull();
     expect(samePuzzle(SAVED, "why do the volunteers argue about toasters but not about bikes")).toBe(true);
@@ -80,8 +80,8 @@ describe("the panel after a saved puzzle (finding 9)", () => {
     const busy = savedPuzzlePanel({ brief: WALK.project.brief, events: WALK.events, projectId: WP, reading: true, error: null });
     expect(busy!.control).toBeNull();
     const failed = savedPuzzlePanel({ brief: WALK.project.brief, events: WALK.events, projectId: WP, reading: false, error: "Load failed" });
-    expect(failed!.line).toBe("Abductive couldn't read the puzzle: Load failed");
-    expect(failed!.control).toBe("Read puzzle again");
+    expect(failed!.line).toBe("Abductive couldn't suggest a puzzle: Load failed");
+    expect(failed!.control).toBe("Suggest puzzle again");
   });
 
   test("no saved puzzle, no panel of this kind", () => {
@@ -114,7 +114,7 @@ describe("the Report states the puzzle once (finding 9)", () => {
     expect(lines.filter((l) => l !== "")).toEqual([
       `**Your puzzle.** ${SAVED}`,
       `**Suggested puzzle.** ${other}`,
-      "Abductive reads a different puzzle out of your answers: the suggested puzzle above.",
+      "Abductive suggests a different puzzle from your answers: the suggested puzzle above.",
     ]);
   });
 

@@ -185,7 +185,7 @@ describe("M75: Statements to place holds summary and data statements only (ISC-6
     const row = studyState({ project: b.project, events: b.events, corpusChunkIds: b.chunks.map((c) => c.id) });
     expect(row.statements).toBe(EXAMPLE_DATA + EXAMPLE_REPLIES);
     const list = await Bun.file(new URL("../src/ui/ProjectList.tsx", import.meta.url)).text();
-    expect(list).toContain("Statements from a step summary, your replies at a step or a read of your data");
+    expect(list).toContain("Statements from a step summary, your replies at a step or a pass over your data");
   });
 });
 

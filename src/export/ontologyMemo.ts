@@ -72,7 +72,7 @@ export function buildOntologyMemo(params: OntologyMemoParams): string {
     `# ${project.title}`,
     "",
     /* M74a, ISC-663: the researcher's local time, and the zone named once here. */
-    `_Abductive wrote this report from your project's History on ${localStamp(at)}. ${zoneLine(at)} Abductive reads everything below from the recorded session and adds only what that session recorded._`,
+    `_Abductive wrote this report from your project's History on ${localStamp(at)}. ${zoneLine(at)} Abductive takes everything below from the recorded session and adds only what that session recorded._`,
     "",
     // The identifier travels inside the file. It used to live only in a
     // separate receipt the researcher had to remember to download and keep

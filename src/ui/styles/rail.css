@@ -220,33 +220,6 @@
   color: var(--ink-strong);
 }
 
-/* The shortcut hints (R12). The keyboard model has been complete since FND-02
- * and invisible ever since, and a printed chord in the chrome is the fastest
- * thing on a screen to say "application". The label and the chord both come
- * out of bindings.ts, so nothing here writes a key name or a sentence of its
- * own. */
-.navrail-hints {
-  display: grid;
-  gap: var(--space-hair);
-  padding: var(--space-sm) var(--space-sm) 0;
-  border-top: 1px solid var(--line);
-}
-.navrail-hint {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  font-size: var(--text-micro);
-  letter-spacing: 0.06em;
-  color: var(--ink-faint);
-  min-width: 0;
-}
-.navrail-hint > span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 /* ── Folded ──────────────────────────────────────────────────────────────────
  * 56px holds one 32px control with the container padding either side and
@@ -263,7 +236,6 @@
 }
 .shell[data-rail="collapsed"] .navrail-name,
 .shell[data-rail="collapsed"] .navrail-head,
-.shell[data-rail="collapsed"] .navrail-hints,
 .shell[data-rail="collapsed"] .navrail-settingsname {
   display: none;
 }

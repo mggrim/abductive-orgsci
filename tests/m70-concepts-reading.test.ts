@@ -10,7 +10,7 @@
  * something that changes the page around."
  *
  * A card on the page is a preview (the name or the pair and the kind, the first
- * sentence, the count of what else it carries). "Read more" opens the whole
+ * sentence, the count of what else it carries). "Open full view" opens the whole
  * card in a dialog over the page, every passage and answer in full, with
  * Accept, Refine and Reject inside; the hash carries the open card. The tab has
  * two sections for the two kinds, suggestions first, and one section for every
@@ -107,7 +107,7 @@ function relationSuggested(relationId: string, from: string, to: string, extra: 
 
 /** The example with one concept suggested, one accepted, a second accepted, a relation suggested and one accepted. */
 function built() {
-  let events: LedgerEvent[] = [...EVENTS, conceptSuggested("c-dose", "Reading dose"), conceptSuggested("c-kept", "Kept concept")];
+  let events: LedgerEvent[] = [...EVENTS, conceptSuggested("c-dose", "Time on task"), conceptSuggested("c-kept", "Kept concept")];
   events = [...events, ...acceptConceptEvents(events, { projectId: P, conceptId: "c-kept" }, clock)];
   events = [...events, ...addConceptEvents(events, { projectId: P, name: "Judgement shift", definition: "Where a mentor's judgement of a founder moves. It moves late." }, clock)];
   const shift = projectConcepts(events, P, projectOntology(events, P)).accepted.find((c) => c.name === "Judgement shift")!;
@@ -210,13 +210,13 @@ describe("a suggested concept previews on the page and opens whole in the overla
     const { events } = built();
     const c = card(page(events), "suggestion-c-dose");
     const body = text(c);
-    expect(body).toContain("Reading dose");
+    expect(body).toContain("Time on task");
     expect(body).toContain("Suggested");
     expect(body).toContain("The weekly time a mentor spends reading a founder's update.");
     expect(body).not.toContain("Mentors set it themselves.");
     expect(body).toMatch(/3 properties, 2 statements, \d+ passages?, 1 answer/);
     for (const a of ["accept", "refine", "reject"]) expect(c).toContain(`data-testid="concept-${a}-c-dose"`);
-    expect(body).toContain("Read more");
+    expect(body).toContain("Open full view");
     expect(c).toContain('aria-haspopup="dialog"');
     expect(c).toContain(`id="${readMoreId({ kind: "concept", id: "c-dose" })}"`);
     expect(body).not.toContain("Reading depth");
@@ -235,7 +235,7 @@ describe("a suggested concept previews on the page and opens whole in the overla
     expect(d).toContain('data-testid="card-overlay"');
     const labelled = /aria-labelledby="([^"]+)"/.exec(d)?.[1];
     expect(labelled).toBeDefined();
-    expect(text(new RegExp(`<h2 id="${labelled}">([^<]*)</h2>`).exec(d)?.[1] ?? "")).toBe("Reading dose");
+    expect(text(new RegExp(`<h2 id="${labelled}">([^<]*)</h2>`).exec(d)?.[1] ?? "")).toBe("Time on task");
     const body = text(d);
     expect(body).toContain(flat(DEFINITION));
     for (const p of ["Reading frequency", "Reading depth", "Who reads"]) expect(body).toContain(p);
@@ -246,8 +246,8 @@ describe("a suggested concept previews on the page and opens whole in the overla
     for (const a of ["accept", "refine", "reject"]) expect(d).toContain(`data-testid="concept-${a}-c-dose"`);
     expect(body).toContain("Close");
     expect(body).toContain(GAP_MARKER_NOTE);
-    // The overlay's own card carries no Read more.
-    expect(body).not.toContain("Read more");
+    // The overlay's own card carries no Open full view.
+    expect(body).not.toContain("Open full view");
   });
 
   test("the page beneath an open overlay is the same page, so nothing beneath moves", () => {
@@ -289,7 +289,7 @@ describe("a suggestion grouped from statements already in the project shows them
         { statementId: withChunk[1]!.id, home: { kind: "relation", id: "r-grouped" } },
       ],
     } as LedgerEvent;
-    return { events: [...EVENTS, conceptSuggested("c-dose", "Reading dose"), g, r, homes], withChunk };
+    return { events: [...EVENTS, conceptSuggested("c-dose", "Time on task"), g, r, homes], withChunk };
   }
 
   test("the preview counts the statements whose proposed home is the suggestion, and their passages", () => {
@@ -502,7 +502,7 @@ describe("one section per kind (ISC-648)", () => {
   test("each section has its own empty state, saying what belongs there and offering the action", () => {
     const fresh = page(EVENTS);
     expect(text(fresh)).toContain(
-      "Save a summary at a step on Design, or read your data, and Abductive suggests concepts from your words.",
+      "Save a summary at a step on Design, or press Suggest concepts on Sources, and Abductive suggests concepts from your words.",
     );
     expect(fresh).toContain('data-testid="concept-add"');
     expect(text(fresh)).toContain("A relation joins two concepts, so accept or add a second concept first.");
@@ -537,7 +537,7 @@ describe("History names the places that exist (the lead's ruling)", () => {
   });
 });
 
-describe("live: the overlay opens from Read more, follows the hash, and closes four ways", () => {
+describe("live: the overlay opens from Open full view, follows the hash, and closes four ways", () => {
   async function mount(events: readonly LedgerEvent[], hash: string) {
     await saveProject({ id: P, title: "the example project", stage: "design-brief", createdAt: 1, brief: emptyBrief() } as never);
     for (const doc of DOCUMENTS) await saveDocument(doc);
@@ -572,7 +572,7 @@ describe("live: the overlay opens from Read more, follows the hash, and closes f
   }
   const dialog = (host: HTMLElement) => host.querySelector('[data-testid="card-overlay"]') as HTMLDialogElement | null;
 
-  test("Read more opens a modal dialog and puts the card in the hash; the Close control closes it and focus returns to Read more", async () => {
+  test("Open full view opens a modal dialog and puts the card in the hash; the Close control closes it and focus returns to Open full view", async () => {
     const { events } = built();
     const { host, find, settle, done } = await mount(events, studyPath(P, "ontology"));
     const more = await find('[data-testid="card-read-c-dose"]');
@@ -633,7 +633,7 @@ describe("live: the overlay opens from Read more, follows the hash, and closes f
     expect(dialog(host)).toBeNull();
     expect(host.querySelector('[data-testid="suggestion-c-dose"]')).toBeNull();
     expect(host.querySelector('[data-testid="concept-card-c-dose"]')).not.toBeNull();
-    // Focus follows the redraw to the accepted card's Read more (found in the Safari walk).
+    // Focus follows the redraw to the accepted card's Open full view (found in the Safari walk).
     await settle();
     expect(document.activeElement?.id).toBe(readMoreId({ kind: "concept", id: "c-dose" }));
     expect(host.querySelector('[data-testid="concept-card-c-dose"]')?.contains(document.activeElement)).toBe(true);
@@ -676,14 +676,14 @@ describe("the styles", () => {
 });
 
 describe("the Help (ISC-648)", () => {
-  test("the parts name Concepts, Relations and Statements to place once each, with suggestions first and Read more opening the card over the page", async () => {
+  test("the parts name Concepts, Relations and Statements to place once each, with suggestions first and Open full view opening the card over the page", async () => {
     const { PAGE_HELP } = await import("../src/ui/pageHelp.ts");
     const parts = PAGE_HELP.ontology.parts.map((p: { name: string }) => p.name);
     for (const gone of ["Suggested concepts", "Suggested relations", "Suggested statements"]) expect(parts).not.toContain(gone);
     for (const name of ["Concepts", "Relations", "Statements to place"]) expect(parts.filter((p: string) => p === name).length).toBe(1);
     const said = (name: string) => PAGE_HELP.ontology.parts.find((p: { name: string }) => p.name === name)!.says.join(" ");
     expect(said("Concepts")).toContain("Suggested");
-    expect(said("Concepts")).toContain("Read more");
+    expect(said("Concepts")).toContain("Open full view");
     expect(said("Concepts")).toMatch(/over the page/);
     expect(said("Concepts")).not.toMatch(/Show less|stays open for this session/);
     expect(said("Relations")).toContain("Suggested");

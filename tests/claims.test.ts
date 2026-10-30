@@ -50,7 +50,7 @@ const CLAIMS: readonly Claim[] = [
     // absence of a file, and it is still the branch that renders when there is
     // no twin, so it still promises a thing that does not exist yet.
     // ISC-596 (L13): named, not "See how".
-    says: "See the design an ordinary, by-the-book version of this project would have had",
+    says: "See the design of an ordinary, by-the-book version of this project, then compare your design",
     guardedBy: "twin === null",
     because:
       "It renders only when no twin is stored, so it offers to write one rather than describing one that already exists.",

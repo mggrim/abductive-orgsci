@@ -200,6 +200,44 @@ function normalizeProject(project: Project): Project {
   return { ...project, brief: normalizeBrief(project.brief) };
 }
 
+/** The methods declaration a file kind stands for, which the checks and the bias personas use. */
+export function dataTypeOfKind(kind: DocumentKind): DataType {
+  /* A chat note is an interview written up afterwards (the lead's ruling, M74b). */
+  return kind === "transcript" || kind === "chatnote" ? "interview" : kind === "archival" ? "archival" : "ethnographic";
+}
+
+/**
+ * The data type, from the kinds of the data files on Sources (M96, ISC-791).
+ *
+ * The owner, 2026-10-30, took the Data type menu off Early data, so the kind of
+ * data is what the researcher said when they added each file. With files of
+ * several kinds, the type that most of the data files stand for wins, and a tie
+ * goes to the earlier type in `DATA_TYPES`; `dataKind` is the most common file
+ * kind of that type. Undefined when the project holds no data file, and then
+ * the brief keeps whatever an older project saved from the menu.
+ */
+export function dataTypeOfFiles(
+  documents: readonly { readonly kind: DocumentKind }[],
+): { readonly dataType: DataType; readonly dataKind: DocumentKind } | undefined {
+  const files = documents.filter((d) => d.kind !== "literature");
+  if (files.length === 0) return undefined;
+  const byType = new Map<DataType, number>();
+  for (const f of files) byType.set(dataTypeOfKind(f.kind), (byType.get(dataTypeOfKind(f.kind)) ?? 0) + 1);
+  const dataType = [...DATA_TYPES].sort((a, b) => (byType.get(b) ?? 0) - (byType.get(a) ?? 0))[0] as DataType;
+  const kinds = new Map<DocumentKind, number>();
+  for (const f of files) if (dataTypeOfKind(f.kind) === dataType) kinds.set(f.kind, (kinds.get(f.kind) ?? 0) + 1);
+  const dataKind = [...kinds.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] as DocumentKind;
+  return { dataType, dataKind };
+}
+
+/** The project with its data type set from its data files, when it has any (ISC-791). */
+function withFileDataType(project: Project, documents: readonly StoredDocument[]): Project {
+  const derived = dataTypeOfFiles(documents);
+  if (derived === undefined) return project;
+  if (project.brief.dataType === derived.dataType && project.brief.dataKind === derived.dataKind) return project;
+  return { ...project, brief: { ...project.brief, dataType: derived.dataType, dataKind: derived.dataKind } };
+}
+
 /**
  * Which door a study came in through, when it did not start as a blank one.
  *
@@ -474,13 +512,19 @@ export async function declareEarlyData(
 }
 
 export async function getProject(id: string): Promise<Project | undefined> {
-  const found = await (await db()).get("projects", id);
-  return found === undefined ? undefined : normalizeProject(found);
+  const database = await db();
+  const found = await database.get("projects", id);
+  if (found === undefined) return undefined;
+  return withFileDataType(normalizeProject(found), await database.getAllFromIndex("documents", "byProject", id));
 }
 
 export async function listProjects(): Promise<readonly Project[]> {
-  const all = await (await db()).getAll("projects");
-  return all.map(normalizeProject).sort((a, b) => b.createdAt - a.createdAt);
+  const database = await db();
+  const all = await database.getAll("projects");
+  const documents = await database.getAll("documents");
+  return all
+    .map((p) => withFileDataType(normalizeProject(p), documents.filter((d) => d.projectId === p.id)))
+    .sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function saveDocument(doc: StoredDocument): Promise<void> {

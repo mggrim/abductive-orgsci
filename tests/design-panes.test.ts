@@ -151,8 +151,8 @@ describe("the divider is operable without a pointer", () => {
   });
 
   test("a key it does not answer to passes through to the app", () => {
-    // The keyboard model owns app shortcuts. A separator that swallowed every
-    // keystroke while focused would take the palette and the sheet with it.
+    // A separator that swallowed every keystroke while focused would take Tab
+    // and the page's own keys with it.
     const seen: number[] = [];
     mount(separator(0.5, (n) => seen.push(n)));
     press("k");
@@ -160,11 +160,10 @@ describe("the divider is operable without a pointer", () => {
     expect(seen).toEqual([]);
   });
 
-  test("arrow keys here are not an app shortcut, so they need no bindings row", () => {
+  test("arrow keys here are the separator's own, as the ARIA pattern has them", () => {
     // They act only on the focused control, which is what `role="separator"`
-    // promises and what keeps the four-effect rule intact.
-    const bindings = read("src/ui/keyboard/bindings.ts");
-    expect(bindings).not.toContain("pane-separator");
+    // promises. The app's shortcut table went at M96 (ISC-794), and the
+    // separator never read it.
     expect(code("src/ui/components/Separator.tsx")).not.toContain("bindings.ts");
   });
 });

@@ -33,7 +33,7 @@ function rendered(text: string): string {
 
 const CORPUS = rendered(await read("flow/CorpusMaterial.tsx"));
 const RAIL = rendered(await read("ui/placeLines.ts"));
-const EARLY = rendered(await read("flow/EarlyDataControls.tsx"));
+const EARLY = rendered(await read("flow/SuggestFromData.tsx"));
 const RECORD = rendered(await read("workbench/Instrumentation.tsx"));
 const HEADER = rendered(await read("views/exportHeader.ts"));
 const CENSUS = rendered(await read("ontology/attribution.ts"));
@@ -75,7 +75,7 @@ describe("M49-4: Design keeps no turn count", () => {
   });
 
   test("the Early data step says which material the reading takes, not how much", () => {
-    expect(EARLY).toContain("Abductive reads your data and leaves the papers alone.");
+    expect(EARLY).toContain("Abductive considers your data files and excludes the papers.");
     expect(EARLY).not.toContain("passage{data.length === 1");
   });
 });

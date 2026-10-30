@@ -62,7 +62,7 @@ describe("the walk's two readings", () => {
   });
 
   test("the sentence is the brief's", () => {
-    expect(EXPECTATION_UNSTATED).toBe("Your answers don't yet state the expectation; Abductive reads this contrast:");
+    expect(EXPECTATION_UNSTATED).toBe("Your answers don't yet state the expectation; Abductive suggests this contrast:");
   });
 });
 

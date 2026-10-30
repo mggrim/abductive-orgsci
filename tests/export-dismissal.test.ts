@@ -33,7 +33,7 @@ describe("the receipt on screen is bounded", () => {
 describe("the material surface neither blocks nor names what it cannot do", () => {
   const SURFACES = [
     "src/flow/CorpusMaterial.tsx",
-    "src/flow/EarlyDataControls.tsx",
+    "src/flow/SuggestFromData.tsx",
     "src/state/chunks.ts",
   ];
 
