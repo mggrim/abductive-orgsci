@@ -2,9 +2,9 @@
 
 **Designing Qualitative Research with AI: Making Expectations and Biases Explicit Before Fieldwork**
 
-Matthew G. Grimes (Cambridge Judge Business School, University of Cambridge) and Stine Grodal (D'Amore-McKim School of Business, Northeastern University)
+First author and second author (names withheld for review)
 
-Stage 1 submission, *Organization Science* special issue "AI-Enabled Frontiers in Organizational Science". Appendix version of 29 October 2026, describing the prototype as of commit `main` on that date.
+Stage 1 submission, *Organization Science* special issue "AI-Enabled Frontiers in Organizational Science". Appendix version of 30 October 2026, describing the prototype as of commit `main` on that date.
 
 Repository: https://github.com/mggrim/abductive-orgsci (MIT license)
 
@@ -12,7 +12,7 @@ Repository: https://github.com/mggrim/abductive-orgsci (MIT license)
 
 ## 1. Scope of this appendix
 
-In the proposal, we describe Abductive, a tool that helps a researcher design a qualitative study before fieldwork, and a study in which about twelve MPhil students use the tool. In this appendix, we give the detail that a reviewer needs to evaluate the prototype and the plan: the tool's construction and its routes to a model (section 2), the eight steps of the Qualitative Discovery Framework (section 3), the process by which Abductive proposes concepts and relationships and the researcher decides on them (section 4), the History ledger and its record of authorship (section 5), the design of the bias checks (section 6), our plan for developing and testing those checks (section 7), the study mode that we will build for the student study (section 8), draft study protocols (section 9), and reproducibility and known limitations (sections 10 and 11).
+In the proposal, we describe Abductive, a tool that helps a researcher design a qualitative study before fieldwork, and a study in which about twelve students in a master's program in management research use the tool. In this appendix, we give the detail to evaluate the prototype and the plan including the tool's construction and its routes to a model (section 2), the eight steps of the Qualitative Discovery Framework (section 3), the process by which Abductive proposes concepts and relationships and the researcher decides on them (section 4), the History ledger and its record of authorship (section 5), the design of the bias checks (section 6), our plan for developing and testing those checks (section 7), the study mode that we will build for the student study (section 8), draft study protocols (section 9), and reproducibility and known limitations (sections 10 and 11).
 
 In Table 1, we separate the components that exist today from the components that we plan to build, so that a reviewer can tell built work from planned work throughout the sections that follow.
 
@@ -138,9 +138,9 @@ A co-author asked whether authorship should be a two-by-two: human or AI, by the
 - **The proposer of an item.** When the researcher writes a concept, Abductive records the concept as the researcher's; when the tool suggests a concept, Abductive records the model role as the actor. For a suggestion that the model surfaced from the conversation, the tool also determines on **whose words** the suggestion draws (the researcher's, the tool's, or both) by reading the actors of the turns linked to the suggestion (`src/concepts/chat.ts`). Abductive keeps this judgment out of the model's hands, because a model is poorly placed to report its own sources accurately. Beside the suggestion, Abductive labels the result "From your words", "From Abductive's questions" or "From both".
 - **The source of an item.** Abductive records the source of a suggestion: a step's conversation, a step's saved answer, the researcher's data (named by passage), the papers, or the relate pass over accepted concepts. When the researcher accepts an item, Abductive also assigns the item an origin value: the researcher's own, from the data, from the papers (literature-derived), or proposed by the model.
 
-One property of the current design matters for the analysis. When the researcher accepts a model suggestion that drew on the researcher's uploaded data, the origin value reads "from the data", so the identity of the proposer appears on the suggestion event and is absent from the acceptance. We therefore compute the two-by-two by joining acceptances to the suggestion events that preceded them, and we report the result for one walk of record in Table 3.
+One property of the current design matters for the analysis. When the researcher accepts a model suggestion that drew on the researcher's uploaded data, the origin value reads "from the data", so the identity of the proposer appears on the suggestion event and is absent from the acceptance. We therefore compute the two-by-two by joining acceptances to the suggestion events that preceded them, and we report the result for one walkthrough of record in Table 3.
 
-**Table 3. Accepted items in the walk "Auditing judgement after automation", by source and by whose words**
+**Table 3. Accepted items in the walkthrough "Auditing judgement after automation", by source and by whose words**
 
 | Drew on | Researcher's words only | Both parties' words | AI tool's words only | Total |
 |---|---|---|---|---|
@@ -150,7 +150,7 @@ One property of the current design matters for the analysis. When the researcher
 | Papers | | | | 0 |
 | **Total accepted (23 concepts, 15 relationships)** | | | | **38** |
 
-The tool proposed all 38 items as suggestions, and the researcher wrote none of the 38 from scratch. Of the 30 items from the conversation, 26 drew on the researcher's words alone, and in the same walk the researcher refined 12 suggestions and rejected 6. The student study will trace this pattern (proposal §3), asking whether the tool's proposals reflect the researcher's own expectations or substitute the tool's expectations, and at which point the researcher closes on a puzzle.
+The tool proposed all 38 items as suggestions, and the researcher wrote none of the 38 from scratch. Of the 30 items from the conversation, 26 drew on the researcher's words alone, and in the same walkthrough the researcher refined 12 suggestions and rejected 6. The student study will trace this pattern (proposal §3), asking whether the tool's proposals reflect the researcher's own expectations or substitute the tool's expectations, and at which point the researcher closes on a puzzle.
 
 ### 5.5 Design stamp
 
@@ -158,7 +158,7 @@ Abductive adds a design stamp to all written exports: an FNV-1a digest of the ev
 
 ### 5.6 Exports and import
 
-A researcher can download a report (markdown), the concept map (SVG), the ontology (JSON, with the provenance of its elements), the full ledger (JSON), a session replay (markdown, the conversation with speakers and models named), a bundle (the project with its documents, passages and full ledger), and a folder of linked markdown notes. A researcher can import a bundle into any copy of Abductive, and on import Abductive re-validates all events and remaps ids so that a re-import avoids collisions. The walk of record in `examples/` is a bundle.
+A researcher can download a report (markdown), the concept map (SVG), the ontology (JSON, with the provenance of its elements), the full ledger (JSON), a session replay (markdown, the conversation with speakers and models named), a bundle (the project with its documents, passages and full ledger), and a folder of linked markdown notes. A researcher can import a bundle into any copy of Abductive, and on import Abductive re-validates all events and remaps ids so that a re-import avoids collisions. The walkthrough of record in `examples/` is a bundle.
 
 ---
 
@@ -198,7 +198,7 @@ The code already contains the matrix, the bias definitions and the ledger's even
 ## 7. Developing and testing the bias checks (November 2026 to January 2027)
 
 1. **Definitions.** For the nine biases in turn, we write a definition, the sources that describe the bias, the steps at which the bias is most likely to arise and the signs in text that would indicate it, starting from the bias's "tell" in `src/matrix/glossary.ts`.
-2. **Test passages.** We assemble passages from three sources: walks of record, published methods appendices, and borderline cases that we write so that the set includes near-misses for all nine biases.
+2. **Test passages.** We assemble passages from three sources: walkthroughs of record, published methods appendices, and borderline cases that we write so that the set includes near-misses for all nine biases.
 3. **Blind coding.** Working independently and blind to the checks' output, both authors code all passages for all nine biases and then reconcile their coding, and the reconciled coding becomes the baseline.
 4. **Checker comparison.** We run the checks twice over the passages, once on the model that produced the conversation text and once on a reasoning model from a different provider. For a given bias and checker, we record the checker's flags and misses against the baseline.
 5. **Decision rule.** Before running the checks, we fix in writing the level of agreement that a check must reach before we use the check as a measure in the study. A check that falls short remains in the tool as a prompt to the researcher, and we exclude that check from the study's measures. Because agreement with human coders is a weak proxy for quality (Liu et al. 2026), we also read the diaries and interviews for biases that the checks missed.
@@ -212,9 +212,7 @@ For the student study, all participants must work with the same models. In study
 
 ---
 
-## 9. Study protocols
-
-*Draft for Grimes and Grodal to revise. We will submit the final protocols with the ethics application in November 2026.*
+## 9. Study protocol draft
 
 ### 9.1 Before first use: one-page design
 
@@ -228,7 +226,7 @@ Before first using Abductive, students write one page that states:
 
 We use the same five headings for the final proposal comparison (§9.6), so that we have a before-and-after pair for every student.
 
-### 9.2 Start-of-period interview (Grodal, about 45 minutes)
+### 9.2 Start-of-period interview
 
 1. How did you arrive at your current topic?
 2. What first prompted the question: reading, experience, a conversation, or another source?
@@ -241,7 +239,7 @@ We use the same five headings for the final proposal comparison (§9.6), so that
 9. What do you hope a tool like Abductive will help you achieve, and which aspects of such a tool make you wary?
 10. Who else is helping you shape the project, and how?
 
-### 9.3 End-of-period interview (Grodal, about 60 minutes)
+### 9.3 End-of-period interview
 
 The interviewer has in front of them the student's one-page design, the student's diary entries and a summary of the student's ledger (the point at which the puzzle settled, and the numbers of items that the student accepted, refined and rejected, by whose words).
 
@@ -270,7 +268,7 @@ We keep the diary short to limit reactivity, and we compare early and late entri
 
 ### 9.5 Ledger data
 
-With consent, students export their Abductive bundles at three points: after the first month, at the midpoint, and when the topic settles in March. Students send the bundles to Grodal, who holds identifiable data, and Grimes works only with pseudonymized bundles, transcripts and diaries until marks are confirmed. From the bundles, we read the sequence of events (Langley 1999; Pentland et al. 2020). We record the first statement of the puzzle, later changes to the puzzle, the moment at which the researcher accepted a puzzle reading, and, for concepts, relationships and statements, the words on which the item drew, the item's source, and the researcher's decision to accept, refine or reject the item.
+With consent, students export their Abductive bundles at three points: after the first month, at the midpoint, and when the topic settles in March. Students send the bundles to the second author, who holds identifiable data, and the first author works only with pseudonymized bundles, transcripts and diaries until marks are confirmed. From the bundles, we read the sequence of events (Langley 1999; Pentland et al. 2020). We record the first statement of the puzzle, later changes to the puzzle, the moment at which the researcher accepted a puzzle reading, and, for concepts, relationships and statements, the words on which the item drew, the item's source, and the researcher's decision to accept, refine or reject the item.
 
 ### 9.6 Coding the designs and proposals
 
@@ -287,14 +285,14 @@ We measure semantic distinctness across the proposals within a cohort (Anderson 
 
 ### 9.7 Ethics and data handling
 
-Because Grimes directs the program, a third party takes consent, and we keep participation separate from assessment. Grimes sees identifiable data from current students only after their marks are confirmed. Students may withdraw at any point before analysis without effect on their studies. Bundles contain the students' own text and any material that the students upload, so we tell students to upload only material that they are permitted to share, and Abductive repeats that instruction in its interface.
+Because the first author directs the program, a third party takes consent, and we keep participation separate from assessment. The first author sees identifiable data from current students only after their marks are confirmed. Students may withdraw at any point before analysis without effect on their studies. Bundles contain the students' own text and any material that the students upload, so we tell students to upload only material that they are permitted to share, and Abductive repeats that instruction in its interface.
 
 ---
 
 ## 10. Reproducibility
 
 - **Code.** This repository contains the full prototype and its tests under the MIT license.
-- **Walk of record.** `examples/auditing-judgement.bundle.json` is a complete, synthetic project with its full event history, and `examples/auditing-judgement.report.md` is the report that Abductive exported from it. A reader can import the project into any copy of the tool and read it without connecting a model. In the walk, an AI agent played the researcher, writing the researcher's replies and fictional data files, while Abductive answered as itself through Claude Code (`claude-sonnet-5-5`), so the project contains synthetic material only.
+- **Walkthrough of record.** `examples/auditing-judgement.bundle.json` is a complete, synthetic project with its full event history, and `examples/auditing-judgement.report.md` is the report that Abductive exported from it. A reader can import the project into any copy of the tool and read it without connecting a model. In the walkthrough, an AI agent played the researcher, writing the researcher's replies and fictional data files, while Abductive answered as itself through Claude Code (`claude-sonnet-5-5`), so the project contains synthetic material only.
 - **Frozen checks.** Before the study begins, we will commit to this repository the prompts, rules, thresholds and model versions that we fix in §7 step 6.
 - **Study record.** Because students' own text must stay private, we will release, with consent, the de-identified event record for each student (event types, actors, timing, the words on which the items drew, the decisions made and the checks that fired), stripped of the text itself, together with the code that produces the tables in the eventual article.
 - **Running the tool.** A reviewer can run Abductive locally, without an account with us, using their own API key, a Claude or ChatGPT subscription, or a local model (README).
