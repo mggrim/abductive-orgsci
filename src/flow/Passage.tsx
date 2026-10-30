@@ -92,9 +92,9 @@ export function Passage(props: {
       {...(startOpen === true ? { open: true } : {})}
     >
       <summary
-        aria-label={passageRowLabel(chunk.index, firstLine(chunk.text), { opened, cited })}
+        aria-label={passageRowLabel(chunk.index + 1, firstLine(chunk.text), { opened, cited })}
       >
-        <span className="chunk-index">#{chunk.index}</span>
+        <span className="chunk-index">#{chunk.index + 1}</span>
         <span className="chunk-preview">{firstLine(chunk.text)}</span>
         {/* Both states carry their word. The left edge repeats "opened" as a hue
             so the list can be scanned down rather than read across, and no state

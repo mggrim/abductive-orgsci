@@ -64,6 +64,7 @@ import { ConceptsView } from "./ConceptsView.tsx";
 // and Search opens from its button.
 import { installRoving } from "./roving.ts";
 import { StudySearch } from "./StudySearch.tsx";
+import { CitationProvider } from "./CitedText.tsx";
 import { MAIN_LANDMARK_ID, focusMainLandmark } from "./landmarks.ts";
 import {
   LITERATURE_SECTION_ID,
@@ -314,6 +315,8 @@ export function AppShell() {
         onToggle={toggleRail}
       />
 
+      {/* M96b, ISC-796: the passages of the open project, so model text shows its codes as labels. */}
+      <StudyCitations projectId={route.view === "study" ? route.projectId : undefined}>
       <div className="shell-content">
         {/* Above everything in the content cell, on every route. See
             OfflineBanner for why. It sits inside the cell rather than across
@@ -390,8 +393,18 @@ export function AppShell() {
           )}
         </div>
       </div>
+      </StudyCitations>
 
     </div>
+  );
+}
+
+/** The citation labels for the open project, and none outside one (M96b). */
+function StudyCitations(props: { projectId: string | undefined; children: React.ReactNode }) {
+  return props.projectId === undefined ? <>{props.children}</> : (
+    <CitationProvider key={props.projectId} projectId={props.projectId}>
+      {props.children}
+    </CitationProvider>
   );
 }
 

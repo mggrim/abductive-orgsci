@@ -266,7 +266,7 @@ export async function extractProposals(
       : explanations.map((e) => `- ${e.title}`).join("\n"),
     "",
     "# Material",
-    ...chunks.map((c) => `[[chunk:${c.id}]] (${c.kind}, #${c.index})\n${c.text}`),
+    ...chunks.map((c) => `[[chunk:${c.id}]] (${c.kind}, #${c.index + 1})\n${c.text}`),
   ].join("\n");
 
   const result = await completeInVoice(client, {

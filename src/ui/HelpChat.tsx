@@ -28,6 +28,7 @@ import { voiceGateProvenance } from "../inference/voiceGate.ts";
 import { guidanceAnswerViolations } from "../interview/prompt.ts";
 import { activeInferenceClient } from "./personaRun.ts";
 import { motivationPath, navigate } from "./routes.ts";
+import { Cited } from "./CitedText.tsx";
 import { sendsOnKey } from "../workbench/Dialogue.tsx";
 import type { HelpPage } from "./pageHelp.ts";
 import { aboutSnapshot, aboutYouSummary, readAboutYou, type AboutYou } from "../help/aboutYou.ts";
@@ -288,7 +289,7 @@ export function HelpChat(props: {
   const streamingBubble = busy ? (
     <p className="help-chat-turn" data-who="abductive" aria-live="polite" data-testid="help-chat-streaming">
       <span className="help-chat-who">Abductive</span>
-      {streaming === "" ? "Abductive is writing…" : streaming}
+      {streaming === "" ? "Abductive is writing…" : <Cited text={streaming} />}
     </p>
   ) : null;
 
@@ -371,7 +372,7 @@ export function HelpChat(props: {
               {x.answer !== undefined ? (
                 <p className="help-chat-turn" data-who="abductive" data-testid="help-chat-answer">
                   <span className="help-chat-who">Abductive</span>
-                  {x.answer}
+                  <Cited text={x.answer} />
                 </p>
               ) : i === 0 ? (
                 streamingBubble

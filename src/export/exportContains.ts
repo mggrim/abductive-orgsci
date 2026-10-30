@@ -29,6 +29,7 @@
  * that starts filtering differently fails there rather than on screen.
  */
 
+import { passageLookup, withCitationLabels } from "../views/citations.ts";
 import { placedStatementCount, projectConcepts } from "../concepts/projection.ts";
 import type { LedgerEvent } from "../ledger/events.ts";
 import {
@@ -100,7 +101,9 @@ export function exportPlan(input: {
   const { project, graph, events, chunks, documents } = input;
   const now = input.now ?? (() => Date.now());
 
-  const wikiFiles = buildWikiFiles({ project, graph, events });
+  /* M96b, ISC-797: the notes carry passage labels, never raw passage codes. */
+  const passages = passageLookup(chunks, documents);
+  const wikiFiles = buildWikiFiles({ project, graph, events }).map((f) => ({ ...f, content: withCitationLabels(f.content, passages) }));
   const agentGraph = buildAgentGraph({ project, graph, events, chunks });
   const ledger = buildLedgerExport(project.id, events, now);
   const bundle = buildBundle({

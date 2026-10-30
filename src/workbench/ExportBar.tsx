@@ -62,6 +62,7 @@ import { conceptMapSvg } from "../export/conceptsExport.ts";
 import { writeWikiDirectory, WikiExportUnsupportedError } from "../export/wikiDirectory.ts";
 import { buildOntologyMemo } from "../export/ontologyMemo.ts";
 import { buildSessionReplay } from "../export/sessionReplay.ts";
+import { passageLookup, withCitationLabels } from "../views/citations.ts";
 import { serializeBundle } from "../export/bundle.ts";
 import { serializeLedgerExport } from "../export/ledgerJson.ts";
 import { designEvents, ledgerStamp } from "../export/stamp.ts";
@@ -356,7 +357,8 @@ export function ExportBar(props: {
   const exportMemo = () =>
     deliver(
       `${slug}-report.md`,
-      buildOntologyMemo({ project, graph, events, labels: { chunks, documents } }),
+      /* M96b, ISC-797: passage labels in place of passage codes. */
+      withCitationLabels(buildOntologyMemo({ project, graph, events, labels: { chunks, documents } }), passageLookup(chunks, documents)),
       "text/markdown",
       "Report exported.",
     );
@@ -426,7 +428,7 @@ export function ExportBar(props: {
   const exportReplay = () =>
     deliver(
       `${slug}-replay.md`,
-      buildSessionReplay({ project, events }),
+      withCitationLabels(buildSessionReplay({ project, events }), passageLookup(chunks, documents)),
       "text/markdown",
       // The number the row prints, said again on the way out. Both are
       // `replayDialogue`, which is what the file counts in its first line.

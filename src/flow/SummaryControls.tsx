@@ -14,6 +14,7 @@
  * answered and starts the concept pass).
  */
 
+import { Cited } from "../ui/CitedText.tsx";
 import type { ReactNode } from "react";
 
 export const EDIT_SUMMARY_LABEL = "Edit summary";
@@ -41,7 +42,7 @@ export function SummaryText(props: {
       data-drafted={props.drafted === true ? "true" : undefined}
       {...(props.id === undefined ? {} : { id: props.id })}
     >
-      {empty ? SUMMARY_STILL_TO_COME : props.text}
+      {empty ? SUMMARY_STILL_TO_COME : <Cited text={props.text} />}
     </p>
   );
 }

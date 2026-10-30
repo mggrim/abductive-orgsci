@@ -190,7 +190,7 @@ export function puzzleSources(input: PuzzleReadingInput): PuzzleSourcesView {
   for (const chunk of selected) {
     sources.push({ kind: "passage", chunkId: chunk.id });
     blocks.push({
-      label: `${names.get(chunk.documentId) ?? chunk.documentId}, passage ${chunk.index}`,
+      label: `${names.get(chunk.documentId) ?? chunk.documentId}, passage ${chunk.index + 1}`,
       text: chunk.text,
     });
   }

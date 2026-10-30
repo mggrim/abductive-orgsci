@@ -61,6 +61,7 @@ import { streamOrComplete } from "../inference/types.ts";
 import { activeInferenceClient } from "../ui/personaRun.ts";
 import { dataChunkCount, type Chunk, type StoredDocument } from "../state/chunks.ts";
 import { earlyDataScope } from "../flow/earlyData.ts";
+import { Cited } from "../ui/CitedText.tsx";
 import type { OntologyGraph } from "../ontology/schema.ts";
 import { useLedger } from "../state/ledgerContext.tsx";
 import {
@@ -1007,7 +1008,9 @@ export function Dialogue(props: {
               <span />
             </span>
           ) : (
-            <p>{streaming}</p>
+            <p>
+              <Cited text={streaming} />
+            </p>
           )}
         </li>
       ),
@@ -1418,7 +1421,9 @@ export function Turn(props: { entry: TranscriptEntry; back?: ReactNode; tail?: b
         data-turn-kind={entry.kind}
         title={title}
       >
-        <p>{entry.kind === "redirection" && entry.label !== undefined ? `${entry.label} · ${body}` : body}</p>
+        <p>
+          <Cited text={entry.kind === "redirection" && entry.label !== undefined ? `${entry.label} · ${body}` : body} />
+        </p>
         {back}
       </li>
     );
@@ -1668,7 +1673,8 @@ export function settledSentences(shown: string, raw: string | undefined): readon
 
 /** The text with each settled sentence wrapped in the span that fades it in. */
 function withSettled(text: string, settled: readonly string[]): ReactNode {
-  if (settled.length === 0) return text;
+  /* M96b, ISC-796: every passage code in the text shows as its label. */
+  if (settled.length === 0) return <Cited text={text} />;
   const parts: ReactNode[] = [];
   let rest = text;
   for (let key = 0; ; key += 1) {
@@ -1682,15 +1688,15 @@ function withSettled(text: string, settled: readonly string[]): ReactNode {
       }
     }
     if (at < 0) break;
-    if (at > 0) parts.push(rest.slice(0, at));
+    if (at > 0) parts.push(<Cited key={`t${key}`} text={rest.slice(0, at)} />);
     parts.push(
       <span key={key} className="chat-settle" data-testid="voice-settled">
-        {found}
+        <Cited text={found} />
       </span>,
     );
     rest = rest.slice(at + found.length);
   }
-  if (rest !== "") parts.push(rest);
+  if (rest !== "") parts.push(<Cited key="rest" text={rest} />);
   return parts;
 }
 

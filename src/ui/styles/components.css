@@ -869,3 +869,13 @@ body.dock-resizing {
   cursor: row-resize;
 }
 
+
+/* M96b, ISC-796: a passage code in model text, shown as the file and passage it
+ * names. A link to the passage on Sources; a plain label when the file is gone. */
+.cite-label {
+  font-weight: 500;
+}
+.cite-label.cite-removed {
+  font-style: italic;
+  color: var(--ink-muted);
+}

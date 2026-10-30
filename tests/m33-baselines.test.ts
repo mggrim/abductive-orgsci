@@ -361,7 +361,7 @@ describe("the judge writes what the paper expects, on the call it already makes"
     const client = new MockInferenceClient({ responses: [ANSWER] });
     await judgePaperFit({ paper: PAPER, context: studyContext(HANDOFFS), client });
     const sent = client.requests[0]?.messages[0]?.content ?? "";
-    expect(sent).toContain("[[chunk:c1]] (#0)");
+    expect(sent).toContain("[[chunk:c1]] (#1)");
     expect(sent).toContain("a passage");
     // The study is still first: the first question asked is whether the paper
     // belongs to it, and a reader handed the paper first reads the paper first.

@@ -204,9 +204,9 @@ describe("what there is to read, and what it hashes to (ISC-508)", () => {
       "Context",
       "Site",
       "Early data",
-      "Ward nights, transcript one, passage 0",
       "Ward nights, transcript one, passage 1",
-      "Fieldnotes, week two, passage 0",
+      "Ward nights, transcript one, passage 2",
+      "Fieldnotes, week two, passage 1",
     ]);
   });
 

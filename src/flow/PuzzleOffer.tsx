@@ -17,6 +17,7 @@
  * and a second question on the record would open a question nobody asked for.
  */
 
+import { Cited } from "../ui/CitedText.tsx";
 import { useMemo, useState } from "react";
 import type { LedgerEvent, PuzzleReadingEvent } from "../ledger/events.ts";
 import { useLedger } from "../state/ledgerContext.tsx";
@@ -267,7 +268,7 @@ export function PuzzleOffer(props: {
       <div className="puzzle-offer" data-testid="puzzle-offer" data-state="saved">
         <p>Your puzzle, as you saved it:</p>
         <blockquote className="puzzle-offer-text" data-testid="puzzle-offer-text">
-          {saved.text}
+          <Cited text={saved.text} />
         </blockquote>
         <p className="small muted" data-testid="puzzle-offer-source" role="status">
           {saved.line}
@@ -289,7 +290,7 @@ export function PuzzleOffer(props: {
         <>
           {state.kind === "read" && <p>{PUZZLE_OFFER_LEAD}</p>}
           <blockquote className="puzzle-offer-text" data-testid="puzzle-offer-text">
-            {state.text}
+            <Cited text={state.text} />
           </blockquote>
           <p className="turn-asked">{PUZZLE_OFFER_QUESTION}</p>
           {state.kind === "read" && decisionCard}

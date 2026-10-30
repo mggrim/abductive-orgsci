@@ -23,6 +23,7 @@
  * `concepts/door.ts`, the one writer of a concept event.
  */
 
+import { Cited } from "./CitedText.tsx";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { dataOnly, type Chunk, type StoredDocument } from "../state/chunks.ts";
 import type { ConceptEvidence, ConceptRelation, LedgerEvent, RelationGround, StatementHome, StatementSuggestedEvent, WhyTarget } from "../ledger/events.ts";
@@ -412,7 +413,7 @@ function behindCounts(b: Behind): readonly (readonly [number, string, string])[]
 function ReadBox(props: { readonly label: string; readonly text: string; readonly answer?: boolean }) {
   return (
     <blockquote className={props.answer === true ? "passage-text answer-text" : "passage-text"} tabIndex={0} aria-label={props.label}>
-      {props.text}
+      <Cited text={props.text} />
     </blockquote>
   );
 }
@@ -556,7 +557,7 @@ function WhyBlock(props: {
   }
   return (
     <div className="why-line small" data-testid={testId}>
-      <span className="why-label">Why it matters</span> {line.text}{" "}
+      <span className="why-label">Why it matters</span> <Cited text={line.text} />{" "}
       {line.status === "suggested" ? (
         <>
           <SuggestedChip id={`why-${target.id}`} />{" "}
@@ -2856,7 +2857,7 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
       {accepted !== null && view.accepted.length > 0 && (decision !== "suggested" || accepted.argumentId !== view.argument?.id) && (
         <>
           <p className="argument-text" data-testid="argument-text">
-            {accepted.text}
+            <Cited text={accepted.text} />
           </p>
           <p className="concept-mark small muted" data-testid="argument-origin">
             {argumentOriginLabel(accepted.by)}
@@ -2875,7 +2876,7 @@ function ArgumentSoFar(props: { readonly view: ProjectOntologyView; readonly pan
             </label>
           ) : (
             <p className="argument-text" data-testid="argument-suggested-text">
-              {text}
+              <Cited text={text} />
             </p>
           )}
           {mode === "view" && (

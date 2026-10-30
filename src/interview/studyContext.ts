@@ -286,7 +286,7 @@ export function renderStudyContext(context: StudyContext): string {
     lines.push(
       "",
       "A sample of their own data, most-opened first. This is a sample, not the whole corpus:",
-      ...context.data.map((d) => `- ${d.document}, passage ${d.index}: ${d.text}`),
+      ...context.data.map((d) => `- ${d.document}, passage ${d.index + 1}: ${d.text}`),
     );
   }
   lines.push(

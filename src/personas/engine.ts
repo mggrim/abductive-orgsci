@@ -149,7 +149,7 @@ export function assembleUserMessage(params: {
       : chunks
           .map(
             (chunk) =>
-              `[chunk:${chunk.id}] (${chunk.kind}, #${chunk.index})\n${chunk.text}`,
+              `[chunk:${chunk.id}] (${chunk.kind}, #${chunk.index + 1})\n${chunk.text}`,
           )
           .join("\n\n");
 

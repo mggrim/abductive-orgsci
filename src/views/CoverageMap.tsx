@@ -122,7 +122,7 @@ export function CoverageMap(props: {
                 className={cellClass(chunk.layers, chunk.unattended)}
                 data-chunk-id={chunk.chunkId}
                 title={
-                  `${passageAt(chunk.index)} (${chunk.chunkId.slice(0, 8)})\n` +
+                  `${passageAt(chunk.index + 1)} (${chunk.chunkId.slice(0, 8)})\n` +
                   /* M42. The tooltip printed the three layer ids and a
                      parenthesised "(proxy)": "retrieval: yes · citation: no ·
                      human (proxy): no". The ids are what the record stores and
@@ -139,7 +139,7 @@ export function CoverageMap(props: {
                     box and a three-digit one overflowed the cell beside it. A
                     corpus grid is read as a shape; the number is what a screen
                     reader and the title need, not what the eye needs. */}
-                <span className="visually-hidden">{chunk.index}</span>
+                <span className="visually-hidden">{chunk.index + 1}</span>
               </span>
             ))}
           </div>

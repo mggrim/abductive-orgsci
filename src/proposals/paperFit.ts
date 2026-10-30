@@ -256,7 +256,7 @@ export async function judgePaperFit(
            * inventing the passage it came from. */
           ...(chunks.length === 0
             ? []
-            : ["", "# Passages", ...chunks.map((c) => `[[chunk:${c.id}]] (#${c.index})\n${c.text}`)]),
+            : ["", "# Passages", ...chunks.map((c) => `[[chunk:${c.id}]] (#${c.index + 1})\n${c.text}`)]),
         ].join("\n"),
       },
     ],

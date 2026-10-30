@@ -18,6 +18,7 @@
  * like nothing rather than like the absence of something.
  */
 
+import { Cited } from "../ui/CitedText.tsx";
 import type { LedgerEvent } from "../ledger/events.ts";
 import { computeDivergence } from "./divergenceModel.ts";
 import { EmptyState } from "../ui/components/index.ts";
@@ -52,7 +53,7 @@ export function Divergence(props: { events: readonly LedgerEvent[] }) {
             {group.challenges.map((challenge) => (
               <p key={challenge.id} style={{ whiteSpace: "pre-wrap" }}>
                 <span className="pill">{personaName(challenge.actor)}</span>
-                {challenge.text}
+                <Cited text={challenge.text} />
               </p>
             ))}
           </div>
@@ -73,7 +74,7 @@ export function Divergence(props: { events: readonly LedgerEvent[] }) {
             {challenge.matrixCell !== undefined && (
               <span className="pill">{challenge.matrixCell}</span>
             )}
-            <p style={{ whiteSpace: "pre-wrap" }}>{challenge.text}</p>
+            <p style={{ whiteSpace: "pre-wrap" }}><Cited text={challenge.text} /></p>
             <p className="muted">
               Researcher rejected{reason !== undefined ? `: ${reason}` : " (without a reason)"}
             </p>
@@ -106,7 +107,7 @@ export function Divergence(props: { events: readonly LedgerEvent[] }) {
               {challenge.matrixCell !== undefined && (
                 <span className="pill">{challenge.matrixCell}</span>
               )}
-              <p style={{ whiteSpace: "pre-wrap" }}>{challenge.text}</p>
+              <p style={{ whiteSpace: "pre-wrap" }}><Cited text={challenge.text} /></p>
             </div>
           ))}
         </>

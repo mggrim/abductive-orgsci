@@ -58,7 +58,7 @@ The model returns plain text with marked lines, which Abductive parses defensive
 
 ### 2.4 Tests
 
-The repository has 275 test files with 3,596 tests (`bun test`), and the TypeScript compiler reports zero errors (`bun x tsc --noEmit`). The tests cover the ledger's validation rules, the bridge's refusals, the parsers, and the exports and their round trip through import, and the tests also check all rendered strings against the tool's writing standard (`docs/copy-standard.md`).
+The repository has 275 test files with 3,571 tests (`bun test`), and the TypeScript compiler reports zero errors (`bun x tsc --noEmit`). The tests cover the ledger's validation rules, the bridge's refusals, the parsers, and the exports and their round trip through import, and the tests also check all rendered strings against the tool's writing standard (`docs/copy-standard.md`).
 
 ---
 
@@ -129,7 +129,7 @@ For an API key, Abductive records as the version the model string that the provi
 
 ### 5.3 Attention
 
-Abductive records three layers of attention to the researcher's material (`AttentionEvent`). Abductive writes a **retrieval** event when it places a passage into a model's context, a **citation** event when a model cites a passage in its output, and a **human** event when the researcher opens a passage or keeps a passage open and in view for more than three seconds. The human layer is a proxy for reading, and the code documents that limit. Taken together, the three layers allow a reader of the record to see the material in view for the researcher and for the model, as well as the text that the two parties wrote.
+Abductive records three layers of attention to the researcher's material (`AttentionEvent`). Abductive writes a **retrieval** event when it places a passage into a model's context, a **citation** event when a model cites a passage in its output (the record keeps the passage's id, and the screen and the exports show the file name and passage number, linked to the passage on Sources), and a **human** event when the researcher opens a passage or keeps a passage open and in view for more than three seconds. The human layer is a proxy for reading, and the code documents that limit. Taken together, the three layers allow a reader of the record to see the material in view for the researcher and for the model, as well as the text that the two parties wrote.
 
 ### 5.4 Authorship: proposer and source
 
